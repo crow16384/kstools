@@ -1,0 +1,42 @@
+Package: kstools
+Type: Package
+Title: Clinical and Data Science Utilities
+Version: 0.1.0
+Author: Vladimir Larchenko <vladimir.larchenko@keystatsolutions.com>
+Maintainer: Vladimir Larchenko <vladimir.larchenko@keystatsolutions.com>
+Authors@R: c(
+    person(
+      "Vladimir", "Larchenko",
+      email = "vladimir.larchenko@keystatsolutions.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Utility functions for clinical trials and data science:
+    descriptive statistics (summaries, quartiles, median CI, geometric mean),
+    SDTM/ADaM helpers (date conversion, supplemental merge, XPT batch load),
+    table builders (AE summary, medical history), batch data loading,
+    and small helpers (trim, z-score, CV, lag, SWOE, AUC, EAIR).
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    boot,
+    dplyr,
+    MASS,
+    methods,
+    nlme,
+    parallel,
+    purrr,
+    rlang,
+    rootSolve,
+    stringr,
+    tibble,
+    tidyr
+Suggests:
+    arrow,
+    foreign,
+    haven,
+    openxlsx,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.3

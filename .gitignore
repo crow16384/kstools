@@ -1,0 +1,14 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# R CMD check / build
+.Rcheck/
+*.Rcheck/
+kstools.Rcheck/
+..Rcheck/
+
+# OS / editor
+.DS_Store
+._*
