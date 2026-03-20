@@ -3,6 +3,9 @@
 .RData
 .Ruserdata
 
+# R session plots
+Rplots.pdf
+
 # R CMD check / build
 .Rcheck/
 *.Rcheck/

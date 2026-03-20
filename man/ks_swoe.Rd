@@ -2,38 +2,64 @@
 % Please edit documentation in R/swoe.r
 \name{ks_swoe}
 \alias{ks_swoe}
-\title{Smoothed Weight of Evidence for factors}
+\title{Smoothed weight of evidence (SWOE) for categorical predictors}
 \usage{
-ks_swoe(data, par, resp, quoted = FALSE)
+ks_swoe(data, par, resp, quoted = FALSE, prior.n = 24)
 }
 \arguments{
-\item{data}{Source data.frame}
+\item{data}{A \code{data.frame} (or \code{tibble}).}
 
-\item{par}{Parameter to process relative to the response}
+\item{par}{Name of the predictor column (factor or coercible to grouping
+variable).  With \code{quoted = FALSE}, pass the column name unquoted
+(\code{ks_swoe(dt, sex, yn)}).}
 
-\item{resp}{Response variable}
+\item{resp}{Name of the binary response column (0/1 or logical).  Unquoted
+unless \code{quoted = TRUE}.}
 
-\item{quoted}{Are names quoted or not. Default = FALSE}
+\item{quoted}{If \code{FALSE} (default), \code{par} and \code{resp} are
+captured with \code{substitute} and converted to column names.  If
+\code{TRUE}, \code{par} and \code{resp} must be character strings.}
+
+\item{prior.n}{Pseudo-count (prior strength) for the empirical-Bayes-style
+smoothing in the logit; the original implementation used \code{24}.}
+}
+\value{
+A numeric vector of length \code{nrow(data)} (unnamed), giving the
+  SWOE score for each row's level of \code{par}.
 }
 \description{
-Calculate Smoothed Weight of Evidence for factors (SWOE).
-Useful for Logistic regression.
+Encodes each level of a categorical variable with a smoothed log-odds of the
+response, relative to the overall response rate.  Useful as a numeric
+replacement for a factor when screening logistic-type models.
 }
 \details{
-During a logistic model building sometimes useful to convert factors
-into continuous variable for the model selection. SWOE is one simple way
-to do this for factor relative to the response.
+Let \eqn{\rho} be the overall mean of the response and, for each level
+\eqn{k} of \code{par}, let \eqn{e_k} be the number of events (response = 1)
+and \eqn{n_k} the number of non-missing responses.  The smoothed logit for
+level \eqn{k} is
+\deqn{\log \frac{e_k + \rho \cdot m}{n_k - e_k + (1-\rho)\cdot m}}
+with \eqn{m = }\code{prior.n}.  A global logit \eqn{\log(\rho/(1-\rho))} is
+appended internally for completeness; row values are taken by matching each
+row's \code{par} level to the named level logits.
+
+If \eqn{\rho \in \{0,1\}}, the global logit is undefined; the function clamps
+\eqn{\rho} to \eqn{(\varepsilon, 1-\varepsilon)} for that term only, with a
+warning.
 }
 \examples{
 set.seed(1234)
-dt <- data.frame(yn = rbinom(50,1,0.3), 
-                 sex = factor(rbinom(50,1,0.55),
-                              levels = c(0,1), labels = c("F","M")))
-SWOE(data=dt, par=sex, resp=yn)
-## [1] -1.516347 -1.516347 -1.199417 -1.516347 -1.516347 -1.516347 -1.516347
-## ...
-## ...
-## [50] -1.199417
-
-ks_swoe(data=dt, par="sex", resp="yn", quoted = T)
+dt <- data.frame(
+  yn  = rbinom(50, 1, 0.3),
+  sex = factor(rbinom(50, 1, 0.55), levels = c(0, 1), labels = c("F", "M"))
+)
+ks_swoe(dt, sex, yn)
+ks_swoe(dt, par = "sex", resp = "yn", quoted = TRUE)
+}
+\references{
+The construction follows common “weight of evidence” encodings with
+Dirichlet-style smoothing; the choice \code{prior.n = 24} matches the
+historical default in this package.
+}
+\seealso{
+\code{\link[stats]{glm}} for logistic regression
 }

@@ -2,19 +2,40 @@
 % Please edit documentation in R/swap_cols.r
 \name{ks_swap_cols}
 \alias{ks_swap_cols}
-\title{Swap columns in a data frame}
+\title{Swap pairs of columns in a data frame}
 \usage{
 ks_swap_cols(df, ...)
 }
 \arguments{
-\item{df}{A data frame.}
+\item{df}{A \code{data.frame}, \code{tibble}, or other object inheriting
+from \code{data.frame}.}
 
-\item{...}{Named pairs of the form \code{lhs = rhs} (bare column names); columns \code{lhs} and \code{rhs} are swapped.}
+\item{...}{Named pairs \code{col_a = col_b} (bare names only).  Each name
+that appears on the left or right must be a column of \code{df}, and each
+column may appear at most once across all pairs (no overlapping swaps).}
 }
 \value{
-The data frame with the specified columns swapped.
+\code{df} with the specified column pairs exchanged (same class as
+  the input where possible).
 }
 \description{
-Swap pairs of columns by name. Use named arguments: \code{new_a = old_a, new_b = old_b}.
-Each name can appear only once across all pairs.
+Exchanges column contents by name: for each named argument \code{lhs = rhs},
+the column named \code{lhs} receives the values that were in \code{rhs},
+and \code{rhs} receives the values that were in \code{lhs}.  Multiple
+independent pairs can be given in one call.
+}
+\details{
+The syntax \code{USUBJID = SUBJID} swaps the two columns: after the call,
+the column still named \code{USUBJID} holds the former \code{SUBJID} values
+and vice versa.  This is useful when harmonising SDTM-style identifiers or
+fixing column order after merges.
+
+With zero pairs in \code{...}, \code{df} is returned unchanged.
+}
+\examples{
+d <- data.frame(SUBJID = c("001", "002"), USUBJID = c("01-001", "01-002"))
+ks_swap_cols(d, USUBJID = SUBJID)
+}
+\seealso{
+\code{\link{ks_aligndec}}
 }

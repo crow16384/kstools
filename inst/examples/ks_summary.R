@@ -1,9 +1,9 @@
 ## ============================================================
 ## ks_summary() — descriptive statistics for continuous variables
 ## ============================================================
-## Columns returned: n, mean, sd, cv, median, q1, q3, min, max
+## Columns returned: n, mean, sd, median, q1, q3, min, max, [extras], cv
 ## Grouping variables go in `...` (before any named arguments).
-## na.rm and p.change are keyword-only: always name them.
+## na.rm, p.change, and extras are keyword-only: always name them.
 ##
 ## Q1/Q3 default to quantile type 2 (SAS-compatible).
 ## Override globally: options(kstools.quantile.type = 7L)
@@ -117,3 +117,28 @@ adlb |>
   ks_summary(aval, trt) |>
   mutate(across(where(is.numeric), \(x) round(x, 2))) |>
   print()
+
+## ------------------------------------------------------------------
+## 8. Custom extra statistics via `extras`
+##    Pass a named list of functions.  Each receives (x, na.rm).
+##    Column names come from the list names.
+## ------------------------------------------------------------------
+cat("\n\n=== 8. extras: MAD, SEM, and IQR ===\n\n")
+
+print(ks_summary(adlb, aval, trt,
+  extras = list(
+    mad = stats::mad,
+    sem = function(x, na.rm) sd(x, na.rm = na.rm) / sqrt(sum(!is.na(x))),
+    iqr = IQR
+  )
+))
+
+## ------------------------------------------------------------------
+## 9. extras combined with p.change
+## ------------------------------------------------------------------
+cat("\n\n=== 9. extras + p.change ===\n\n")
+
+print(ks_summary(adlb, chg, trt, visit,
+  p.change = TRUE,
+  extras = list(iqr = IQR)
+))

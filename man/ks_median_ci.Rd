@@ -2,7 +2,7 @@
 % Please edit documentation in R/median_ci.r
 \name{ks_median_ci}
 \alias{ks_median_ci}
-\title{Confidence interval for median}
+\title{Confidence interval for the median}
 \usage{
 ks_median_ci(
   x,
@@ -11,37 +11,83 @@ ks_median_ci(
   method = c("boot", "olive", "z"),
   R = 10000L,
   seed = 0L,
-  type = 2
+  type = 2L
 )
 }
 \arguments{
-\item{x}{Numeric vector}
+\item{x}{Numeric vector.}
 
-\item{na.rm}{Ignoring NA flag (logical)}
+\item{na.rm}{Logical. If \code{TRUE}, \code{NA}s are removed before
+computing (default \code{TRUE}).}
 
-\item{alpha}{Alpha level}
+\item{alpha}{Significance level; the interval has nominal coverage
+\eqn{1 - \alpha}. Must be in \eqn{(0, 1)}.}
 
-\item{method}{CI method. Allowed "boot" or "olive" or "z"}
+\item{method}{Character: \code{"boot"} (default), \code{"olive"}, or
+\code{"z"}. See \strong{Details}.}
 
-\item{R}{Number of repetitions for bootstrap (if "boot")}
+\item{R}{Number of bootstrap replicates when \code{method = "boot"}.}
 
-\item{seed}{Seed number for bootstrap (if "boot")}
+\item{seed}{Integer passed to \code{\link[base]{set.seed}} immediately
+before bootstrap resampling (for reproducibility). The default \code{0L}
+fixes the RNG state; use another integer for a different stream.}
 
-\item{type}{Quantile algorithm (SAS = 2, R default = 7). Valid for "z" method only}
+\item{type}{Integer \code{1}--\code{9}: quantile definition for the
+reported median when \code{method = "z"} (passed to
+\code{\link[stats]{quantile}}). Default \code{2} matches SAS \code{PROC
+UNIVARIATE} / Hyndman \& Fan type 2.}
+}
+\value{
+A named numeric vector. The first element is always \code{Median}.
+  Remaining elements depend on \code{method}:
+  \describe{
+    \item{\code{boot}}{\code{Basic.LCI}, \code{Basic.UCI}, \code{Normal.LCI},
+      \code{Normal.UCI}, \code{Percent.LCI}, \code{Percent.UCI},
+      \code{BCa.LCI}, \code{BCa.UCI} (BCa may be \code{NA} in small samples).}
+    \item{\code{olive}}{\code{Olive.LCI}, \code{Olive.UCI}.}
+    \item{\code{z}}{\code{z.LCI}, \code{z.UCI} (limits are order statistics
+      of the sorted data).}
+  }
 }
 \description{
-Calculate median and different kind of confidence intervals.
-Possible methods - bootstrap which produces Basic, Normal, Percentile and BCa
-intervals. Another method is David Olive's simple median.
+Computes the sample median and a confidence interval using one of three
+approaches: bootstrap (\pkg{boot}), Olive's simple median interval, or a
+normal approximation based on the binomial distribution of ranks (the
+\code{"z"} method).
+}
+\details{
+\describe{
+  \item{\code{boot}}{Uses \code{\link[boot]{boot}} with the sample median as
+    the statistic and \code{\link[boot]{boot.ci}} to produce Basic, Normal,
+    percentile, and BCa intervals (when BCa is defined).}
+  \item{\code{olive}}{Implements David Olive's simple median CI (order
+    statistics with a \eqn{t}-based multiplier). Requires at least two
+    non-missing observations.}
+  \item{\code{z}}{Approximate CI from the normal approximation to the
+    binomial number of observations below the population median: bounds are
+    the order statistics with ranks \eqn{n/2 \pm z_{1-\alpha/2}\sqrt{n}/2}
+    (rounded inward). The reported \code{Median} uses \code{quantile(...,
+    type)}.}
+}
 }
 \examples{
-x <- rnorm(100, 56,2.5)
-MedianCI(x, method="olive")
+x <- rnorm(100, 56, 2.5)
+ks_median_ci(x, method = "olive")
 
 vv <- c(8, 11, 12, 13, 15, 17, 19, 20, 21, 21, 22, 23, 25, 26, 28)
-MedianCI(vv,method = "boot")
-MedianCI(vv,method = "olive")
-MedianCI(vv,method = "olive",alpha=0.1)
-MedianCI(vv,method = "z")
-ks_median_ci(vv,method = "z", alpha=0.1)
+ks_median_ci(vv, method = "boot", R = 1000, seed = 1L)
+ks_median_ci(vv, method = "olive")
+ks_median_ci(vv, method = "olive", alpha = 0.1)
+ks_median_ci(vv, method = "z")
+ks_median_ci(vv, method = "z", alpha = 0.1)
+}
+\references{
+Olive, D. J. (2005). \emph{Applied robust statistics}. Preprint.
+(median CI procedure.)
+
+Davison, A. C. and Hinkley, D. V. (1997). \emph{Bootstrap Methods and Their
+Applications}. Cambridge University Press.
+}
+\seealso{
+\code{\link[stats]{median}}, \code{\link[stats]{quantile}}
 }

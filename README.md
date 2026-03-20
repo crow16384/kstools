@@ -4,6 +4,8 @@
 
 Clinical and data science utilities for R.
 
+**Version:** 0.2.0 (see [`NEWS.md`](NEWS.md) for changes.)
+
 **Repository:** [github.com/crow16384/kstools](https://github.com/crow16384/kstools)
 
 ## Installation
@@ -26,7 +28,7 @@ remotes::install_github("crow16384/kstools")
 
 | Function | Description |
 |----------|-------------|
-| `ks_summary()` | Grouped summary: `n`, mean (SD), median, Q1;Q3, min;max; optional paired p-value |
+| `ks_summary()` | Grouped summary: `n`, mean (SD), median, Q1;Q3, min;max, CV; optional `extras` (named list of functions); optional paired p-value |
 | `ks_median_ci()` | Median with confidence interval (bootstrap, Olive, or z) |
 | `ks_geom_mean()` | Geometric mean and confidence interval |
 | `ks_q1()`, `ks_q3()` | 25th and 75th percentiles (SAS type=2 by default) |
@@ -51,9 +53,6 @@ remotes::install_github("crow16384/kstools")
 | Function | Description |
 |----------|-------------|
 | `ks_desc_coded()` | Descriptive table for coded / factor variables |
-| `ks_med_hist()` | Medical history descriptive table |
-| `ks_prev_therapy()` | Previous therapy table wrapper |
-| `ks_concom_therapy()` | Concomitant therapy table wrapper |
 
 ### Data loading
 
@@ -70,7 +69,6 @@ remotes::install_github("crow16384/kstools")
 | `ks_swap_cols()` | Swap pairs of columns by name |
 | `ks_del_tmp()` | Remove temporary objects (`t.*`, `o.*`) from global env |
 | `ks_aligndec()` | Align strings by decimal / first space |
-| `ks_trim()` | Trim leading/trailing whitespace |
 | `ks_sum_na()` | Sum ignoring NA |
 | `ks_auc()` | Area under curve (trapezoidal or log-trapezoidal) |
 | `ks_swoe()` | Smoothed weight of evidence for factors |
@@ -79,6 +77,8 @@ remotes::install_github("crow16384/kstools")
 | `ks_eairdiff_strata_mn()` | Stratified version |
 | `ks_newcombe_hs()` | Newcombe hybrid score CI for difference of proportions |
 | `ks_newcombe_hs_strata()` | Stratified version |
+
+Use base R [`trimws()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/trimws.html) for leading/trailing whitespace on character vectors (tidyr has no separate trim helper; `stringr::str_trim` is equivalent).
 
 ## Dependencies
 

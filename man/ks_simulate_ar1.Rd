@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_ar1.r
 \name{ks_simulate_ar1}
 \alias{ks_simulate_ar1}
-\title{Simulate AR(1) data}
+\title{Simulate longitudinal data with AR(1) within-subject errors}
 \usage{
 ks_simulate_ar1(
   n,
@@ -13,50 +13,65 @@ ks_simulate_ar1(
   tau0,
   tau1,
   tau01 = 0.3,
-  m
+  m,
+  seed = NULL
 )
 }
 \arguments{
-\item{n}{Number of subjects}
+\item{n}{Number of subjects (\eqn{\ge 1}).}
 
-\item{beta0}{Average intercept}
+\item{beta0}{Population mean intercept (fixed effect on the log-time scale).}
 
-\item{beta1}{Average slope}
+\item{beta1}{Population mean slope (coefficient of \eqn{\log(\mathrm{obs})}).}
 
-\item{ar.val}{True autocorrelation. Default = 0.4}
+\item{ar.val}{Autoregressive coefficient \eqn{\phi} for the within-subject
+errors (must lie strictly between \eqn{-1} and \eqn{1}).}
 
-\item{sigma}{True error SD}
+\item{sigma}{Marginal standard deviation of the AR(1) error (after the
+scaling described in \strong{Details}).}
 
-\item{tau0}{True intercept SD}
+\item{tau0, tau1}{Standard deviations of random intercept and random slope.}
 
-\item{tau1}{True slope SD}
+\item{tau01}{Correlation between random intercept and slope (in \eqn{[-1,1]}).}
 
-\item{tau01}{Intercept-slope correlation. Default=0.3}
+\item{m}{Maximum possible number of visits per subject (must be \eqn{\ge 4}).
+Each subject receives between 4 and \code{m} observations, always including
+time \code{obs = 1}.}
 
-\item{m}{Maximal number of time observations per subject}
+\item{seed}{Optional integer; if not \code{NULL}, passed to
+\code{\link[base]{set.seed}} before random draws (reproducibility).}
+}
+\value{
+An \code{\link[nlme]{groupedData}} object (also inherits from
+  \code{data.frame}) with columns \code{id}, \code{obs}, and \code{y}.
 }
 \description{
-Simulate AR(1) data. Useful for developing methodology of analysis,
-producing graphic examples for SAP etc.
+Generates a random sample of subjects with random intercepts and slopes,
+irregular observation times, and Gaussian AR(1) serially correlated residuals.
+The result is an \code{\link[nlme]{groupedData}} object suitable for
+exploratory plots or simulation studies.
 }
 \details{
-Produces data.frame with simulated ARIMA(1) data for defined intercept, slope, correlation etc.
-\code{plot(data)} produces groupedData plot from \code{nlme} package.
-}
-\note{
-\code{arima.sim(model=list(ar=ar.val), n=x) * sqrt(1-ar.val^2) * sigma},
-so that the true error SD is equal to sigma
-}
-\section{Warnings}{
- This is an AR(1) model. Please don't mix it with other more difficult
-time series
-}
+Observation counts \eqn{p_i} are uniform on \eqn{\{4,\ldots,m\}} (rounded
+from continuous uniforms).  Observation times are \eqn{1} plus a random
+subset of \eqn{\{2,\ldots,m\}} of size \eqn{p_i-1}.
 
-\examples{
-dt <- SimulateAR1(n=10, beta0=5, beta1=4.56, ar.val=.4, sigma=3.4,
-tau0=2.45, tau1=1.13, tau01=.3, m=6)
-plot(dt)
+Random effects \eqn{(b_{0i}, b_{1i})'} are bivariate normal with mean zero,
+SDs \code{tau0}, \code{tau1} and correlation \code{tau01}.  Outcomes are
+\deqn{y_{ij} = (\beta_0 + b_{0i}) + (\beta_1 + b_{1i})\log(t_{ij}) + \varepsilon_{ij}}
+with \eqn{\varepsilon_{i\cdot}} an AR(1) Gaussian series.  Innovations are
+scaled so that the marginal residual SD is \code{sigma}:
+\code{arima.sim(...)} is multiplied by \eqn{\sigma\sqrt{1-\phi^2}}.
 }
-\author{
-Wolfgang (https://stats.stackexchange.com/users/1934/wolfgang)
+\examples{
+set.seed(1)
+dt <- ks_simulate_ar1(
+  n = 10, beta0 = 5, beta1 = 1, ar.val = 0.4, sigma = 2,
+  tau0 = 1, tau1 = 0.5, tau01 = 0.2, m = 8, seed = 1L
+)
+head(dt)
+}
+\seealso{
+\code{\link[stats]{arima.sim}}, \code{\link[MASS]{mvrnorm}},
+  \code{\link[nlme]{groupedData}}
 }

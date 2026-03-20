@@ -2,38 +2,64 @@
 % Please edit documentation in R/gmean.r
 \name{ks_geom_mean}
 \alias{ks_geom_mean}
-\title{Geometric mean}
+\title{Geometric mean and confidence interval}
 \usage{
 ks_geom_mean(x, na.rm = TRUE, zero.propagate = FALSE, alpha = 0.05)
 }
 \arguments{
-\item{x}{Numeric vector}
+\item{x}{Numeric vector (non-negative values; see \strong{Details}).}
 
-\item{na.rm}{Flag for ignoring NAs. Default = TRUE}
+\item{na.rm}{Logical. If \code{TRUE}, \code{NA}s are removed first.}
 
-\item{zero.propagate}{Propagate NAs with zeros. Default = FALSE}
+\item{zero.propagate}{Logical. If \code{TRUE}, the presence of any zero in
+\code{x} forces a geometric mean of \code{0} (and \code{NA} confidence
+limits). If \code{FALSE}, zeros are excluded from the mean (only strictly
+positive values are used).}
 
-\item{alpha}{Alpha level for the confidence interval calculation}
+\item{alpha}{Significance level for the two-sided CI (coverage nominal
+\eqn{1-\alpha}). Must lie in \eqn{(0, 1)}.}
+}
+\value{
+A list with components:
+  \describe{
+    \item{\code{geom.mean}}{Geometric mean (numeric scalar).}
+    \item{\code{geom.sd}}{Geometric standard deviation,
+      \eqn{\exp(\mathrm{sd}(\log x))} on the positive data used (same as
+      common PK notation; \code{NA} if not defined).}
+    \item{\code{geom.mean.lcl}}{Lower limit of the \eqn{100(1-\alpha)}\% CI.}
+    \item{\code{geom.mean.ucl}}{Upper limit of the \eqn{100(1-\alpha)}\% CI.}
+  }
 }
 \description{
-Calculates a geometric mean for given vector
+Computes the geometric mean of a numeric vector and an approximate
+confidence interval based on the Student \eqn{t}-distribution on the
+\strong{log scale} (assuming log-transformed values are approximately normal).
 }
 \details{
-I think some of the comments are related to a false-equivalency of
-NA values in the data and zeros. In the application I had in mind they are 
-the same, but of course this is not generally true. Thus, if you want to 
-include optional propagation of zeros, and treat the length(x) differently
-in the case of NA removal, the following is a slightly longer alternative
-to the function above.
-}
-\note{
-Note that it also checks for any negative values, and returns a more 
-informative and appropriate NaN respecting that geometric mean is not defined
-for negative values (but is for zeros).
+The geometric mean of positive values \eqn{x_1,\ldots,x_k} is
+\eqn{\exp(\frac{1}{k}\sum_{i=1}^k \log x_i)}.
+
+If \code{zero.propagate = FALSE}, only \eqn{x_i > 0} are used. If there are
+no positive values, the geometric mean is \code{0} (all zeros) or
+\code{NA} (empty or invalid input after removing \code{NA}s).
+
+Negative values are not allowed: the function returns \code{NaN} for
+\code{geom.mean} (and \code{CI} components) because the geometric mean is not
+defined in the reals.
+
+The confidence interval is \eqn{\exp(\bar y \pm t_{1-\alpha/2,\,df}\, s/\sqrt{n})}
+where \eqn{y = \log x} for the positive observations used, \eqn{s} is the
+sample SD of \eqn{y}, \eqn{n} is their count, and \eqn{df = n-1}.  For
+\eqn{n < 2} the limits are \code{NA}.
 }
 \examples{
-ks_geom_mean(abs(rnorm(100,10,5)))
+x <- abs(rnorm(100,10,5))
+ks_geom_mean(x)
 }
-\author{
-Initial author is Paul McMurdie (http://stackoverflow.com/posts/25555105/revisions)
+\references{
+Kirkwood, T. B. (1979). Geometric means and measures of dispersion.
+  \emph{Biometrics}, \strong{35}(4), 908--909.
+}
+\seealso{
+\code{\link[base]{log}}, \code{\link[stats]{quantile}}
 }

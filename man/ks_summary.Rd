@@ -4,27 +4,40 @@
 \alias{ks_summary}
 \title{Descriptive summary for continuous variables}
 \usage{
-ks_summary(data, var, ..., na.rm = TRUE, p.change = FALSE)
+ks_summary(data, var, ..., na.rm = TRUE, p.change = FALSE, extras = NULL)
 }
 \arguments{
 \item{data}{A data frame or tibble.}
 
 \item{var}{Unquoted name of the numeric variable to summarise.}
 
-\item{...}{Unquoted grouping variables. Must come before \code{na.rm}
-and \code{p.change} in the call, which are keyword-only arguments
-(they must always be named: \code{na.rm = FALSE}, \code{p.change = TRUE}).}
+\item{...}{Unquoted grouping variables. Must come before \code{na.rm},
+\code{p.change}, and \code{extras} in the call, which are keyword-only
+arguments (they must always be named).}
 
 \item{na.rm}{Logical; remove \code{NA}s before computing. Default \code{TRUE}.}
 
 \item{p.change}{Logical; if \code{TRUE}, append a \code{p.chg} column
 (p-value for paired change, chosen by normality). Default \code{FALSE}.}
+
+\item{extras}{An optional \strong{named list} of functions for additional
+  per-group statistics.  Each function is called as
+  \code{f(x, na.rm = na.rm)} where \code{x} is the numeric vector of
+  \code{var} for that group.  Each function must return a single scalar
+  value.  The list names become column names in the result.
+
+  Example: \code{extras = list(mad = stats::mad, sem = function(x, na.rm)
+  sd(x, na.rm = na.rm) / sqrt(sum(!is.na(x))))}
+
+  Names that clash with built-in columns (\code{n}, \code{mean},
+  \code{sd}, \code{cv}, \code{median}, \code{q1}, \code{q3}, \code{min},
+  \code{max}, \code{p.chg}) will raise an error.}
 }
 \value{
 A tibble with one row per group and columns \code{n},
-  \code{mean}, \code{sd}, \code{cv}, \code{median}, \code{q1},
-  \code{q3}, \code{min}, \code{max}, and (if \code{p.change = TRUE})
-  \code{p.chg}.
+  \code{mean}, \code{sd}, \code{median}, \code{q1},
+  \code{q3}, \code{min}, \code{max}, any \code{extras} columns,
+  \code{cv}, and (if \code{p.change = TRUE}) \code{p.chg}.
 }
 \description{
 Computes n, mean, SD, CV, median, Q1, Q3, min, max by group.
@@ -36,6 +49,21 @@ Q1 and Q3 use \code{\link{ks_q1}} / \code{\link{ks_q3}}, whose
 \code{type} argument defaults to
 \code{getOption("kstools.quantile.type", 2L)} (SAS-compatible).
 Set that option in \file{.Rprofile} to change the algorithm globally.
+}
+\examples{
+d <- data.frame(
+  grp = rep(c("A", "B"), each = 10),
+  val = c(rnorm(10, 5), rnorm(10, 8))
+)
+ks_summary(d, val, grp)
+
+## With extra statistics
+ks_summary(d, val, grp,
+  extras = list(
+    mad = stats::mad,
+    sem = function(x, na.rm) sd(x, na.rm = na.rm) / sqrt(sum(!is.na(x)))
+  )
+)
 }
 \seealso{
 \code{\link{ks_q1}}, \code{\link{ks_q3}}
