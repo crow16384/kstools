@@ -1,9 +1,9 @@
 ## ============================================================
 ## ks_summary() — descriptive statistics for continuous variables
 ## ============================================================
-## Columns returned: n, mean, sd, median, q1, q3, min, max, [extras], cv
+## Columns returned: n, mean, sd, median, q1, q3, min, max, [extras], cv, [NUMDEC]
 ## Grouping variables go in `...` (before any named arguments).
-## na.rm, p.change, and extras are keyword-only: always name them.
+## na.rm, p.change, extras, and numdec are keyword-only: always name them.
 ##
 ## Q1/Q3 default to quantile type 2 (SAS-compatible).
 ## Override globally: options(kstools.quantile.type = 7L)
@@ -142,3 +142,16 @@ print(ks_summary(adlb, chg, trt, visit,
   p.change = TRUE,
   extras = list(iqr = IQR)
 ))
+
+## ------------------------------------------------------------------
+## 10. NUMDEC column (default numdec = TRUE)
+##     Shows the max decimal places of `var` per group, computed via
+##     the same logic as ks_get_numdec().
+## ------------------------------------------------------------------
+cat("\n\n=== 10. NUMDEC column (default) ===\n\n")
+
+print(ks_summary(adlb, aval, trt))
+
+cat("\n=== 10b. Suppress NUMDEC ===\n\n")
+
+print(ks_summary(adlb, aval, trt, numdec = FALSE))

@@ -2,7 +2,7 @@
 
 tol <- 1e-8
 
-base_cols <- c("n", "mean", "sd", "median", "q1", "q3", "min", "max", "cv")
+base_cols <- c("n", "mean", "sd", "median", "q1", "q3", "min", "max", "cv", "NUMDEC")
 
 # ─── baseline (no extras) ────────────────────────────────────────────────────
 
@@ -138,4 +138,50 @@ test_that("errors when extras element is not a function", {
     ks_summary(df, x, extras = list(bad = 42)),
     regexp = "function"
   )
+})
+
+test_that("NUMDEC clashes with extras", {
+  df <- data.frame(x = 1:5)
+  expect_error(
+    ks_summary(df, x, extras = list(NUMDEC = stats::mad)),
+    regexp = "clash"
+  )
+})
+
+# ─── numdec ───────────────────────────────────────────────────────────────────
+
+test_that("NUMDEC present by default (numdec = TRUE)", {
+  df <- data.frame(g = c("A", "A"), x = c(1.1, 2.34))
+  res <- ks_summary(df, x, g)
+  expect_true("NUMDEC" %in% names(res))
+  expect_equal(res$NUMDEC, 2L)
+})
+
+test_that("NUMDEC absent when numdec = FALSE", {
+  df <- data.frame(g = c("A", "A"), x = c(1.1, 2.34))
+  res <- ks_summary(df, x, g, numdec = FALSE)
+  expect_false("NUMDEC" %in% names(res))
+})
+
+test_that("NUMDEC differs by group", {
+  df <- data.frame(
+    g = c("A", "A", "B", "B"),
+    x = c(1.1, 2.0, 3.456, 4.0)
+  )
+  res <- ks_summary(df, x, g)
+  expect_equal(res$NUMDEC[res$g == "A"], 1L)
+  expect_equal(res$NUMDEC[res$g == "B"], 3L)
+})
+
+test_that("NUMDEC works without grouping", {
+  df <- data.frame(x = c(1.1, 2.345))
+  res <- ks_summary(df, x)
+  expect_true("NUMDEC" %in% names(res))
+  expect_equal(res$NUMDEC, 3L)
+})
+
+test_that("NUMDEC is 0 for integer-valued data", {
+  df <- data.frame(g = "A", x = c(10, 20, 30))
+  res <- ks_summary(df, x, g)
+  expect_equal(res$NUMDEC, 0L)
 })

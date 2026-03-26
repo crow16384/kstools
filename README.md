@@ -4,7 +4,7 @@
 
 Clinical and data science utilities for R.
 
-**Version:** 0.2.0 (see [`NEWS.md`](NEWS.md) for changes.)
+**Version:** 0.3.0 (see [`NEWS.md`](NEWS.md) for changes.)
 
 **Repository:** [github.com/crow16384/kstools](https://github.com/crow16384/kstools)
 

@@ -12,8 +12,8 @@
 #' @param data A data frame or tibble.
 #' @param var Unquoted name of the numeric variable to summarise.
 #' @param ... Unquoted grouping variables. Must come before \code{na.rm},
-#'   \code{p.change}, and \code{extras} in the call, which are keyword-only
-#'   arguments (they must always be named).
+#'   \code{p.change}, \code{extras}, and \code{numdec} in the call, which
+#'   are keyword-only arguments (they must always be named).
 #' @param na.rm Logical; remove \code{NA}s before computing. Default \code{TRUE}.
 #' @param p.change Logical; if \code{TRUE}, append a \code{p.chg} column
 #'   (p-value for paired change, chosen by normality). Default \code{FALSE}.
@@ -28,19 +28,29 @@
 #'
 #'   Names that clash with built-in columns (\code{n}, \code{mean},
 #'   \code{sd}, \code{cv}, \code{median}, \code{q1}, \code{q3}, \code{min},
-#'   \code{max}, \code{p.chg}) will raise an error.
+#'   \code{max}, \code{p.chg}, \code{NUMDEC}) will raise an error.
+#' @param numdec Logical; if \code{TRUE} (the default), append a
+#'   \code{NUMDEC} column giving the maximum number of decimal places
+#'   observed in \code{var} within each group (via
+#'   \code{\link{ks_get_numdec}} logic, capped at 4).  Set to \code{FALSE}
+#'   to suppress.
 #'
 #' @return A tibble with one row per group and columns \code{n},
 #'   \code{mean}, \code{sd}, \code{median}, \code{q1},
 #'   \code{q3}, \code{min}, \code{max}, any \code{extras} columns,
-#'   \code{cv}, and (if \code{p.change = TRUE}) \code{p.chg}.
-#' @seealso \code{\link{ks_q1}}, \code{\link{ks_q3}}
+#'   \code{cv}, (if \code{numdec = TRUE}) \code{NUMDEC}, and
+#'   (if \code{p.change = TRUE}) \code{p.chg}.
+#' @seealso \code{\link{ks_q1}}, \code{\link{ks_q3}},
+#'   \code{\link{ks_get_numdec}}
 #' @examples
 #' d <- data.frame(
 #'   grp = rep(c("A", "B"), each = 10),
 #'   val = c(rnorm(10, 5), rnorm(10, 8))
 #' )
 #' ks_summary(d, val, grp)
+#'
+#' ## Without NUMDEC
+#' ks_summary(d, val, grp, numdec = FALSE)
 #'
 #' ## With extra statistics
 #' ks_summary(d, val, grp,
@@ -51,18 +61,20 @@
 #' )
 #' @name ks_summary
 #' @importFrom dplyr group_by summarise mutate left_join select ungroup
-#' @importFrom rlang enquo as_name expr
+#' @importFrom rlang enquo as_name expr ensyms
 #' @importFrom stats sd median shapiro.test t.test wilcox.test
 #' @importFrom rlang .data
 #' @importFrom utils globalVariables
 #' @export
 ks_summary <- function(data, var, ..., na.rm = TRUE, p.change = FALSE,
-                       extras = NULL) {
+                       extras = NULL, numdec = TRUE) {
 
-  .na.rm <- na.rm
+  .na.rm  <- na.rm
+  var_quo <- rlang::enquo(var)
+  var_chr <- rlang::as_name(var_quo)
 
   .builtin_cols <- c("n", "mean", "sd", "cv", "median", "q1", "q3",
-                     "min", "max", "p.chg")
+                     "min", "max", "p.chg", "NUMDEC")
 
   extra_exprs <- list()
   if (!is.null(extras)) {
@@ -80,9 +92,8 @@ ks_summary <- function(data, var, ..., na.rm = TRUE, p.change = FALSE,
     if (!all(vapply(extras, is.function, logical(1L))))
       stop("every element of 'extras' must be a function")
 
-    var_nm <- rlang::as_name(rlang::enquo(var))
     extra_exprs <- lapply(extras, function(fn) {
-      rlang::expr((!!fn)(.data[[!!var_nm]], na.rm = !!.na.rm))
+      rlang::expr((!!fn)(.data[[!!var_chr]], na.rm = !!.na.rm))
     })
   }
 
@@ -101,6 +112,28 @@ ks_summary <- function(data, var, ..., na.rm = TRUE, p.change = FALSE,
       .groups = "drop"
     ) |>
     dplyr::mutate(cv = sd * 100 / mean)
+
+  if (numdec) {
+    by_nms <- vapply(rlang::ensyms(...), as.character, character(1L))
+    if (length(by_nms) > 0L) {
+      ndec <- ks_get_numdec(data, var_chr, by_nms)
+      ndec <- unique(ndec[, c(by_nms, "NUMDEC"), drop = FALSE])
+      res  <- dplyr::left_join(res, ndec, by = by_nms)
+    } else {
+      vals <- data[[var_chr]]
+      vals <- vals[!is.na(vals)]
+      nd <- if (length(vals) == 0L) {
+        NA_integer_
+      } else {
+        max(nchar(sub(
+          "^[-]?\\d*\\.?", "",
+          trimws(sub("0+$", "",
+                     format(round(vals, digits = 4L), scientific = FALSE)))
+        )))
+      }
+      res <- dplyr::mutate(res, NUMDEC = nd)
+    }
+  }
 
   if (!p.change) return(res)
 

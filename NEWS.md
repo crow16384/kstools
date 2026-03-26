@@ -1,3 +1,18 @@
+# kstools 0.3.0
+
+## New features
+
+- **`ks_summary()`**: new `numdec = TRUE` parameter appends a `NUMDEC` column with the group-level max decimal places of `var` (via `ks_get_numdec` logic).
+- **`ks_current_filename()`**: detect the basename of the running R script (source or Rscript).
+- **`ks_get_numdec()`**: compute max decimal places per group and join as `NUMDEC`.
+- Second author added: Igor Aleschenkov.
+
+## Improvements
+
+- `R/get_numeric.r` renamed to `R/get_numdec.r` for consistency with the exported function name.
+
+---
+
 # kstools 0.2.0
 
 ## New features

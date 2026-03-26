@@ -4,7 +4,15 @@
 \alias{ks_summary}
 \title{Descriptive summary for continuous variables}
 \usage{
-ks_summary(data, var, ..., na.rm = TRUE, p.change = FALSE, extras = NULL)
+ks_summary(
+  data,
+  var,
+  ...,
+  na.rm = TRUE,
+  p.change = FALSE,
+  extras = NULL,
+  numdec = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame or tibble.}
@@ -12,8 +20,8 @@ ks_summary(data, var, ..., na.rm = TRUE, p.change = FALSE, extras = NULL)
 \item{var}{Unquoted name of the numeric variable to summarise.}
 
 \item{...}{Unquoted grouping variables. Must come before \code{na.rm},
-\code{p.change}, and \code{extras} in the call, which are keyword-only
-arguments (they must always be named).}
+\code{p.change}, \code{extras}, and \code{numdec} in the call, which
+are keyword-only arguments (they must always be named).}
 
 \item{na.rm}{Logical; remove \code{NA}s before computing. Default \code{TRUE}.}
 
@@ -31,13 +39,20 @@ arguments (they must always be named).}
 
   Names that clash with built-in columns (\code{n}, \code{mean},
   \code{sd}, \code{cv}, \code{median}, \code{q1}, \code{q3}, \code{min},
-  \code{max}, \code{p.chg}) will raise an error.}
+  \code{max}, \code{p.chg}, \code{NUMDEC}) will raise an error.}
+
+\item{numdec}{Logical; if \code{TRUE} (the default), append a
+\code{NUMDEC} column giving the maximum number of decimal places
+observed in \code{var} within each group (via
+\code{\link{ks_get_numdec}} logic, capped at 4).  Set to \code{FALSE}
+to suppress.}
 }
 \value{
 A tibble with one row per group and columns \code{n},
   \code{mean}, \code{sd}, \code{median}, \code{q1},
   \code{q3}, \code{min}, \code{max}, any \code{extras} columns,
-  \code{cv}, and (if \code{p.change = TRUE}) \code{p.chg}.
+  \code{cv}, (if \code{numdec = TRUE}) \code{NUMDEC}, and
+  (if \code{p.change = TRUE}) \code{p.chg}.
 }
 \description{
 Computes n, mean, SD, CV, median, Q1, Q3, min, max by group.
@@ -57,6 +72,9 @@ d <- data.frame(
 )
 ks_summary(d, val, grp)
 
+## Without NUMDEC
+ks_summary(d, val, grp, numdec = FALSE)
+
 ## With extra statistics
 ks_summary(d, val, grp,
   extras = list(
@@ -66,5 +84,6 @@ ks_summary(d, val, grp,
 )
 }
 \seealso{
-\code{\link{ks_q1}}, \code{\link{ks_q3}}
+\code{\link{ks_q1}}, \code{\link{ks_q3}},
+  \code{\link{ks_get_numdec}}
 }

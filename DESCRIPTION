@@ -1,14 +1,17 @@
 Package: kstools
 Type: Package
 Title: Clinical and Data Science Utilities
-Version: 0.2.0
-Author: Vladimir Larchenko <vladimir.larchenko@keystatsolutions.com>
-Maintainer: Vladimir Larchenko <vladimir.larchenko@keystatsolutions.com>
+Version: 0.3.0
 Authors@R: c(
     person(
       "Vladimir", "Larchenko",
       email = "vladimir.larchenko@keystatsolutions.com",
       role = c("aut", "cre")
+    ),
+    person(
+      "Igor", "Aleschenkov",
+      email = "igor.aleschenkov@keystatsolutions.com",
+      role = "aut"
     )
   )
 Description: Utility functions for clinical trials and data science:

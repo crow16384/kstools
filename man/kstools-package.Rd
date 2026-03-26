@@ -18,5 +18,10 @@ Utility functions for clinical trials and data science:
 \author{
 \strong{Maintainer}: Vladimir Larchenko \email{vladimir.larchenko@keystatsolutions.com}
 
+Authors:
+\itemize{
+  \item Igor Aleschenkov \email{igor.aleschenkov@keystatsolutions.com}
+}
+
 }
 \keyword{internal}
