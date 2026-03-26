@@ -2,44 +2,63 @@
 % Please edit documentation in R/get_data.r
 \name{ks_get_data}
 \alias{ks_get_data}
-\title{Load RDS domain files into the global environment}
+\title{Load domain files into the global environment}
 \usage{
-ks_get_data(..., path = getOption("path.data.rds", "."))
+ks_get_data(
+  ...,
+  path = getOption("path.data", "."),
+  type = c("auto", "rds", "xpt", "xlsx")
+)
 }
 \arguments{
 \item{...}{Unquoted (or quoted) domain names, e.g. \code{dm, ae, lb}.}
 
-\item{path}{Directory containing the \code{.rds} files.
-Defaults to \code{getOption("path.data.rds", ".")}.}
+\item{path}{Directory containing the data files.
+Defaults to \code{getOption("path.data", ".")}.}
+
+\item{type}{File type: \code{"auto"} (detect from extension), \code{"rds"},
+\code{"xpt"}, or \code{"xlsx"}.}
 }
 \value{
 Invisibly returns the character vector of loaded domain names.
 }
 \description{
-Reads one or more \code{.rds} files from \code{path} and assigns them to
-variables in \code{.GlobalEnv} using the file stem (name without \code{.rds})
+Reads one or more data files from \code{path} and assigns them to
+variables in \code{.GlobalEnv} using the file stem (name without extension)
 as the variable name.
 }
 \details{
+Supported formats: \code{.rds} (R native), \code{.xpt} (SAS XPORT),
+\code{.xlsx} (Microsoft Excel).
+
+
 Domain names can be passed as bare names (\code{dm, ae}) or as quoted
 strings (\code{"dm", "ae"}); both forms are accepted.
 
+When \code{type = "auto"} (default), the function scans the directory for
+files matching the requested domains and determines the format from the
+extension of the first match.  All requested domains must use the same
+format.
+
 The default search path is read from
-\code{getOption("path.data.rds", ".")}. Set this option in
+\code{getOption("path.data", ".")}. Set this option in
 \code{.Rprofile} to avoid repeating the path in every call:
-\preformatted{options(path.data.rds = "/my/project/data/rds")}
+\preformatted{options(path.data = "/my/project/data")}
 }
 \examples{
 \dontrun{
 ## Load dm and ae from the default path set via options()
-options(path.data.rds = "/project/data/rds")
+options(path.data = "/project/data")
 ks_get_data(dm, ae)
 
-## Load from an explicit path
-ks_get_data(dm, ae, lb, path = "/project/data/rds")
+## Load from an explicit path (auto-detects file type)
+ks_get_data(dm, ae, lb, path = "/project/data/xpt")
+
+## Force a specific file type
+ks_get_data(dm, ae, path = "/project/data", type = "xpt")
 
 ## Quoted strings are also accepted
-ks_get_data("dm", "ae", path = "/project/data/rds")
+ks_get_data("dm", "ae", path = "/project/data")
 }
 }
 \seealso{

@@ -15,7 +15,7 @@ ks_aligndec <- function(var, na.rep="") {
     return(var)
   }
 
-  pattern <- "^[\\[\\]()A-Za-zА-Яа-я+\\-= ]*\\d+(?:\\.| )"
+  pattern <- "^[\\[\\]()A-Za-z\u0410-\u042f\u0430-\u044f+\\-= ]*\\d+(?:\\.| )"
   match_start <- regexpr(pattern, var, perl = TRUE)
   match_length <- attr(match_start, "match.length")
   match_end <- ifelse(match_start > 0L, match_start + match_length - 1L, NA_integer_)

@@ -12,6 +12,7 @@
 #' @param with_length Passed to \code{foreign::read.csv3} for CSV loading.
 #' @param recursive If \code{TRUE}, search recursively under \code{data}.
 #' @return Named list of loaded objects.
+#' @importFrom utils unzip getFromNamespace
 #' @name ks_batch_load
 #' @export
 ks_batch_load <- function(data,

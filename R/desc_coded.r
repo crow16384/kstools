@@ -78,6 +78,7 @@
 #'   dplyr::ungroup()
 #' @name ks_desc_coded
 #' @importFrom dplyr summarise mutate bind_rows arrange select n_distinct n
+#' @importFrom rlang ":="
 #' @export
 ks_desc_coded <- function(data,
                           id        = usubjid,

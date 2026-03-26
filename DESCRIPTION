@@ -18,7 +18,7 @@ Description: Utility functions for clinical trials and data science:
     and utilities (z-score, CV, SWOE, AUC, EAIR, Newcombe CIs, AR(1) simulation).
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
+Depends: R (>= 4.1.0)
 Imports:
     boot,
     dplyr,
@@ -26,11 +26,8 @@ Imports:
     methods,
     nlme,
     parallel,
-    purrr,
     rlang,
     rootSolve,
-    stringr,
-    tibble,
     tidyr
 Suggests:
     arrow,

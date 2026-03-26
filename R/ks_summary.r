@@ -53,6 +53,8 @@
 #' @importFrom dplyr group_by summarise mutate left_join select ungroup
 #' @importFrom rlang enquo as_name expr
 #' @importFrom stats sd median shapiro.test t.test wilcox.test
+#' @importFrom rlang .data
+#' @importFrom utils globalVariables
 #' @export
 ks_summary <- function(data, var, ..., na.rm = TRUE, p.change = FALSE,
                        extras = NULL) {

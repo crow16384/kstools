@@ -35,7 +35,7 @@ fixes the RNG state; use another integer for a different stream.}
 \item{type}{Integer \code{1}--\code{9}: quantile definition for the
 reported median when \code{method = "z"} (passed to
 \code{\link[stats]{quantile}}). Default \code{2} matches SAS \code{PROC
-UNIVARIATE} / Hyndman \& Fan type 2.}
+UNIVARIATE} / Hyndman & Fan type 2.}
 }
 \value{
 A named numeric vector. The first element is always \code{Median}.

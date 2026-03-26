@@ -20,7 +20,7 @@ Scans the raw bytes of a SAS Transport Version 8 file for member
 (\code{MEMBV8}) headers and returns the byte range of each member.
 }
 \details{
-The file is read in chunks of \code{chunk_size} bytes (default ≈ 400 KB).
+The file is read in chunks of \code{chunk_size} bytes (default approximately 400 KB).
 A \code{MEMBV8} header that spans two adjacent chunks would not be detected;
 this is exceedingly unlikely for practical SDTM files.
 }

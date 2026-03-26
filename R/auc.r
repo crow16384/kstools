@@ -48,6 +48,7 @@
 #' ks_auc(pk2, by = "id", val = conc, time = time)
 #' @name ks_auc
 #' @importFrom dplyr group_by across all_of summarise
+#' @importFrom rlang .data
 #' @export
 ks_auc <- function(data, by = NULL, val, time,
                    type = c("trapez", "log-trapez")) {

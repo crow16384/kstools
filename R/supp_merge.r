@@ -148,8 +148,8 @@ ks_supp_consistency_check <- function(data) {
 #' )
 #' ks_supp_merge(dm, suppdm)
 #' @name ks_supp_merge
-#' @importFrom dplyr select filter distinct pull left_join mutate across
-#'   all_of n_distinct
+#' @importFrom dplyr select filter distinct pull left_join mutate across all_of n_distinct
+#' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom methods as
 #' @export

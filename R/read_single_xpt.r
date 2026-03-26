@@ -1,4 +1,4 @@
-## ── SAS XPORT v8/v9 multi-member file utilities ─────────────────────────────
+## -- SAS XPORT v8/v9 multi-member file utilities -----------------------------
 ##
 ## SAS Transport Version 8 (XPORT v8) allows long variable names (> 8 chars)
 ## and can store multiple datasets (members) in a single file.
@@ -6,8 +6,8 @@
 ## from such files; these utilities handle the low-level byte slicing.
 ##
 ## File structure (each record = 80 bytes):
-##   File header  : LIBV8  marker + library info + blank      (3 × 80 = 240 B)
-##   Per member   : MEMBV8 marker + descriptor + name record  (≥ 3 × 80 = 240 B)
+##   File header  : LIBV8  marker + library info + blank      (3 x 80 = 240 B)
+##   Per member   : MEMBV8 marker + descriptor + name record  (>= 3 x 80 = 240 B)
 ##                  followed by variable descriptors and data records
 ##
 ## Byte-position convention used throughout:
@@ -32,7 +32,7 @@
 #' (\code{MEMBV8}) headers and returns the byte range of each member.
 #'
 #' @details
-#' The file is read in chunks of \code{chunk_size} bytes (default ≈ 400 KB).
+#' The file is read in chunks of \code{chunk_size} bytes (default approximately 400 KB).
 #' A \code{MEMBV8} header that spans two adjacent chunks would not be detected;
 #' this is exceedingly unlikely for practical SDTM files.
 #'
@@ -140,7 +140,7 @@ ks_xpt_content <- function(file, chunk_size = 5L * 80L * 1024L) {
 ks_extract_single_xpt <- function(name, file, content) {
 
   if (!requireNamespace("haven", quietly = TRUE))
-    stop("package 'haven' is required — install it with install.packages('haven')")
+    stop("package 'haven' is required -- install it with install.packages('haven')")
 
   if (!name %in% names(content))
     stop("Member '", name, "' not found in content. Available: ",
@@ -151,11 +151,11 @@ ks_extract_single_xpt <- function(name, file, content) {
   con <- file(file, "rb")
   on.exit(close(con))
 
-  ## File-level header: first 240 bytes (3 × 80-byte LIBV8 records)
+  ## File-level header: first 240 bytes (3 x 80-byte LIBV8 records)
   header <- readBin(con, "raw", 240L)
 
   ## Member data: from start of MEMBV8 block to the next member (or EOF)
-  ## Stored positions are 1-based; seek() is 0-based → subtract 1
+  ## Stored positions are 1-based; seek() is 0-based -> subtract 1
   seek(con, range[["start"]] - 1L)
   member_data <- readBin(con, "raw", range[["stop"]] - range[["start"]])
 
@@ -240,13 +240,13 @@ ks_batch_load_from_single_xpt <- function(file,
     }
 
     if (save_type == "parquet" && !requireNamespace("arrow", quietly = TRUE))
-      stop("package 'arrow' is required for parquet export — install it with install.packages('arrow')")
+      stop("package 'arrow' is required for parquet export -- install it with install.packages('arrow')")
   }
 
   cont    <- ks_xpt_content(file)
   tnames  <- names(cont)
 
-  ## Extract members — parallel on non-Windows, sequential on Windows
+  ## Extract members -- parallel on non-Windows, sequential on Windows
   num_cores <- max(1L, parallel::detectCores(logical = FALSE))
 
   res <- if (.Platform$OS.type == "windows") {
@@ -262,13 +262,13 @@ ks_batch_load_from_single_xpt <- function(file,
 
   names(res) <- tnames
 
-  ## ── Side effects ──────────────────────────────────────────────────────
+  ## -- Side effects ------------------------------------------------------
   if (action == "load") {
     for (nm in tnames)
       assign(nm, res[[nm]], envir = .GlobalEnv)
 
   } else if (save_type == "rdata") {
-    ## Write via a temporary environment — does not touch .GlobalEnv
+    ## Write via a temporary environment -- does not touch .GlobalEnv
     save_env <- new.env(parent = emptyenv())
     for (nm in tnames) assign(nm, res[[nm]], envir = save_env)
     out_file <- paste0(save_path, ".RData")

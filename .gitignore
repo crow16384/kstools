@@ -11,6 +11,7 @@ Rplots.pdf
 *.Rcheck/
 kstools.Rcheck/
 ..Rcheck/
+*.tar.gz
 
 # OS / editor
 .DS_Store

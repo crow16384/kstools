@@ -77,6 +77,8 @@ remotes::install_github("crow16384/kstools")
 | `ks_eairdiff_strata_mn()` | Stratified version |
 | `ks_newcombe_hs()` | Newcombe hybrid score CI for difference of proportions |
 | `ks_newcombe_hs_strata()` | Stratified version |
+| `ks_current_filename()` | Basename of the currently executing R script |
+| `ks_get_numdec()` | Max decimal places per group (joins `NUMDEC` column) |
 
 Use base R [`trimws()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/trimws.html) for leading/trailing whitespace on character vectors (tidyr has no separate trim helper; `stringr::str_trim` is equivalent).
 
@@ -84,7 +86,7 @@ Use base R [`trimws()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/
 
 Declared in `DESCRIPTION`:
 
-- **Imports:** `boot`, `dplyr`, `MASS`, `methods`, `nlme`, `parallel`, `purrr`, `rlang`, `rootSolve`, `stringr`, `tibble`, `tidyr`
+- **Imports:** `boot`, `dplyr`, `MASS`, `methods`, `nlme`, `parallel`, `rlang`, `rootSolve`, `tidyr`
 - **Suggests:** `arrow`, `foreign`, `haven`, `openxlsx`, `testthat` (≥ 3.0.0)
 
 ## License

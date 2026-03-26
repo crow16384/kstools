@@ -23,7 +23,7 @@ Applicable for scalars and vectors.
 NA \%+na\% 10
 12.3 \%+na\% 10
 12.3 \%+na\% NA
-SumNA(12.3, NA)
+ks_sum_na(12.3, NA)
 NA \%+na\% NA
-c(1,2,NA) \\%+na\\% c(NA,2,3)
+c(1,2,NA) \%+na\% c(NA,2,3)
 }
