@@ -70,9 +70,45 @@ tryCatch(
 # Caught: File not found: .../missing_domain.rds
 
 
-## 8. Typical project workflow -------------------------------------------------
+## 8. Load plain CSV domains ---------------------------------------------------
+csv_dir <- file.path(tempdir(), "csv_demo")
+dir.create(csv_dir, showWarnings = FALSE)
+
+write.csv(data.frame(USUBJID = c("01-001", "01-002"),
+                     AGE     = c(45L, 52L),
+                     SEX     = c("M", "F")),
+          file.path(csv_dir, "dm.csv"), row.names = FALSE)
+
+ks_get_data(dm, path = csv_dir, type = "csv")
+head(dm)
+
+
+## 9. Load CSV with KeyStat comment headers ------------------------------------
+ks_csv_dir <- file.path(tempdir(), "csvks_demo")
+dir.create(ks_csv_dir, showWarnings = FALSE)
+
+writeLines(c(
+  "#USUBJID$character(7)$Subject ID",
+  "#AGE$numeric$Age",
+  "#SEX$character(1)$Sex",
+  "USUBJID,AGE,SEX",
+  "01-001,45,M",
+  "01-002,52,F"
+), file.path(ks_csv_dir, "dm.csv"))
+
+ks_get_data(dm, path = ks_csv_dir, type = "csvks")
+head(dm)
+attr(dm$USUBJID, "label")  # "Subject ID"
+
+
+## 10. Use read.csv3() directly ------------------------------------------------
+dm2 <- read.csv3(file.path(ks_csv_dir, "dm.csv"), with_length = TRUE)
+str(dm2)
+
+
+## 11. Typical project workflow ------------------------------------------------
 ## In .Rprofile:
-##   options(path.data.rds = file.path(Sys.getenv("PROJECT_ROOT"), "data", "rds"))
+##   options(path.data = file.path(Sys.getenv("PROJECT_ROOT"), "data"))
 ##
 ## In analysis script:
 ##   library(kstools)

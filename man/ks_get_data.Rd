@@ -7,7 +7,7 @@
 ks_get_data(
   ...,
   path = getOption("path.data", "."),
-  type = c("auto", "rds", "xpt", "xlsx")
+  type = c("auto", "rds", "xpt", "xlsx", "csv", "csvks")
 )
 }
 \arguments{
@@ -17,7 +17,8 @@ ks_get_data(
 Defaults to \code{getOption("path.data", ".")}.}
 
 \item{type}{File type: \code{"auto"} (detect from extension), \code{"rds"},
-\code{"xpt"}, or \code{"xlsx"}.}
+\code{"xpt"}, \code{"xlsx"}, \code{"csv"}, or \code{"csvks"}
+(CSV with KeyStat comment metadata).}
 }
 \value{
 Invisibly returns the character vector of loaded domain names.
@@ -29,7 +30,8 @@ as the variable name.
 }
 \details{
 Supported formats: \code{.rds} (R native), \code{.xpt} (SAS XPORT),
-\code{.xlsx} (Microsoft Excel).
+\code{.xlsx} (Microsoft Excel), \code{.csv} (plain CSV),
+\code{.csv} with KeyStat comments (\code{type = "csvks"}).
 
 
 Domain names can be passed as bare names (\code{dm, ae}) or as quoted
@@ -57,10 +59,13 @@ ks_get_data(dm, ae, lb, path = "/project/data/xpt")
 ## Force a specific file type
 ks_get_data(dm, ae, path = "/project/data", type = "xpt")
 
+## Load CSV files with KeyStat comment headers
+ks_get_data(dm, ae, path = "/project/data", type = "csvks")
+
 ## Quoted strings are also accepted
 ks_get_data("dm", "ae", path = "/project/data")
 }
 }
 \seealso{
-\code{\link{ks_batch_load}}
+\code{\link{ks_batch_load}}, \code{\link{read.csv3}}
 }

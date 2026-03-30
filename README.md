@@ -4,7 +4,7 @@
 
 Clinical and data science utilities for R.
 
-**Version:** 0.3.0 (see [`NEWS.md`](NEWS.md) for changes.)
+**Version:** 0.3.1 (see [`NEWS.md`](NEWS.md) for changes.)
 
 **Repository:** [github.com/crow16384/kstools](https://github.com/crow16384/kstools)
 
@@ -58,7 +58,8 @@ remotes::install_github("crow16384/kstools")
 
 | Function | Description |
 |----------|-------------|
-| `ks_get_data()` | Load one or more `.rds` domains into `.GlobalEnv` |
+| `ks_get_data()` | Load one or more domains (`.rds`, `.xpt`, `.xlsx`, `.csv`) into `.GlobalEnv` |
+| `read.csv3()` | Read a CSV file; optionally parse KeyStat comment headers for column types and labels |
 | `ks_batch_load()` | Batch-load files by type (e.g. xlsx, csv) |
 | `ks_batch_load_xlsx()` | Convenience wrapper: xlsx batch load |
 

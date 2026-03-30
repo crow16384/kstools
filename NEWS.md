@@ -1,7 +1,15 @@
-# kstools 0.3.0
+# kstools 0.3.1
 
 ## New features
 
+- **`read.csv3()`**: read a CSV file with optional KeyStat comment headers (`#NAME$type(length)$Label`) for column types and labels.
+- **`ks_get_data()`**: new `type` values `"csv"` and `"csvks"` for loading plain CSV and KeyStat-commented CSV domains; `.csv` is also auto-detected.
+
+---
+
+# kstools 0.3.0
+
+## New features
 - **`ks_summary()`**: new `numdec = TRUE` parameter appends a `NUMDEC` column with the group-level max decimal places of `var` (via `ks_get_numdec` logic).
 - **`ks_current_filename()`**: detect the basename of the running R script (source or Rscript).
 - **`ks_get_numdec()`**: compute max decimal places per group and join as `NUMDEC`.
