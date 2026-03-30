@@ -24,9 +24,9 @@ Defaults to \code{getOption("path.data", ".")}.}
 Invisibly returns the character vector of loaded domain names.
 }
 \description{
-Reads one or more data files from \code{path} and assigns them to
-variables in \code{.GlobalEnv} using the file stem (name without extension)
-as the variable name.
+Reads one or more data files from \code{path} and assigns them as
+\code{\link[dplyr]{tibble}}s to variables in \code{.GlobalEnv} using the
+file stem (name without extension) as the variable name.
 }
 \details{
 Supported formats: \code{.rds} (R native), \code{.xpt} (SAS XPORT),

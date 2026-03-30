@@ -51,9 +51,9 @@ read.csv3 <- function(file, with_length = FALSE) {
 
 #' Load domain files into the global environment
 #'
-#' Reads one or more data files from \code{path} and assigns them to
-#' variables in \code{.GlobalEnv} using the file stem (name without extension)
-#' as the variable name.
+#' Reads one or more data files from \code{path} and assigns them as
+#' \code{\link[dplyr]{tibble}}s to variables in \code{.GlobalEnv} using the
+#' file stem (name without extension) as the variable name.
 #'
 #' Supported formats: \code{.rds} (R native), \code{.xpt} (SAS XPORT),
 #' \code{.xlsx} (Microsoft Excel), \code{.csv} (plain CSV),
@@ -156,7 +156,7 @@ ks_get_data <- function(...,
     fp <- file.path(path, paste0(nm, ext))
     if (!file.exists(fp))
       stop("File not found: ", fp)
-    assign(nm, read_fn(fp), envir = .GlobalEnv)
+    assign(nm, dplyr::as_tibble(read_fn(fp)), envir = .GlobalEnv)
   }
 
   invisible(nm_vec)
