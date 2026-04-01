@@ -144,9 +144,9 @@ ks_get_data <- function(...,
       haven::read_xpt
     },
     xlsx = {
-      if (!requireNamespace("openxlsx", quietly = TRUE))
-        stop("package 'openxlsx' is required for XLSX loading")
-      openxlsx::read.xlsx
+      if (!requireNamespace("openxlsx2", quietly = TRUE))
+        stop("package 'openxlsx2' is required for XLSX loading")
+      openxlsx2::read_xlsx
     },
     csv   = function(f) read.csv3(f, with_length = FALSE),
     csvks = function(f) read.csv3(f, with_length = TRUE)

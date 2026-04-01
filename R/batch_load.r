@@ -78,10 +78,10 @@ ks_batch_load <- function(data,
       }
     },
     xlsx = function(path) {
-      if (!requireNamespace("openxlsx", quietly = TRUE)) {
-        stop("package 'openxlsx' is required for xlsx loading")
+      if (!requireNamespace("openxlsx2", quietly = TRUE)) {
+        stop("package 'openxlsx2' is required for xlsx loading")
       }
-      openxlsx::read.xlsx(path)
+      openxlsx2::read_xlsx(path)
     },
     xpt = function(path) {
       if (!requireNamespace("haven", quietly = TRUE)) {
