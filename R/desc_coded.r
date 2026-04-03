@@ -77,6 +77,7 @@
 #'   ) |>
 #'   dplyr::ungroup()
 #' @name ks_desc_coded
+#' @importFrom cli cli_abort
 #' @importFrom dplyr summarise mutate bind_rows arrange select n_distinct n
 #' @importFrom rlang ":="
 #' @export
@@ -86,7 +87,7 @@ ks_desc_coded <- function(data,
                           l2        = meddra_pt,
                           tot_label = "Total subjects") {
 
-  if (!is.data.frame(data)) stop("'data' must be a data.frame or tibble")
+  if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a {.cls data.frame} or {.cls tibble}.")
 
   ## Level-1 (SOC) totals: distinct subjects and event count per l1
   t_soc <- data |>

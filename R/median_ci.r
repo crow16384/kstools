@@ -68,6 +68,7 @@
 #' ks_median_ci(vv, method = "z")
 #' ks_median_ci(vv, method = "z", alpha = 0.1)
 #' @name ks_median_ci
+#' @importFrom cli cli_abort
 #' @export
 ks_median_ci <- function(x,
                          na.rm = TRUE,
@@ -80,24 +81,24 @@ ks_median_ci <- function(x,
   method <- match.arg(method)
 
   if (length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1)
-    stop("'alpha' must be a single value in (0, 1)")
+    cli::cli_abort("{.arg alpha} must be a single value in (0, 1).")
   if (!is.logical(na.rm) || length(na.rm) != 1L)
-    stop("'na.rm' must be a single logical value")
+    cli::cli_abort("{.arg na.rm} must be a single logical value.")
   if (method == "boot" && (!is.numeric(R) || length(R) != 1L || R < 1L))
-    stop("'R' must be a positive integer")
+    cli::cli_abort("{.arg R} must be a positive integer.")
   if (!is.numeric(type) || length(type) != 1L || type < 1L || type > 9L)
-    stop("'type' must be a single integer from 1 to 9")
+    cli::cli_abort("{.arg type} must be a single integer from 1 to 9.")
 
   if (!is.numeric(x))
-    stop("'x' must be numeric")
+    cli::cli_abort("{.arg x} must be numeric.")
   if (!na.rm && anyNA(x))
-    stop("missing values in 'x' and na.rm is FALSE")
+    cli::cli_abort("Missing values in {.arg x} and {.arg na.rm} is {.val FALSE}.")
 
   if (na.rm)
     x <- x[!is.na(x)]
 
   if (!length(x))
-    stop("no non-missing observations in 'x'")
+    cli::cli_abort("No non-missing observations in {.arg x}.")
 
   switch(method,
          boot   = .median_boot(x, alpha = alpha, R = as.integer(R), seed = seed),
@@ -132,7 +133,7 @@ ks_median_ci <- function(x,
 .median_olive <- function(y, na.rm, alpha) {
   n <- length(y)
   if (n < 2L)
-    stop("method \"olive\" requires at least two non-missing observations")
+    cli::cli_abort('Method {.val olive} requires at least two non-missing observations.')
 
   ysort <- sort(y)
   nhalf <- floor(n / 2)

@@ -14,6 +14,7 @@
 #' @return Named list of loaded objects.
 #' @importFrom utils unzip getFromNamespace
 #' @name ks_batch_load
+#' @importFrom cli cli_abort
 #' @export
 ks_batch_load <- function(data,
                           type = c("csv", "xlsx", "xpt", "rds"),
@@ -25,7 +26,7 @@ ks_batch_load <- function(data,
   type <- match.arg(type)
 
   if (!requireNamespace("parallel", quietly = TRUE)) {
-    stop("package 'parallel' is required")
+    cli::cli_abort("Package {.pkg parallel} is required.")
   }
 
   is_zip <- endsWith(tolower(data), ".zip")
@@ -60,7 +61,7 @@ ks_batch_load <- function(data,
   )
 
   if (length(files) == 0L) {
-    stop("No '", ext, "' files found in: ", t.dir)
+    cli::cli_abort("No {.val {ext}} files found in: {.path {t.dir}}.")
   }
 
   nm <- tolower(tools::file_path_sans_ext(basename(files)))
@@ -79,13 +80,13 @@ ks_batch_load <- function(data,
     },
     xlsx = function(path) {
       if (!requireNamespace("openxlsx2", quietly = TRUE)) {
-        stop("package 'openxlsx2' is required for xlsx loading")
+        cli::cli_abort("Package {.pkg openxlsx2} is required for xlsx loading.")
       }
       openxlsx2::read_xlsx(path)
     },
     xpt = function(path) {
       if (!requireNamespace("haven", quietly = TRUE)) {
-        stop("package 'haven' is required for xpt loading")
+        cli::cli_abort("Package {.pkg haven} is required for xpt loading.")
       }
       haven::read_xpt(path)
     },

@@ -148,6 +148,7 @@ ks_supp_consistency_check <- function(data) {
 #' )
 #' ks_supp_merge(dm, suppdm)
 #' @name ks_supp_merge
+#' @importFrom cli cli_abort
 #' @importFrom dplyr select filter distinct pull left_join mutate across all_of n_distinct
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
@@ -162,8 +163,7 @@ ks_supp_merge <- function(primary, supp,
 
   chk <- ks_supp_consistency_check(supp)
   if (!chk["isvalid"])
-    stop(sprintf("'%s' is not a valid supplemental dataset",
-                 deparse(substitute(supp))))
+    cli::cli_abort("{.val {deparse(substitute(supp))}} is not a valid supplemental dataset.")
 
   svars <- c("STUDYID", "USUBJID", "IDVAR", "IDVARVAL", "QNAM", "QVAL")
   if (chk["noid"])
@@ -193,7 +193,7 @@ ks_supp_merge <- function(primary, supp,
     if (!is.null(mvars) && length(mvars) > 0L) {
       m <- intersect(candidates, mvars)
       if (length(m) == 0L)
-        stop("None of the specified 'mvars' exist in the SUPP domain")
+        cli::cli_abort("None of the specified {.arg mvars} exist in the SUPP domain.")
       m
     } else {
       candidates

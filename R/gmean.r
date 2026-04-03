@@ -50,12 +50,13 @@
 #' x <- abs(rnorm(100,10,5))
 #' ks_geom_mean(x)
 #' @name ks_geom_mean
+#' @importFrom cli cli_abort
 #' @export
 ks_geom_mean <- function(x, na.rm = TRUE, zero.propagate = FALSE, alpha = 0.05) {
   if (!is.numeric(x))
-    stop("'x' must be numeric")
+    cli::cli_abort("{.arg x} must be numeric.")
   if (length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1)
-    stop("'alpha' must be a single value in (0, 1)")
+    cli::cli_abort("{.arg alpha} must be a single value in (0, 1).")
 
   nan <- function() list(
     geom.mean = NaN,
@@ -67,7 +68,7 @@ ks_geom_mean <- function(x, na.rm = TRUE, zero.propagate = FALSE, alpha = 0.05) 
   if (na.rm)
     x <- x[!is.na(x)]
   else if (anyNA(x))
-    stop("missing values in 'x' and na.rm is FALSE")
+    cli::cli_abort("Missing values in {.arg x} and {.arg na.rm} is {.val FALSE}.")
 
   if (!length(x))
     return(list(

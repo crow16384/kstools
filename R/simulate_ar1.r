@@ -48,6 +48,7 @@
 #' )
 #' head(dt)
 #' @name ks_simulate_ar1
+#' @importFrom cli cli_abort
 #' @export
 ks_simulate_ar1 <- function(n,
                             beta0,
@@ -64,15 +65,15 @@ ks_simulate_ar1 <- function(n,
     set.seed(seed)
 
   if (length(n) != 1L || n < 1L)
-    stop("'n' must be a positive integer")
+    cli::cli_abort("{.arg n} must be a positive integer.")
   if (length(m) != 1L || m < 4L)
-    stop("'m' must be an integer >= 4 (need at least 4 possible observation times)")
+    cli::cli_abort("{.arg m} must be an integer >= 4 (need at least 4 possible observation times).")
   if (abs(ar.val) >= 1)
-    stop("'ar.val' must lie strictly between -1 and 1 for a stationary AR(1)")
+    cli::cli_abort("{.arg ar.val} must lie strictly between -1 and 1 for a stationary AR(1).")
   if (sigma <= 0 || tau0 < 0 || tau1 < 0)
-    stop("'sigma', 'tau0', and 'tau1' must be non-negative ('sigma' strictly positive)")
+    cli::cli_abort("{.arg sigma}, {.arg tau0}, and {.arg tau1} must be non-negative ({.arg sigma} strictly positive).")
   if (abs(tau01) > 1)
-    stop("'tau01' must lie in [-1, 1]")
+    cli::cli_abort("{.arg tau01} must lie in [-1, 1].")
 
   ## number of observations per subject (uniform on 4..m)
   p <- round(stats::runif(n, min = 4, max = m))

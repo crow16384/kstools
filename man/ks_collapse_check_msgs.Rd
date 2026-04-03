@@ -4,7 +4,7 @@
 \alias{ks_collapse_check_msgs}
 \title{Collapse list-column of check messages to a character column}
 \usage{
-ks_collapse_check_msgs(data, sep = "; ", col = check_msgs)
+ks_collapse_check_msgs(data, sep = "; ", col)
 }
 \arguments{
 \item{data}{A data frame containing a list-column of check messages.}
@@ -13,7 +13,7 @@ ks_collapse_check_msgs(data, sep = "; ", col = check_msgs)
 messages.  Default \code{"; "}.}
 
 \item{col}{\code{<tidy-select>} Bare name of the list-column to collapse.
-Default \code{check_msgs}.}
+Must be provided explicitly.}
 }
 \value{
 \code{data} with \code{col} replaced by a character column.

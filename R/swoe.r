@@ -48,10 +48,11 @@
 #' ks_swoe(dt, sex, yn)
 #' ks_swoe(dt, par = "sex", resp = "yn", quoted = TRUE)
 #' @name ks_swoe
+#' @importFrom cli cli_abort cli_warn
 #' @export
 ks_swoe <- function(data, par, resp, quoted = FALSE, prior.n = 24) {
   if (!inherits(data, "data.frame"))
-    stop("'data' must be a data.frame or tibble")
+    cli::cli_abort("{.arg data} must be a {.cls data.frame} or {.cls tibble}.")
 
   if (!quoted) {
     par  <- deparse(substitute(par))
@@ -59,28 +60,26 @@ ks_swoe <- function(data, par, resp, quoted = FALSE, prior.n = 24) {
   }
 
   if (!par %in% names(data))
-    stop("Column not found in 'data': ", par)
+    cli::cli_abort("Column {.val {par}} not found in {.arg data}.")
   if (!resp %in% names(data))
-    stop("Column not found in 'data': ", resp)
+    cli::cli_abort("Column {.val {resp}} not found in {.arg data}.")
 
   y <- data[[resp]]
   f <- data[[par]]
 
   if (!is.numeric(y) && !is.logical(y))
-    stop("'resp' must be numeric or logical (typically 0/1)")
+    cli::cli_abort("{.arg resp} must be numeric or logical (typically 0/1).")
   y <- as.numeric(y)
 
   rho_raw <- mean(y, na.rm = TRUE)
   if (is.na(rho_raw))
-    stop("response '", resp, "' is all NA")
+    cli::cli_abort("Response {.val {resp}} is all {.val NA}.")
 
   if (rho_raw <= 0 || rho_raw >= 1) {
-    warning(
-      "Overall response mean is ",
-      rho_raw,
-      "; global logit is undefined at the boundary. ",
-      "Using an epsilon-clamped rate for SWOE (finite scores)."
-    )
+    cli::cli_warn(c(
+      "Overall response mean is {.val {rho_raw}}; global logit is undefined at the boundary.",
+      "i" = "Using an epsilon-clamped rate for SWOE (finite scores)."
+    ))
   }
 
   rho1 <- min(max(rho_raw, .Machine$double.eps), 1 - .Machine$double.eps)

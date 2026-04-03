@@ -24,20 +24,21 @@
 #' ks_get_numdec(d, "val", "grp")
 #'
 #' @name ks_get_numdec
+#' @importFrom cli cli_abort
 #' @importFrom dplyr group_by mutate summarise across all_of select left_join
 #' @importFrom rlang .data
 #' @export
 ks_get_numdec <- function(data, var, by) {
 
   if (!inherits(data, "data.frame"))
-    stop("'data' must inherit from \"data.frame\"")
+    cli::cli_abort("{.arg data} must inherit from {.cls data.frame}.")
   if (!is.character(var) || length(var) != 1L)
-    stop("'var' must be a single character string")
+    cli::cli_abort("{.arg var} must be a single character string.")
   if (!is.character(by) || length(by) == 0L)
-    stop("'by' must be a character vector of column names")
+    cli::cli_abort("{.arg by} must be a character vector of column names.")
   missing <- setdiff(c(var, by), names(data))
   if (length(missing) > 0L)
-    stop("column(s) not found in data: ", paste(missing, collapse = ", "))
+    cli::cli_abort("Column{?s} not found in data: {.val {missing}}.")
 
   ndec <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(by))) |>

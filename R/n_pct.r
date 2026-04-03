@@ -72,6 +72,7 @@
 #' ## data.frame method — keep only one column
 #' ks_n_pct(dex, c(Therapy_A = 56L))
 #' @name ks_n_pct
+#' @importFrom cli cli_abort cli_warn
 #' @export
 ks_n_pct <- function(n, totals, na.rep = NA_character_) UseMethod("ks_n_pct")
 
@@ -79,9 +80,9 @@ ks_n_pct <- function(n, totals, na.rep = NA_character_) UseMethod("ks_n_pct")
 #' @export
 ks_n_pct.numeric <- function(n, totals, na.rep = NA_character_) {
   if (!is.numeric(totals))
-    stop("'totals' must be numeric")
+    cli::cli_abort("{.arg totals} must be numeric.")
   if (any(totals == 0, na.rm = TRUE))
-    warning("'totals' contains zero value(s); percentage will be Inf")
+    cli::cli_warn("{.arg totals} contains zero value(s); percentage will be {.val Inf}.")
 
   out         <- sprintf("%d (%5.1f%%)", as.integer(n), n * 100 / totals)
   out[is.na(n)] <- if (is.na(na.rep)) NA_character_ else na.rep
@@ -92,16 +93,16 @@ ks_n_pct.numeric <- function(n, totals, na.rep = NA_character_) {
 #' @export
 ks_n_pct.data.frame <- function(n, totals, na.rep = NA_character_) {
   if (!is.numeric(totals))
-    stop("'totals' must be numeric")
+    cli::cli_abort("{.arg totals} must be numeric.")
   if (is.null(names(totals)))
-    stop("'totals' must be a named vector whose names match column names in 'n'")
+    cli::cli_abort("{.arg totals} must be a named vector whose names match column names in {.arg n}.")
 
   missing_cols <- setdiff(names(totals), names(n))
   if (length(missing_cols) > 0L)
-    stop("Column(s) not found in 'n': ", paste(missing_cols, collapse = ", "))
+    cli::cli_abort("Column{?s} not found in {.arg n}: {.val {missing_cols}}.")
 
   if (any(totals == 0, na.rm = TRUE))
-    warning("'totals' contains zero value(s); percentage will be Inf")
+    cli::cli_warn("{.arg totals} contains zero value(s); percentage will be {.val Inf}.")
 
   for (col in names(totals)) {
     vals   <- n[[col]]
@@ -120,5 +121,5 @@ ks_n_pct.data.frame <- function(n, totals, na.rep = NA_character_) {
 
 #' @export
 ks_n_pct.default <- function(n, totals, na.rep = NA_character_) {
-  stop("'n' must be a numeric vector or data.frame")
+  cli::cli_abort("{.arg n} must be a numeric vector or {.cls data.frame}.")
 }

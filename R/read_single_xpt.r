@@ -49,11 +49,12 @@
 #' ## content[["ae"]]         # byte range for the AE member
 #' }
 #' @name ks_xpt_content
+#' @importFrom cli cli_abort
 #' @export
 ks_xpt_content <- function(file, chunk_size = 5L * 80L * 1024L) {
 
   if (!file.exists(file))
-    stop("File not found: ", file)
+    cli::cli_abort("File not found: {.path {file}}.")
 
   file_size <- file.size(file)
 
@@ -65,7 +66,7 @@ ks_xpt_content <- function(file, chunk_size = 5L * 80L * 1024L) {
   idx_lib   <- grepRaw(.XPT_LIBV8_HDR, first_rec, fixed = TRUE, all = FALSE)
 
   if (length(idx_lib) == 0L || idx_lib[1L] != 1L)
-    stop(file, " does not appear to be a SAS XPORT v8 file")
+    cli::cli_abort("{.path {file}} does not appear to be a SAS XPORT v8 file.")
 
   ## Scan for MEMBV8 member headers
   pos       <- 0L
@@ -98,7 +99,7 @@ ks_xpt_content <- function(file, chunk_size = 5L * 80L * 1024L) {
   }
 
   if (length(idxs) == 0L)
-    stop("No MEMBV8 member headers found in: ", file)
+    cli::cli_abort("No MEMBV8 member headers found in: {.path {file}}.")
 
   ds_names <- tolower(ds_names)
   ## stops use an exclusive upper bound: next member's start, or file_size + 1
@@ -136,15 +137,15 @@ ks_xpt_content <- function(file, chunk_size = 5L * 80L * 1024L) {
 #' ae      <- ks_extract_single_xpt("ae", "study.xpt", content)
 #' }
 #' @name ks_extract_single_xpt
+#' @importFrom cli cli_abort
 #' @export
 ks_extract_single_xpt <- function(name, file, content) {
 
   if (!requireNamespace("haven", quietly = TRUE))
-    stop("package 'haven' is required -- install it with install.packages('haven')")
+    cli::cli_abort("Package {.pkg haven} is required -- install it with {.code install.packages('haven')}.")
 
   if (!name %in% names(content))
-    stop("Member '", name, "' not found in content. Available: ",
-         paste(names(content), collapse = ", "))
+    cli::cli_abort("Member {.val {name}} not found in content. Available: {.val {names(content)}}.")
 
   range <- content[[name]]
 
@@ -210,6 +211,7 @@ ks_extract_single_xpt <- function(name, file, content) {
 #'                                save_path = "data/")
 #' }
 #' @name ks_batch_load_from_single_xpt
+#' @importFrom cli cli_abort
 #' @export
 ks_batch_load_from_single_xpt <- function(file,
                                            action    = "load",
@@ -220,27 +222,29 @@ ks_batch_load_from_single_xpt <- function(file,
 
   if (action == "save") {
     if (is.null(save_type))
-      stop("'save_type' must be specified when action = 'save'; ",
-           "choose one of: 'rdata', 'rds', 'parquet'")
+      cli::cli_abort(c(
+        "{.arg save_type} must be specified when {.code action = 'save'}.",
+        "i" = "Choose one of: {.val rdata}, {.val rds}, {.val parquet}."
+      ))
     save_type <- match.arg(save_type, c("rdata", "rds", "parquet"))
 
     if (is.null(save_path))
-      stop("'save_path' must be provided when action = 'save'")
+      cli::cli_abort("{.arg save_path} must be provided when {.code action = 'save'}.")
 
     if (save_type == "rdata") {
       info <- file.info(save_path)
       if (!is.na(info$isdir) && isTRUE(info$isdir))
-        stop("For save_type = 'rdata', 'save_path' must be a file path, not a directory")
+        cli::cli_abort("For {.code save_type = 'rdata'}, {.arg save_path} must be a file path, not a directory.")
     }
 
     if (save_type %in% c("rds", "parquet")) {
       info <- file.info(save_path)
       if (!is.na(info$isdir) && !isTRUE(info$isdir))
-        stop("For save_type = 'rds' or 'parquet', 'save_path' must be a directory")
+        cli::cli_abort("For {.code save_type = 'rds'} or {.code 'parquet'}, {.arg save_path} must be a directory.")
     }
 
     if (save_type == "parquet" && !requireNamespace("arrow", quietly = TRUE))
-      stop("package 'arrow' is required for parquet export -- install it with install.packages('arrow')")
+      cli::cli_abort("Package {.pkg arrow} is required for parquet export -- install it with {.code install.packages('arrow')}.")
   }
 
   cont    <- ks_xpt_content(file)

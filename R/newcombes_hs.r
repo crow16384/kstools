@@ -64,15 +64,16 @@
 #'   alpha = 0.10
 #' )
 #' @name ks_newcombe_hs
+#' @importFrom cli cli_abort
 #' @importFrom stats qnorm
 #' @export
 ks_newcombe_hs <- function(x1, n1, x2, n2, alpha = 0.05) {
   if (any(n1 <= 0, na.rm = TRUE) || any(n2 <= 0, na.rm = TRUE))
-    stop("'n1' and 'n2' must be positive")
+    cli::cli_abort("{.arg n1} and {.arg n2} must be positive.")
   if (any(x1 < 0 | x1 > n1, na.rm = TRUE) || any(x2 < 0 | x2 > n2, na.rm = TRUE))
-    stop("'x1' and 'x2' must satisfy 0 <= x <= n")
+    cli::cli_abort("{.arg x1} and {.arg x2} must satisfy 0 <= x <= n.")
   if (length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1)
-    stop("'alpha' must be a single value in (0, 1)")
+    cli::cli_abort("{.arg alpha} must be a single value in (0, 1).")
 
   z <- stats::qnorm(1 - alpha / 2)
 
@@ -148,15 +149,16 @@ ks_newcombe_hs <- function(x1, n1, x2, n2, alpha = 0.05) {
 #' ks_newcombe_hs_strata(36L, 54L, 41L, 56L)
 #' ks_newcombe_hs(36L, 54L, 41L, 56L)  # same result
 #' @name ks_newcombe_hs_strata
+#' @importFrom cli cli_abort
 #' @importFrom stats qnorm
 #' @export
 ks_newcombe_hs_strata <- function(x1, n1, x2, n2, alpha = 0.05) {
   if (any(n1 <= 0, na.rm = TRUE) || any(n2 <= 0, na.rm = TRUE))
-    stop("'n1' and 'n2' must be positive")
+    cli::cli_abort("{.arg n1} and {.arg n2} must be positive.")
   if (any(x1 < 0 | x1 > n1, na.rm = TRUE) || any(x2 < 0 | x2 > n2, na.rm = TRUE))
-    stop("'x1' and 'x2' must satisfy 0 <= x <= n")
+    cli::cli_abort("{.arg x1} and {.arg x2} must satisfy 0 <= x <= n.")
   if (length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1)
-    stop("'alpha' must be a single value in (0, 1)")
+    cli::cli_abort("{.arg alpha} must be a single value in (0, 1).")
 
   z  <- stats::qnorm(1 - alpha / 2)
   c1 <- mapply(.wilson_ci, x1, n1, MoreArgs = list(z = z))  # 3 x k

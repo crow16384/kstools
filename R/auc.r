@@ -47,13 +47,14 @@
 #' )
 #' ks_auc(pk2, by = "id", val = conc, time = time)
 #' @name ks_auc
+#' @importFrom cli cli_abort
 #' @importFrom dplyr group_by across all_of summarise
 #' @importFrom rlang .data
 #' @export
 ks_auc <- function(data, by = NULL, val, time,
                    type = c("trapez", "log-trapez")) {
 
-  if (!is.data.frame(data)) stop("'data' must be a data.frame or tibble")
+  if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a {.cls data.frame} or {.cls tibble}.")
 
   val_str  <- deparse(substitute(val))
   time_str <- deparse(substitute(time))

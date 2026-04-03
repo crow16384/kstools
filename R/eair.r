@@ -51,15 +51,16 @@
 #' ## 90 %% CI
 #' ks_eairdiff_mn(n1 = 10, n2 = 5, T1 = 100, T2 = 100, alpha = 0.10)
 #' @name ks_eairdiff_mn
+#' @importFrom cli cli_abort cli_warn
 #' @importFrom rootSolve uniroot.all
 #' @importFrom stats qchisq
 #' @export
 ks_eairdiff_mn <- function(n1, n2, T1, T2, alpha = 0.05) {
 
   if (any(T1 <= 0) || any(T2 <= 0))
-    stop("'T1' and 'T2' must be strictly positive")
+    cli::cli_abort("{.arg T1} and {.arg T2} must be strictly positive.")
   if (alpha <= 0 || alpha >= 1)
-    stop("'alpha' must be in (0, 1)")
+    cli::cli_abort("{.arg alpha} must be in (0, 1).")
 
   ## Score equation: returns 0 at each CI bound
   score_eq <- function(theta, n1, n2, T1, T2) {
@@ -78,7 +79,7 @@ ks_eairdiff_mn <- function(n1, n2, T1, T2, alpha = 0.05) {
     ci <- rootSolve::uniroot.all(score_eq, c(-1, 1),
                                   n1 = n1, n2 = n2, T1 = T1, T2 = T2)
     if (length(ci) < 2L) {
-      warning("Score equation has fewer than 2 roots; CI bounds set to NA")
+      cli::cli_warn("Score equation has fewer than 2 roots; CI bounds set to {.val NA}.")
       ci <- c(NA_real_, NA_real_)
     }
     c(delta = n1 / T1 - n2 / T2, lcl = ci[1L], ucl = ci[2L])
@@ -136,6 +137,7 @@ ks_eairdiff_mn <- function(n1, n2, T1, T2, alpha = 0.05) {
 #'   alpha = 0.10
 #' )
 #' @name ks_eairdiff_strata_mn
+#' @importFrom cli cli_abort cli_warn
 #' @importFrom rootSolve uniroot.all
 #' @importFrom stats qchisq
 #' @export
@@ -144,11 +146,11 @@ ks_eairdiff_strata_mn <- function(n1, n2, T1, T2, alpha = 0.05) {
   if (length(n1) != length(n2) ||
       length(n1) != length(T1) ||
       length(n1) != length(T2))
-    stop("'n1', 'n2', 'T1', 'T2' must all have the same length")
+    cli::cli_abort("{.arg n1}, {.arg n2}, {.arg T1}, {.arg T2} must all have the same length.")
   if (any(T1 <= 0, na.rm = TRUE) || any(T2 <= 0, na.rm = TRUE))
-    stop("'T1' and 'T2' must be strictly positive")
+    cli::cli_abort("{.arg T1} and {.arg T2} must be strictly positive.")
   if (alpha <= 0 || alpha >= 1)
-    stop("'alpha' must be in (0, 1)")
+    cli::cli_abort("{.arg alpha} must be in (0, 1).")
 
   chi_alpha <- stats::qchisq(1 - alpha, df = 1)
 
@@ -172,7 +174,7 @@ ks_eairdiff_strata_mn <- function(n1, n2, T1, T2, alpha = 0.05) {
   ci <- rootSolve::uniroot.all(score_vec, c(-1, 1))
 
   if (length(ci) < 2L) {
-    warning("Score equation has fewer than 2 roots; CI bounds set to NA")
+    cli::cli_warn("Score equation has fewer than 2 roots; CI bounds set to {.val NA}.")
     ci <- c(NA_real_, NA_real_)
   }
 

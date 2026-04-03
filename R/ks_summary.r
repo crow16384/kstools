@@ -60,6 +60,7 @@
 #'   )
 #' )
 #' @name ks_summary
+#' @importFrom cli cli_abort
 #' @importFrom dplyr group_by summarise mutate left_join select ungroup
 #' @importFrom rlang enquo as_name expr ensyms
 #' @importFrom stats sd median shapiro.test t.test wilcox.test
@@ -79,18 +80,16 @@ ks_summary <- function(data, var, ..., na.rm = TRUE, p.change = FALSE,
   extra_exprs <- list()
   if (!is.null(extras)) {
     if (!is.list(extras) || length(extras) == 0L)
-      stop("'extras' must be a non-empty named list of functions")
+      cli::cli_abort("{.arg extras} must be a non-empty named list of functions.")
     if (is.null(names(extras)) || any(names(extras) == ""))
-      stop("every element of 'extras' must be named")
+      cli::cli_abort("Every element of {.arg extras} must be named.")
     if (anyDuplicated(names(extras)) > 0L)
-      stop("duplicate names in 'extras': ",
-           paste(names(extras)[duplicated(names(extras))], collapse = ", "))
+      cli::cli_abort("Duplicate names in {.arg extras}: {.val {names(extras)[duplicated(names(extras))]}}.")  
     clash <- intersect(names(extras), .builtin_cols)
     if (length(clash) > 0L)
-      stop("'extras' name(s) clash with built-in columns: ",
-           paste(clash, collapse = ", "))
+      cli::cli_abort("{.arg extras} name{?s} clash with built-in column{?s}: {.val {clash}}.")
     if (!all(vapply(extras, is.function, logical(1L))))
-      stop("every element of 'extras' must be a function")
+      cli::cli_abort("Every element of {.arg extras} must be a function.")
 
     extra_exprs <- lapply(extras, function(fn) {
       rlang::expr((!!fn)(.data[[!!var_chr]], na.rm = !!.na.rm))

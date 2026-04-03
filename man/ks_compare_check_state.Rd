@@ -4,12 +4,7 @@
 \alias{ks_compare_check_state}
 \title{Compare validation check state between two runs}
 \usage{
-ks_compare_check_state(
-  current,
-  previous = NULL,
-  key_cols = c("center", "patno", "visit", "param"),
-  compare_cols = c("check_msgs", "res")
-)
+ks_compare_check_state(current, previous = NULL, key_cols, compare_cols)
 }
 \arguments{
 \item{current}{A data frame from the most recent \code{\link{ks_check_rules}}
@@ -20,10 +15,10 @@ If \code{NULL} or empty, all rows in \code{current} receive
 \code{status = "new"}.}
 
 \item{key_cols}{Character vector of column names used to match rows across
-runs.  Default \code{c("center", "patno", "visit", "param")}.}
+runs.  Must be provided explicitly.}
 
 \item{compare_cols}{Character vector of column names whose values are used
-to detect changes.  Default \code{c("check_msgs", "res")}.}
+to detect changes.  Must be provided explicitly.}
 }
 \value{
 \code{current} with an additional character column \code{status}:

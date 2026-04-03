@@ -10,9 +10,9 @@
 #'   If \code{NULL} or empty, all rows in \code{current} receive
 #'   \code{status = "new"}.
 #' @param key_cols Character vector of column names used to match rows across
-#'   runs.  Default \code{c("center", "patno", "visit", "param")}.
+#'   runs.  Must be provided explicitly.
 #' @param compare_cols Character vector of column names whose values are used
-#'   to detect changes.  Default \code{c("check_msgs", "res")}.
+#'   to detect changes.  Must be provided explicitly.
 #'
 #' @return \code{current} with an additional character column \code{status}:
 #'   \describe{
@@ -30,10 +30,17 @@
 #' }
 #'
 #' @name ks_compare_check_state
+#' @importFrom cli cli_abort
 #' @export
 ks_compare_check_state <- function(current, previous = NULL,
-                                   key_cols = c("center", "patno", "visit", "param"),
-                                   compare_cols = c("check_msgs", "res")) {
+                                   key_cols, compare_cols) {
+  if (missing(key_cols)) {
+    cli::cli_abort("{.arg key_cols} must be provided.")
+  }
+  if (missing(compare_cols)) {
+    cli::cli_abort("{.arg compare_cols} must be provided.")
+  }
+
   if (is.null(previous) || nrow(previous) == 0) {
     current$status <- "new"
     return(current)

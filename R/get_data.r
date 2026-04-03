@@ -100,6 +100,7 @@ read.csv3 <- function(file, with_length = FALSE) {
 #' ks_get_data("dm", "ae", path = "/project/data")
 #' }
 #' @name ks_get_data
+#' @importFrom cli cli_abort
 #' @importFrom rlang ensyms as_name
 #' @importFrom utils read.csv
 #' @export
@@ -111,7 +112,7 @@ ks_get_data <- function(...,
   type <- match.arg(type)
 
   if (!dir.exists(path))
-    stop("Directory not found: ", path)
+    cli::cli_abort("Directory not found: {.path {path}}.")
 
   nm_vec <- unname(vapply(rlang::ensyms(...), rlang::as_name, character(1L)))
 
@@ -126,8 +127,10 @@ ks_get_data <- function(...,
     )
     found <- vapply(candidates, file.exists, logical(1L))
     if (!any(found))
-      stop("No file found for domain '", first, "' in: ", path,
-           "\n  Checked: ", paste(basename(candidates), collapse = ", "))
+      cli::cli_abort(c(
+        "No file found for domain {.val {first}} in: {.path {path}}.",
+        "i" = "Checked: {.file {basename(candidates)}}."
+      ))
     type <- names(candidates)[which(found)[1L]]
   }
 
@@ -140,12 +143,12 @@ ks_get_data <- function(...,
     rds  = readRDS,
     xpt  = {
       if (!requireNamespace("haven", quietly = TRUE))
-        stop("package 'haven' is required for XPT loading")
+        cli::cli_abort("Package {.pkg haven} is required for XPT loading.")
       haven::read_xpt
     },
     xlsx = {
       if (!requireNamespace("openxlsx2", quietly = TRUE))
-        stop("package 'openxlsx2' is required for XLSX loading")
+        cli::cli_abort("Package {.pkg openxlsx2} is required for XLSX loading.")
       openxlsx2::read_xlsx
     },
     csv   = function(f) read.csv3(f, with_length = FALSE),
@@ -155,7 +158,7 @@ ks_get_data <- function(...,
   for (nm in nm_vec) {
     fp <- file.path(path, paste0(nm, ext))
     if (!file.exists(fp))
-      stop("File not found: ", fp)
+      cli::cli_abort("File not found: {.path {fp}}.")
     assign(nm, dplyr::as_tibble(read_fn(fp)), envir = .GlobalEnv)
   }
 

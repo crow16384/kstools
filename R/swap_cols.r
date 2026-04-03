@@ -27,11 +27,12 @@
 #' d <- data.frame(SUBJID = c("001", "002"), USUBJID = c("01-001", "01-002"))
 #' ks_swap_cols(d, USUBJID = SUBJID)
 #' @name ks_swap_cols
+#' @importFrom cli cli_abort
 #' @importFrom rlang enquos quo_get_expr is_symbol as_name
 #' @export
 ks_swap_cols <- function(df, ...) {
   if (!inherits(df, "data.frame"))
-    stop("'df' must inherit from \"data.frame\"")
+    cli::cli_abort("{.arg df} must inherit from {.cls data.frame}.")
 
   swaps <- rlang::enquos(...)
   lhs   <- names(swaps)
@@ -40,21 +41,21 @@ ks_swap_cols <- function(df, ...) {
     return(df)
 
   if (is.null(lhs) || length(lhs) != length(swaps) || any(lhs == ""))
-    stop("Use named pairs like `USUBJID = SUBJID`.")
+    cli::cli_abort("Use named pairs like {.code USUBJID = SUBJID}.")
 
   rhs <- vapply(swaps, function(q) {
     expr <- rlang::quo_get_expr(q)
     if (!rlang::is_symbol(expr))
-      stop("Each RHS must be a bare column name.")
+      cli::cli_abort("Each RHS must be a bare column name.")
     rlang::as_name(expr)
   }, character(1L), USE.NAMES = FALSE)
 
   missing_cols <- setdiff(c(lhs, rhs), names(df))
   if (length(missing_cols) > 0L)
-    stop("Column not found: ", paste(unique(missing_cols), collapse = ", "))
+    cli::cli_abort("Column{?s} not found: {.val {unique(missing_cols)}}.")
 
   if (anyDuplicated(c(lhs, rhs)) > 0L)
-    stop("Each column can appear only once across all swap pairs.")
+    cli::cli_abort("Each column can appear only once across all swap pairs.")
 
   left_idx  <- match(lhs, names(df))
   right_idx <- match(rhs, names(df))
