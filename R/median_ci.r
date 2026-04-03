@@ -116,6 +116,8 @@ ks_median_ci <- function(x,
   med <- boot::boot(x, boot.median, R = R)
   result <- boot::boot.ci(med, conf = 1 - alpha)
 
+  bca_lcl <- if (!is.null(result$bca)) result$bca[4L] else NA_real_
+  bca_ucl <- if (!is.null(result$bca)) result$bca[5L] else NA_real_
   c(
     Median      = stats::median(x),
     Basic.LCI   = result$basic[4L],
@@ -124,8 +126,8 @@ ks_median_ci <- function(x,
     Normal.UCI  = result$normal[3L],
     Percent.LCI = result$percent[4L],
     Percent.UCI = result$percent[5L],
-    BCa.LCI     = result$bca[4L],
-    BCa.UCI     = result$bca[5L]
+    BCa.LCI     = bca_lcl,
+    BCa.UCI     = bca_ucl
   )
 }
 

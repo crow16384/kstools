@@ -8,7 +8,7 @@ ks_del_tmp <- function(o=TRUE) {
   if (o) {
     l <- ls(pattern = "^[to]\\.",envir = .GlobalEnv)
   } else {
-    l <- ls(pattern = "^[t]\\.",envir = .GlobalEnv)
+    l <- ls(pattern = "^t\\.", envir = .GlobalEnv)
   }
   rm(list=l, envir = .GlobalEnv)
 }

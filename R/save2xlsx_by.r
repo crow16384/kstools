@@ -15,8 +15,6 @@
 #'   data into worksheets.  Default \code{type}.
 #' @param msg_col \code{<tidy-select>} Bare name of the column that contains
 #'   check messages used for row colouring.  Default \code{check_msgs}.
-#' @param as_table Logical.  If \code{TRUE}, write each sheet as an Excel
-#'   table (\code{wb_add_data_table}).  Default \code{FALSE}.
 #' @param na_to_empty Logical.  If \code{TRUE}, replace \code{NA} and
 #'   \code{"#N/A"} in character columns with empty strings.  Default
 #'   \code{FALSE}.
@@ -43,8 +41,8 @@
 #'
 #' @name ks_save2xlsx_by
 #' @importFrom openxlsx2 wb_workbook wb_add_worksheet wb_add_data wb_add_data_table
-#'   wb_add_filter wb_set_col_widths wb_add_font wb_add_cell_style wb_add_fill
-#'   wb_save wb_dims wb_color
+#'   wb_add_filter wb_set_col_widths wb_freeze_pane wb_add_font wb_add_cell_style wb_add_fill
+#'   wb_add_border wb_save wb_dims wb_color
 #' @importFrom dplyr filter select mutate across where
 #' @importFrom purrr map_chr
 #' @importFrom stringr str_detect fixed
@@ -52,7 +50,6 @@
 ks_save2xlsx_by <- function(data, file, colors,
                              split_col    = type,
                              msg_col      = check_msgs,
-                             as_table     = FALSE,
                              na_to_empty  = FALSE,
                              status_col   = NULL,
                              status_colors = NULL) {
@@ -90,24 +87,17 @@ ks_save2xlsx_by <- function(data, file, colors,
     wb <- wb %>%
       openxlsx2::wb_add_worksheet(sheet = tp)
 
-    if (as_table) {
-      wb <- wb %>%
-        openxlsx2::wb_add_data_table(
-          x          = sheet_data,
-          start_row  = 1L + row_offset,
-          na.strings = if (na_to_empty) "" else NULL
-        )
-    } else {
-      wb <- wb %>%
-        openxlsx2::wb_add_data(
-          x          = sheet_data,
-          start_row  = 1L + row_offset,
-          na.strings = if (na_to_empty) "" else NULL
-        ) %>%
-        openxlsx2::wb_add_filter(rows = 1L + row_offset, cols = 1:nc)
-    }
+    wb <- wb %>%
+      openxlsx2::wb_add_data(
+        x          = sheet_data,
+        start_row  = 1L + row_offset,
+        na.strings = if (na_to_empty) "" else NULL
+      ) %>%
+      openxlsx2::wb_add_filter(rows = 1L + row_offset, cols = 1:nc)
 
-    wb <- wb %>% openxlsx2::wb_set_col_widths(cols = 1:nc, widths = "auto")
+    wb <- wb %>%
+      openxlsx2::wb_set_col_widths(cols = 1:nc, widths = "auto") %>%
+      openxlsx2::wb_freeze_pane(first_active_row = 2L + row_offset, first_active_col = 1L)
 
     if (has_labels) {
       wb <- wb %>%
@@ -143,18 +133,38 @@ ks_save2xlsx_by <- function(data, file, colors,
 
     if (!is.null(status_col_name) && !is.null(status_colors) &&
         status_col_name %in% names(sheet_data)) {
+      status_col_idx <- which(names(sheet_data) == status_col_name)
       for (st in names(status_colors)) {
         rows <- which(sheet_data[[status_col_name]] == st) + 1L + row_offset
         if (length(rows) > 0) {
           for (r in rows) {
             wb <- wb %>%
               openxlsx2::wb_add_fill(
-                dims  = openxlsx2::wb_dims(rows = r, cols = 1:nc),
+                dims  = openxlsx2::wb_dims(rows = r, cols = status_col_idx),
                 color = openxlsx2::wb_color(status_colors[[st]])
               )
           }
         }
       }
+    }
+
+    nr <- nrow(sheet_data)
+    if (nr > 0) {
+      data_dims <- openxlsx2::wb_dims(
+        rows = (1L + row_offset):(nr + 1L + row_offset),
+        cols = 1:nc
+      )
+      border_color <- openxlsx2::wb_color("000000")
+      wb <- wb %>%
+        openxlsx2::wb_add_border(
+          dims          = data_dims,
+          bottom_border = "thin", top_border    = "thin",
+          left_border   = "thin", right_border  = "thin",
+          inner_hgrid   = "thin", inner_vgrid   = "thin",
+          inner_hcolor  = border_color, inner_vcolor = border_color,
+          bottom_color  = border_color, top_color    = border_color,
+          left_color    = border_color, right_color  = border_color
+        )
     }
   }
 

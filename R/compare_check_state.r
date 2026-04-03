@@ -46,8 +46,6 @@ ks_compare_check_state <- function(current, previous = NULL,
     return(current)
   }
 
-  current$..row_id.. <- seq_len(nrow(current))
-
   cur_key  <- do.call(paste, c(current[key_cols],  sep = "|"))
   prev_key <- do.call(paste, c(previous[key_cols], sep = "|"))
 
@@ -68,6 +66,5 @@ ks_compare_check_state <- function(current, previous = NULL,
   }
 
   current$status <- status
-  current$..row_id.. <- NULL
   current
 }

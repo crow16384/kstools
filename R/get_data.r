@@ -27,7 +27,7 @@ read.csv3 <- function(file, with_length = FALSE) {
   on.exit(close(con))
   while (TRUE) {
     line <- readLines(con, n = 1)
-    if (!grepl("^#", line) || length(line) == 0) break
+    if (length(line) == 0 || !grepl("^#", line)) break
     line  <- gsub("^#", "", line)
     sline <- strsplit(line, "\\$")
     vclass <- tolower(sline[[1]][2])
