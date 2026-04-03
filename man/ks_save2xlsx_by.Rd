@@ -10,7 +10,6 @@ ks_save2xlsx_by(
   colors,
   split_col = type,
   msg_col = check_msgs,
-  as_table = FALSE,
   na_to_empty = FALSE,
   status_col = NULL,
   status_colors = NULL
@@ -29,9 +28,6 @@ data into worksheets.  Default \code{type}.}
 
 \item{msg_col}{\code{<tidy-select>} Bare name of the column that contains
 check messages used for row colouring.  Default \code{check_msgs}.}
-
-\item{as_table}{Logical.  If \code{TRUE}, write each sheet as an Excel
-table (\code{wb_add_data_table}).  Default \code{FALSE}.}
 
 \item{na_to_empty}{Logical.  If \code{TRUE}, replace \code{NA} and
 \code{"#N/A"} in character columns with empty strings.  Default

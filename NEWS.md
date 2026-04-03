@@ -1,3 +1,29 @@
+# kstools 0.3.4
+
+## Bug fixes
+
+- `ks_z_score()`: fixed inverted formula — was returning `(mean - x) / sd`
+  instead of the correct `(x - mean) / sd`.
+- `read.csv3()`: fixed potential crash on end-of-file when `readLines()` returns
+  `character(0)` — `length()` guard now precedes `grepl()` to avoid a
+  zero-length condition in `if()`.
+- `ks_compare_check_state()`: removed unused internal `..row_id..` column that
+  was allocated and immediately deleted on every call.
+- `ks_median_ci()` (`boot` method): guard against `NULL` `$bca` component —
+  `boot.ci()` omits BCa for very small samples; bounds now fall back to
+  `NA_real_` instead of silently dropping vector elements.
+- `ks_save2xlsx_by()`: removed dead `as_table` parameter (implementation was
+  already removed in 0.3.3); narrowed status-column fill to the status column
+  only (was incorrectly colouring the entire row); added freeze-pane on the
+  header row; added thin cell borders on all data cells.
+
+## Minor improvements
+
+- `ks_cv()`, `ks_z_score()`: replaced bare `T` with `TRUE`.
+- `ks_del_tmp()`: simplified redundant single-character class `[t]` to `t`.
+
+---
+
 # kstools 0.3.3
 
 ## Bug fixes

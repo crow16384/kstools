@@ -4,7 +4,7 @@
 \alias{ks_cv}
 \title{Coefficient of variation}
 \usage{
-ks_cv(x, na.rm = T)
+ks_cv(x, na.rm = TRUE)
 }
 \arguments{
 \item{x}{Numeric vector}

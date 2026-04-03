@@ -4,7 +4,7 @@
 \alias{ks_z_score}
 \title{Calculate Z score}
 \usage{
-ks_z_score(x, na.rm = T)
+ks_z_score(x, na.rm = TRUE)
 }
 \arguments{
 \item{x}{Numeric vector}
@@ -21,6 +21,6 @@ Useful values are  +\/-3.
 \examples{
 set.seed(345)
 ks_z_score(rnorm(10))
-## 0.9102967  0.4446436  0.3358703  0.4548544  0.2493297
-## 0.7708130  1.0418824 -1.3891393 -1.3375406 -1.4810102
+## -0.9102967 -0.4446436 -0.3358703 -0.4548544 -0.2493297
+## -0.7708130 -1.0418824  1.3891393  1.3375406  1.4810102
 }
