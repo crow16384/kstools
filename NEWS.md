@@ -1,3 +1,16 @@
+# kstools 0.3.2
+
+## New features
+
+- Added validation workflow helpers: `ks_check_rules()`, `ks_collapse_check_msgs()`, `ks_compare_check_state()`, and `ks_save2xlsx_by()`.
+- Added label and coding helpers: `ks_get_labels()` and `ks_code_to_fmt()`.
+
+## Dependencies
+
+- Added imports: `ksformat`, `labelled`, `openxlsx2`, `purrr`, `stringr`, and `tibble`.
+
+---
+
 # kstools 0.3.1
 
 ## New features
