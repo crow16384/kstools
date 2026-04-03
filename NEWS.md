@@ -1,3 +1,11 @@
+# kstools 0.3.3
+
+## Bug fixes
+
+- Removed unused `labelled` import; `is_missing` is now correctly sourced from `ksformat`.
+
+---
+
 # kstools 0.3.2
 
 ## New features

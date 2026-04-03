@@ -36,7 +36,7 @@ ks_code_to_fmt <- function(dt, col, name = NULL) {
 
   vals <- dt %>%
     dplyr::select(!!col_q) %>%
-    dplyr::filter(!labelled::is_missing(!!col_q)) %>%
+    dplyr::filter(!ksformat::is_missing(!!col_q)) %>%
     tidyr::separate(!!col_q, into = c("col1", "col2"), sep = "=") %>%
     dplyr::select(col1, col2) %>%
     dplyr::distinct()
