@@ -16,3 +16,8 @@ kstools.Rcheck/
 # OS / editor
 .DS_Store
 ._*
+
+# Serena runtime artifacts
+.serena/cache/
+.serena/logs/
+.serena/project.local.yml

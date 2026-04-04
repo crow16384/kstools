@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "oraios-serena": {
+      "type": "stdio",
+      "command": "/home/meguty/.local/bin/serena",
+      "args": [
+        "start-mcp-server",
+        "--project",
+        "/tank/storage/Develop/R/kstools",
+        "--context",
+        "desktop-app",
+        "--transport",
+        "stdio"
+      ]
+    }
+  }
+}
