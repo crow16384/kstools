@@ -10,7 +10,8 @@
 #' @param data A data frame.
 #' @param file Character.  Path to the output \code{.xlsx} file.
 #' @param colors Named character vector mapping message substrings to hex
-#'   colour codes (e.g. \code{c("Error" = "FFCCCC", "OK" = "CCFFCC")}).
+#'   colour codes (e.g. \code{c("Error" = "#FFCCCC", "OK" = "#CCFFCC")}).
+#'   Values with or without leading \code{"#"} are accepted.
 #' @param split_col \code{<tidy-select>} Bare name of the column used to split
 #'   data into worksheets.  Default \code{type}.
 #' @param msg_col \code{<tidy-select>} Bare name of the column that contains
@@ -24,6 +25,7 @@
 #'   Pass \code{NULL} to disable.  Default \code{NULL}.
 #' @param status_colors Named character vector mapping status values to hex
 #'   colour codes.  Used only when \code{status_col} is not \code{NULL}.
+#'   Values with or without leading \code{"#"} are accepted.
 #'
 #' @return Invisibly returns \code{NULL}.  The file is written as a side
 #'   effect.
@@ -33,7 +35,7 @@
 #' ks_save2xlsx_by(
 #'   results,
 #'   file   = "output/checks.xlsx",
-#'   colors = c("Error" = "FFCCCC", "Warning" = "FFFF99"),
+#'   colors = c("Error" = "#FFCCCC", "Warning" = "#FFFF99"),
 #'   split_col = type,
 #'   msg_col   = check_msgs
 #' )
@@ -53,6 +55,15 @@ ks_save2xlsx_by <- function(data, file, colors,
                              na_to_empty  = FALSE,
                              status_col   = NULL,
                              status_colors = NULL) {
+  normalize_hex_color <- function(x) {
+    sub("^#", "", x)
+  }
+
+  colors <- vapply(colors, normalize_hex_color, character(1), USE.NAMES = TRUE)
+  if (!is.null(status_colors)) {
+    status_colors <- vapply(status_colors, normalize_hex_color, character(1), USE.NAMES = TRUE)
+  }
+
   split_col_name  <- deparse(substitute(split_col))
   msg_col_name    <- deparse(substitute(msg_col))
   status_col_name <- if (!is.null(substitute(status_col))) deparse(substitute(status_col)) else NULL

@@ -21,7 +21,8 @@ ks_save2xlsx_by(
 \item{file}{Character.  Path to the output \code{.xlsx} file.}
 
 \item{colors}{Named character vector mapping message substrings to hex
-colour codes (e.g. \code{c("Error" = "FFCCCC", "OK" = "CCFFCC")}).}
+colour codes (e.g. \code{c("Error" = "#FFCCCC", "OK" = "#CCFFCC")}).
+Values with or without leading \code{"#"} are accepted.}
 
 \item{split_col}{\code{<tidy-select>} Bare name of the column used to split
 data into worksheets.  Default \code{type}.}
@@ -39,7 +40,8 @@ secondary layer of row colouring that overrides \code{colors}.
 Pass \code{NULL} to disable.  Default \code{NULL}.}
 
 \item{status_colors}{Named character vector mapping status values to hex
-colour codes.  Used only when \code{status_col} is not \code{NULL}.}
+colour codes.  Used only when \code{status_col} is not \code{NULL}.
+Values with or without leading \code{"#"} are accepted.}
 }
 \value{
 Invisibly returns \code{NULL}.  The file is written as a side
@@ -58,7 +60,7 @@ italic row above the data headers when present.
 ks_save2xlsx_by(
   results,
   file   = "output/checks.xlsx",
-  colors = c("Error" = "FFCCCC", "Warning" = "FFFF99"),
+  colors = c("Error" = "#FFCCCC", "Warning" = "#FFFF99"),
   split_col = type,
   msg_col   = check_msgs
 )
