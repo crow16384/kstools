@@ -1,7 +1,7 @@
 Package: kstools
 Type: Package
 Title: Clinical and Data Science Utilities
-Version: 0.3.5
+Version: 0.3.6
 Authors@R: c(
     person(
       "Vladimir", "Larchenko",
@@ -20,6 +20,8 @@ Description: Utility functions for clinical trials and data science:
     supplemental merge, XPT batch load), table builders, batch data loading,
     and utilities (z-score, CV, SWOE, AUC, EAIR, Newcombe CIs, AR(1) simulation).
 License: GPL-3
+URL: https://crow16384.github.io/kstools/, https://github.com/crow16384/kstools
+BugReports: https://github.com/crow16384/kstools/issues
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports:
@@ -42,6 +44,11 @@ Suggests:
     arrow,
     foreign,
     haven,
+    knitr,
+    mcpr,
+    pkgdown,
+    rmarkdown,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 RoxygenNote: 7.3.3

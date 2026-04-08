@@ -1,0 +1,162 @@
+# Changelog
+
+## kstools 0.3.5
+
+### Performance
+
+- [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md):
+  replaced O(N) per-row `wb_add_fill()` loops with Excel Conditional
+  Formatting rules (`wb_add_dxfs_style()` +
+  `wb_add_conditional_formatting()`). Fill calls now scale O(1) per
+  colour key per sheet regardless of row count — e.g. 3,000
+  `wb_add_fill()` calls for a 1,000-row / 3-colour sheet become 3 CF
+  rules.
+
+### Bug fixes
+
+- [`ks_summary()`](https://crow16384.github.io/kstools/reference/ks_summary.md)
+  test: fixed case-insensitive regexp match for the “Duplicate names”
+  error so the test no longer fails against the capitalised message.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.4
+
+### Bug fixes
+
+- [`ks_z_score()`](https://crow16384.github.io/kstools/reference/ks_z_score.md):
+  fixed inverted formula — was returning `(mean - x) / sd` instead of
+  the correct `(x - mean) / sd`.
+- [`read.csv3()`](https://crow16384.github.io/kstools/reference/read.csv3.md):
+  fixed potential crash on end-of-file when
+  [`readLines()`](https://rdrr.io/r/base/readLines.html) returns
+  `character(0)` — [`length()`](https://rdrr.io/r/base/length.html)
+  guard now precedes [`grepl()`](https://rdrr.io/r/base/grep.html) to
+  avoid a zero-length condition in `if()`.
+- [`ks_compare_check_state()`](https://crow16384.github.io/kstools/reference/ks_compare_check_state.md):
+  removed unused internal `..row_id..` column that was allocated and
+  immediately deleted on every call.
+- [`ks_median_ci()`](https://crow16384.github.io/kstools/reference/ks_median_ci.md)
+  (`boot` method): guard against `NULL` `$bca` component — `boot.ci()`
+  omits BCa for very small samples; bounds now fall back to `NA_real_`
+  instead of silently dropping vector elements.
+- [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md):
+  removed dead `as_table` parameter (implementation was already removed
+  in 0.3.3); narrowed status-column fill to the status column only (was
+  incorrectly colouring the entire row); added freeze-pane on the header
+  row; added thin cell borders on all data cells.
+
+### Minor improvements
+
+- [`ks_cv()`](https://crow16384.github.io/kstools/reference/ks_cv.md),
+  [`ks_z_score()`](https://crow16384.github.io/kstools/reference/ks_z_score.md):
+  replaced bare `T` with `TRUE`.
+- [`ks_del_tmp()`](https://crow16384.github.io/kstools/reference/ks_del_tmp.md):
+  simplified redundant single-character class `[t]` to `t`.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.3
+
+### Bug fixes
+
+- Removed unused `labelled` import; `is_missing` is now correctly
+  sourced from `ksformat`.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.2
+
+### New features
+
+- Added validation workflow helpers:
+  [`ks_check_rules()`](https://crow16384.github.io/kstools/reference/ks_check_rules.md),
+  [`ks_collapse_check_msgs()`](https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.md),
+  [`ks_compare_check_state()`](https://crow16384.github.io/kstools/reference/ks_compare_check_state.md),
+  and
+  [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md).
+- Added label and coding helpers:
+  [`ks_get_labels()`](https://crow16384.github.io/kstools/reference/ks_get_labels.md)
+  and
+  [`ks_code_to_fmt()`](https://crow16384.github.io/kstools/reference/ks_code_to_fmt.md).
+
+### Dependencies
+
+- Added imports: `ksformat`, `labelled`, `openxlsx2`, `purrr`,
+  `stringr`, and `tibble`.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.1
+
+### New features
+
+- **[`read.csv3()`](https://crow16384.github.io/kstools/reference/read.csv3.md)**:
+  read a CSV file with optional KeyStat comment headers
+  (`#NAME$type(length)$Label`) for column types and labels.
+- **[`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md)**:
+  new `type` values `"csv"` and `"csvks"` for loading plain CSV and
+  KeyStat-commented CSV domains; `.csv` is also auto-detected.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.0
+
+### New features
+
+- **[`ks_summary()`](https://crow16384.github.io/kstools/reference/ks_summary.md)**:
+  new `numdec = TRUE` parameter appends a `NUMDEC` column with the
+  group-level max decimal places of `var` (via `ks_get_numdec` logic).
+- **[`ks_current_filename()`](https://crow16384.github.io/kstools/reference/ks_current_filename.md)**:
+  detect the basename of the running R script (source or Rscript).
+- **[`ks_get_numdec()`](https://crow16384.github.io/kstools/reference/ks_get_numdec.md)**:
+  compute max decimal places per group and join as `NUMDEC`.
+- Second author added: Igor Aleschenkov.
+
+### Improvements
+
+- `R/get_numeric.r` renamed to `R/get_numdec.r` for consistency with the
+  exported function name.
+
+------------------------------------------------------------------------
+
+## kstools 0.2.0
+
+### New features
+
+- **[`ks_summary()`](https://crow16384.github.io/kstools/reference/ks_summary.md)**
+  accepts optional **`extras`**: a named list of functions
+  (`f(x, na.rm)`) for extra per-group statistics; columns appear after
+  the default summary stats and before `cv`.
+
+### Improvements and fixes
+
+- **[`ks_simulate_ar1()`](https://crow16384.github.io/kstools/reference/ks_simulate_ar1.md)**:
+  validation, reproducibility (`seed`), `MASS::` / `stats::` usage,
+  documentation, examples, and tests.
+- **[`ks_geom_mean()`](https://crow16384.github.io/kstools/reference/ks_geom_mean.md)**,
+  **[`ks_median_ci()`](https://crow16384.github.io/kstools/reference/ks_median_ci.md)**,
+  **[`ks_n_pct()`](https://crow16384.github.io/kstools/reference/ks_n_pct.md)**,
+  **[`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md)**,
+  **[`ks_swap_cols()`](https://crow16384.github.io/kstools/reference/ks_swap_cols.md)**,
+  **[`ks_swoe()`](https://crow16384.github.io/kstools/reference/ks_swoe.md)**,
+  and related helpers: refactors, bug fixes, and documentation updates
+  (see git history).
+- **Newcombe hybrid score** CIs:
+  [`ks_newcombe_hs()`](https://crow16384.github.io/kstools/reference/ks_newcombe_hs.md),
+  [`ks_newcombe_hs_strata()`](https://crow16384.github.io/kstools/reference/ks_newcombe_hs_strata.md).
+- Removed **`ks_trim`** in favour of
+  **[`base::trimws()`](https://rdrr.io/r/base/trimws.html)**; removed
+  medical-history helpers from earlier versions.
+
+### Documentation
+
+- README and package overview
+  ([`?kstools`](https://crow16384.github.io/kstools/reference/kstools-package.md))
+  updated; broken cross-references in the package index fixed.
+
+------------------------------------------------------------------------
+
+## kstools 0.1.0
+
+Initial packaged release.

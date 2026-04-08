@@ -1,3 +1,24 @@
+# kstools 0.3.6
+
+## Documentation
+
+- Added pkgdown configuration (`_pkgdown.yml`) and generated docs site workflow.
+- Added vignettes: `getting-started` and `clinical-workflows`.
+- Expanded `inst/examples` coverage and added `run_all_examples.R` index runner.
+- Added CI workflow to keep README version badge synchronized with `DESCRIPTION`.
+
+## New functions
+
+- Added `ks_mianalyze()` / `mianalyze()` (Rubin pooling; SAS MIANALYZE analogue).
+- Added `ks_roc()` (correlated ROC AUC comparison with contrast tests).
+- Added `ks_williams()` (randomized Williams cross-over design and schedule generator).
+
+## Bug fixes
+
+- `ks_collapse_check_msgs()`: removed unqualified `%>%` dependency so function and vignettes run without attaching dplyr.
+
+---
+
 # kstools 0.3.5
 
 ## Performance

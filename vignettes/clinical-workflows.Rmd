@@ -1,0 +1,121 @@
+---
+title: "Clinical Workflows"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Clinical Workflows}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette shows practical combinations of `kstools` functions for common clinical programming tasks.
+
+## 1. Data Quality Checks and Tracking
+
+```{r}
+library(kstools)
+
+adsl <- data.frame(
+  USUBJID = sprintf("01-%03d", 1:6),
+  AGE = c(34, 52, -1, 40, 29, 70),
+  SEX = c("M", "F", "M", NA, "F", "X"),
+  stringsAsFactors = FALSE
+)
+
+rules <- list(
+  list(expr = ~ AGE < 0, msg = "AGE must be non-negative"),
+  list(expr = ~ is.na(SEX), msg = "SEX missing"),
+  list(expr = ~ !(SEX %in% c("M", "F")) & !is.na(SEX), msg = "SEX invalid")
+)
+
+checked <- ks_check_rules(adsl, rules, mode = "all")
+checked <- ks_collapse_check_msgs(checked, col = check_msgs)
+checked
+```
+
+Track deltas against a prior snapshot:
+
+```{r}
+previous <- checked
+current <- checked
+current$AGE[2] <- 45
+current$check_msgs[2] <- "OK"
+
+ks_compare_check_state(
+  current = current,
+  previous = previous,
+  key_cols = "USUBJID",
+  compare_cols = c("AGE", "check_msgs")
+)[, c("USUBJID", "status")]
+```
+
+## 2. Incidence Rate and Proportion Comparisons
+
+```{r}
+ks_eairdiff_mn(n1 = 10, n2 = 5, T1 = 100, T2 = 100)
+
+ks_newcombe_hs(
+  x1 = 36L, n1 = 54L,
+  x2 = 41L, n2 = 56L
+)
+```
+
+Stratified alternatives:
+
+```{r}
+ks_eairdiff_strata_mn(
+  n1 = c(10, 5), n2 = c(5, 3),
+  T1 = c(100, 80), T2 = c(100, 70)
+)
+
+ks_newcombe_hs_strata(
+  x1 = c(36L, 10L), n1 = c(54L, 30L),
+  x2 = c(41L, 8L),  n2 = c(56L, 30L)
+)
+```
+
+## 3. Randomization Design
+
+```{r}
+w <- ks_williams(
+  tmts_num = 4,
+  tmt_names = c("Drug1A", "Drug2B", "ActCtrl", "Placebo"),
+  sample_size = 24,
+  seed_num = 20260408
+)
+
+w$design
+head(w$schedule)
+```
+
+## 4. Consolidated Export to XLSX
+
+```{r eval=FALSE}
+# requires openxlsx2
+ks_save2xlsx_by(
+  data = checked,
+  file = "checks.xlsx",
+  colors = c("missing" = "#FFF2CC", "invalid" = "#F8CBAD", "OK" = "#E2F0D9"),
+  split_col = type,
+  msg_col = check_msgs
+)
+```
+
+## 5. Data Loaders
+
+```{r eval=FALSE}
+# one-shot load of multiple domains from RDS directory
+ks_get_data(dm, ae, adlb, path = "data/rds")
+
+# or bulk by file type
+x <- ks_batch_load("data/rds", type = "rds")
+names(x)
+```
+
+These pieces can be mixed to build reproducible data review and reporting pipelines.

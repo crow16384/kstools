@@ -1,5 +1,12 @@
 {
   "servers": {
+    "kstools": {
+      "type": "stdio",
+      "command": "Rscript",
+      "args": [
+        "/Users/meguty/Develop/R/kstools/inst/mcp_server.R"
+      ]
+    },
     "oraios-serena": {
       "type": "stdio",
       "command": "/home/meguty/.local/bin/serena",

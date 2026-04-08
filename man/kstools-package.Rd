@@ -15,6 +15,15 @@ Utility functions for clinical trials and data science:
   \item \strong{Utilities}: \code{\link{ks_swap_cols}}, \code{\link{ks_del_tmp}}, \code{\link{ks_aligndec}}, \code{\link{ks_sum_na}}, \code{\link{ks_auc}}, \code{\link{ks_swoe}}, \code{\link{ks_simulate_ar1}}, \code{\link{ks_eairdiff_mn}}, \code{\link{ks_eairdiff_strata_mn}}, \code{\link{ks_newcombe_hs}}, \code{\link{ks_newcombe_hs_strata}}, \code{\link{ks_current_filename}}, \code{\link{ks_get_numdec}}
 }
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://crow16384.github.io/kstools/}
+  \item \url{https://github.com/crow16384/kstools}
+  \item Report bugs at \url{https://github.com/crow16384/kstools/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Vladimir Larchenko \email{vladimir.larchenko@keystatsolutions.com}
 

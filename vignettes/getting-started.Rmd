@@ -1,0 +1,100 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+`kstools` provides practical helpers for clinical and data-science workflows: descriptive summaries, pooled estimators from multiple imputations, ROC comparison, SDTM/SUPP operations, and data-loading tools.
+
+## Installation
+
+```{r eval=FALSE}
+# local source install from package root
+install.packages(".", repos = NULL, type = "source")
+
+# from GitHub
+remotes::install_github("crow16384/kstools")
+```
+
+## Descriptive Summary
+
+```{r}
+library(kstools)
+
+set.seed(42)
+adlb <- data.frame(
+  trt = rep(c("Drug A", "Placebo"), each = 50),
+  visit = rep(c("Week 4", "Week 12"), each = 25, times = 2),
+  aval = c(rnorm(50, 28, 8), rnorm(50, 32, 9))
+)
+
+ks_summary(adlb, aval, trt, visit)
+```
+
+## Pooled Estimate Across Imputations
+
+```{r}
+est <- c(0.345, 0.303, 0.298, 0.378)
+err <- c(0.056, 0.101, 0.099, 0.034)
+
+mianalyze(est, err)
+```
+
+## Compare ROC Areas
+
+```{r}
+set.seed(123)
+n <- 120
+y <- rbinom(n, 1, 0.45)
+df <- data.frame(
+  y = y,
+  x1 = y + rnorm(n, sd = 0.8),
+  x2 = 0.7 * y + rnorm(n, sd = 0.9),
+  x3 = 0.5 * y + rnorm(n, sd = 1.0)
+)
+
+roc_out <- ks_roc(df, var = c("x1", "x2", "x3"), response = "y")
+roc_out$areas
+roc_out$contrasts
+```
+
+## SDTM Supplemental Merge
+
+```{r}
+dm <- data.frame(
+  STUDYID = "S1",
+  USUBJID = c("01", "02", "03"),
+  AGE = c(34L, 52L, 47L),
+  stringsAsFactors = FALSE
+)
+
+suppdm <- data.frame(
+  STUDYID  = "S1",
+  USUBJID  = c("01", "02", "03"),
+  IDVAR    = "",
+  IDVARVAL = "",
+  QNAM     = "RACE2",
+  QLABEL   = "Race (detail)",
+  QVAL     = c("Asian", "White", "Asian"),
+  stringsAsFactors = FALSE
+)
+
+ks_supp_merge(dm, suppdm)
+```
+
+## Next Steps
+
+- See the `clinical-workflows` vignette for end-to-end examples.
+- Explore `inst/examples` for runnable scripts by function.

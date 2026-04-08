@@ -1,0 +1,111 @@
+template:
+  bootstrap: 5
+  bslib:
+    bootswatch: flatly
+    pkgdown-nav-height: 90px
+
+url: https://crow16384.github.io/kstools/
+
+authors:
+  Vladimir Larchenko:
+    href: mailto:vladimir.larchenko@keystatsolutions.com
+  Igor Aleschenkov:
+    href: mailto:igor.aleschenkov@keystatsolutions.com
+
+home:
+  title: kstools
+  description: Clinical and data science utilities for R.
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [github]
+  components:
+    intro:
+      text: Get Started
+      href: articles/getting-started.html
+    articles:
+      text: Articles
+      menu:
+        - text: Getting Started
+          href: articles/getting-started.html
+        - text: Clinical Workflows
+          href: articles/clinical-workflows.html
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/crow16384/kstools
+      aria-label: GitHub repository
+
+reference:
+  - title: Descriptive Statistics
+    desc: Summaries and common descriptive estimators.
+    contents:
+      - ks_summary
+      - ks_median_ci
+      - ks_geom_mean
+      - ks_q1
+      - ks_q3
+      - ks_cv
+      - ks_z_score
+      - ks_p_norm
+      - ks_n_pct
+      - ks_get_numdec
+
+  - title: Inference and Comparison
+    desc: Confidence intervals, pooled estimates, and model-comparison helpers.
+    contents:
+      - ks_mianalyze
+      - mianalyze
+      - ks_roc
+      - ks_eairdiff_mn
+      - ks_eairdiff_strata_mn
+      - ks_newcombe_hs
+      - ks_newcombe_hs_strata
+      - ks_auc
+
+  - title: SDTM and Clinical Data Utilities
+    desc: SDTM helpers and supplemental-domain workflows.
+    contents:
+      - ks_dtc2dtn
+      - ks_supp_consistency_check
+      - ks_supp_merge
+      - ks_desc_coded
+      - ks_get_labels
+
+  - title: Data Input and Export
+    desc: File readers, batch loaders, and report writers.
+    contents:
+      - ks_get_data
+      - read.csv3
+      - ks_batch_load
+      - ks_batch_load_xlsx
+      - ks_xpt_content
+      - ks_extract_single_xpt
+      - ks_batch_load_from_single_xpt
+      - ks_save2xlsx_by
+
+  - title: Miscellaneous Utilities
+    contents:
+      - ks_swap_cols
+      - ks_del_tmp
+      - ks_aligndec
+      - ks_sum_na
+      - "%+na%"
+      - ks_swoe
+      - ks_simulate_ar1
+      - ks_current_filename
+      - ks_code_to_fmt
+      - ks_compare_check_state
+      - ks_check_rules
+      - ks_collapse_check_msgs
+      - ks_williams
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - getting-started
+      - clinical-workflows

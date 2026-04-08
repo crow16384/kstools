@@ -1,12 +1,17 @@
 # kstools
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Docs and Site](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml/badge.svg)](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml)
+[![pkgdown site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
+<!-- version-badge:start -->
+[![Version](https://img.shields.io/badge/version-0.3.6-blue)](https://github.com/crow16384/kstools/releases/latest)
+<!-- version-badge:end -->
 
 Clinical and data science utilities for R.
 
-**Version:** 0.3.1 (see [`NEWS.md`](NEWS.md) for changes.)
+Current package version is maintained in [DESCRIPTION](DESCRIPTION); detailed release history is in [NEWS.md](NEWS.md).
 
-**Repository:** [github.com/crow16384/kstools](https://github.com/crow16384/kstools)
+Repository: [github.com/crow16384/kstools](https://github.com/crow16384/kstools)
 
 ## Installation
 
@@ -16,87 +21,130 @@ From a local checkout (package root):
 install.packages(".", repos = NULL, type = "source")
 ```
 
-From GitHub (requires the [**remotes**](https://cran.r-project.org/package=remotes) package):
+From GitHub:
 
 ```r
 remotes::install_github("crow16384/kstools")
 ```
 
-## Function overview
+## Key Features
 
-### Descriptive statistics
+### Descriptive Statistics
 
-| Function | Description |
-|----------|-------------|
-| `ks_summary()` | Grouped summary: `n`, mean (SD), median, Q1;Q3, min;max, CV; optional `extras` (named list of functions); optional paired p-value |
-| `ks_median_ci()` | Median with confidence interval (bootstrap, Olive, or z) |
-| `ks_geom_mean()` | Geometric mean and confidence interval |
-| `ks_q1()`, `ks_q3()` | 25th and 75th percentiles (SAS type=2 by default) |
-| `ks_cv()` | Coefficient of variation |
-| `ks_z_score()` | Z-score `(mean(x) - x) / sd(x)` |
-| `ks_p_norm()` | Shapiro-Wilk p-value |
-| `ks_n_pct()` | Format counts as `n (pct%)` (vector or data.frame) |
+- `ks_summary()` grouped summary table with optional custom statistics (`extras`)
+- `ks_median_ci()`, `ks_geom_mean()`, `ks_q1()`, `ks_q3()`, `ks_cv()`, `ks_z_score()`, `ks_p_norm()`, `ks_n_pct()`
+- `ks_get_numdec()` for decimal precision tracking
 
-### SDTM / ADaM helpers
+### Inference and Comparative Methods
 
-| Function | Description |
-|----------|-------------|
-| `ks_dtc2dtn()` | Convert DTC character to `Date` |
-| `ks_supp_consistency_check()` | Validate SUPP structure/content |
-| `ks_supp_merge()` | Merge SUPP with primary domain |
-| `ks_xpt_content()` | List datasets in a multi-member SAS XPORT file |
-| `ks_extract_single_xpt()` | Read one dataset from XPORT |
-| `ks_batch_load_from_single_xpt()` | Load/save all datasets (RData/rds/parquet) |
+- `ks_mianalyze()` / `mianalyze()` Rubin pooling across multiple imputations (SAS MIANALYZE analogue)
+- `ks_roc()` correlated ROC AUC comparison using Mann-Whitney components and contrast tests
+- `ks_eairdiff_mn()` / `ks_eairdiff_strata_mn()` incidence-rate difference CIs
+- `ks_newcombe_hs()` / `ks_newcombe_hs_strata()` difference-in-proportion CIs
+- `ks_auc()` linear/log-linear trapezoidal AUC
 
-### Clinical table builders
+### SDTM / ADaM Helpers
 
-| Function | Description |
-|----------|-------------|
-| `ks_desc_coded()` | Descriptive table for coded / factor variables |
+- `ks_dtc2dtn()` DTC to `Date`
+- `ks_supp_consistency_check()` and `ks_supp_merge()` for SUPP domains
+- `ks_xpt_content()`, `ks_extract_single_xpt()`, `ks_batch_load_from_single_xpt()` for multi-member XPT workflows
+- `ks_desc_coded()` clinical coded-summary table builder
 
-### Data loading
+### Data Loading and Export
 
-| Function | Description |
-|----------|-------------|
-| `ks_get_data()` | Load one or more domains (`.rds`, `.xpt`, `.xlsx`, `.csv`) into `.GlobalEnv` |
-| `read.csv3()` | Read a CSV file; optionally parse KeyStat comment headers for column types and labels |
-| `ks_batch_load()` | Batch-load files by type (e.g. xlsx, csv) |
-| `ks_batch_load_xlsx()` | Convenience wrapper: xlsx batch load |
+- `ks_get_data()` and `read.csv3()`
+- `ks_batch_load()` and `ks_batch_load_xlsx()`
+- `ks_save2xlsx_by()` split-by-sheet XLSX export with conditional formatting
 
-### Utilities
+### Utility Functions
 
-| Function | Description |
-|----------|-------------|
-| `ks_swap_cols()` | Swap pairs of columns by name |
-| `ks_del_tmp()` | Remove temporary objects (`t.*`, `o.*`) from global env |
-| `ks_aligndec()` | Align strings by decimal / first space |
-| `ks_sum_na()` | Sum ignoring NA |
-| `ks_auc()` | Area under curve (trapezoidal or log-trapezoidal) |
-| `ks_swoe()` | Smoothed weight of evidence for factors |
-| `ks_simulate_ar1()` | Simulate AR(1) longitudinal data |
-| `ks_eairdiff_mn()` | Miettinen–Nurminen CI for difference of incidence rates |
-| `ks_eairdiff_strata_mn()` | Stratified version |
-| `ks_newcombe_hs()` | Newcombe hybrid score CI for difference of proportions |
-| `ks_newcombe_hs_strata()` | Stratified version |
-| `ks_current_filename()` | Basename of the currently executing R script |
-| `ks_get_numdec()` | Max decimal places per group (joins `NUMDEC` column) |
+- `ks_swap_cols()`, `ks_del_tmp()`, `ks_aligndec()`, `ks_sum_na()`, `%+na%`
+- `ks_swoe()`, `ks_simulate_ar1()`, `ks_current_filename()`, `ks_code_to_fmt()`, `ks_get_labels()`, `ks_compare_check_state()`, `ks_check_rules()`, `ks_collapse_check_msgs()`
+- `ks_williams()` randomized Williams design and schedule generation
 
-Use base R [`trimws()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/trimws.html) for leading/trailing whitespace on character vectors (tidyr has no separate trim helper; `stringr::str_trim` is equivalent).
+## Examples
+
+- Runnable per-function scripts are in [inst/examples](inst/examples).
+- Run all examples in a defined sequence:
+
+```r
+source("inst/examples/run_all_examples.R")
+```
+
+## Documentation Workflow
+
+From the package root:
+
+```r
+# 1) Regenerate Rd files and NAMESPACE from roxygen comments
+roxygen2::roxygenise()
+
+# 2) Build vignettes
+devtools::build_vignettes()
+
+# 3) Build package site (pkgdown)
+pkgdown::build_site()
+```
+
+The pkgdown configuration is in [_pkgdown.yml](_pkgdown.yml), and vignettes are in [vignettes](vignettes).
+
+## Serena (AI Code Navigation)
+
+This repo is configured for [Serena](https://github.com/oraios/serena) semantic code navigation.
+VS Code launches the Serena MCP server automatically via `.vscode/mcp.json`.
+
+### Initial setup
+
+```sh
+# Re-index project or run a health-check
+./scripts/start-serena.sh
+```
+
+That script creates `.serena/project.yml` if missing, runs `serena project index`, and runs `serena project health-check`.
+
+### Troubleshooting
+
+#### "No active project" / MCP tools fail
+
+Activate the project from the agent/chat session:
+
+```
+activate_project("/Users/meguty/Develop/R/kstools")
+```
+
+Or from the terminal:
+
+```sh
+cd /path/to/kstools
+serena project activate --name kstools
+serena project health-check "$PWD"
+```
+
+#### Health-check fails on vignettes or test helpers
+
+Non-R files (`.Rmd`) and symbol-less bootstrap files confuse the R LSP.  
+They are excluded in [.serena/project.yml](.serena/project.yml) via `ignored_paths`:
+
+```yaml
+ignored_paths:
+  - "vignettes/*.Rmd"
+  - "tests/**"
+```
+
+If a new non-R file triggers a failure, add it to `ignored_paths` in the same way.
+
+#### Re-index after large changes
+
+```sh
+serena project index . --name kstools --language r
+```
 
 ## Dependencies
 
-Declared in `DESCRIPTION`:
-
-- **Imports:** `boot`, `dplyr`, `MASS`, `methods`, `nlme`, `parallel`, `rlang`, `rootSolve`, `tidyr`
-- **Suggests:** `arrow`, `foreign`, `haven`, `openxlsx2`, `testthat` (≥ 3.0.0)
+Primary imports and suggested packages are declared in [DESCRIPTION](DESCRIPTION).
 
 ## License
 
-**GNU General Public License v3.0 (GPL-3.0)**
+GNU General Public License v3.0 (GPL-3).
 
-This package is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License as published by the Free Software Foundation](https://www.gnu.org/licenses/gpl-3.0.en.html), version 3.
-
-- **SPDX:** `GPL-3.0` — see the `License:` field in [`DESCRIPTION`](DESCRIPTION).
-- **Copyright:** Vladimir Larchenko.
-
-A separate `LICENSE` file in the repository is optional; the GPL-3.0 applies as stated in `DESCRIPTION` and here. For the full license text, see the [official GPL-3.0 page](https://www.gnu.org/licenses/gpl-3.0.en.html).
+See [DESCRIPTION](DESCRIPTION) and the [GPL-3.0 text](https://www.gnu.org/licenses/gpl-3.0.en.html).

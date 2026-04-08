@@ -27,6 +27,5 @@ ks_collapse_check_msgs <- function(data, sep = "; ", col) {
   if (missing(col)) {
     cli::cli_abort("{.arg col} must be provided.")
   }
-  data %>%
-    dplyr::mutate({{col}} := purrr::map_chr({{col}}, ~ paste(.x, collapse = sep)))
+  dplyr::mutate(data, {{col}} := purrr::map_chr({{col}}, ~ paste(.x, collapse = sep)))
 }
