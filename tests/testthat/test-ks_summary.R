@@ -128,7 +128,7 @@ test_that("errors when extras has duplicate names", {
   df <- data.frame(x = 1:5)
   expect_error(
     ks_summary(df, x, extras = list(a = stats::mad, a = IQR)),
-    regexp = "duplicate"
+    regexp = "(?i)duplicate"
   )
 })
 

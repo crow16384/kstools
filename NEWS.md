@@ -1,3 +1,21 @@
+# kstools 0.3.5
+
+## Performance
+
+- `ks_save2xlsx_by()`: replaced O(N) per-row `wb_add_fill()` loops with Excel
+  Conditional Formatting rules (`wb_add_dxfs_style()` +
+  `wb_add_conditional_formatting()`).  Fill calls now scale O(1) per colour
+  key per sheet regardless of row count — e.g. 3,000 `wb_add_fill()` calls
+  for a 1,000-row / 3-colour sheet become 3 CF rules.
+
+## Bug fixes
+
+- `ks_summary()` test: fixed case-insensitive regexp match for the
+  "Duplicate names" error so the test no longer fails against the
+  capitalised message.
+
+---
+
 # kstools 0.3.4
 
 ## Bug fixes

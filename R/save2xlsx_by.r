@@ -42,12 +42,12 @@
 #' }
 #'
 #' @name ks_save2xlsx_by
-#' @importFrom openxlsx2 wb_workbook wb_add_worksheet wb_add_data wb_add_data_table
-#'   wb_add_filter wb_set_col_widths wb_freeze_pane wb_add_font wb_add_cell_style wb_add_fill
-#'   wb_add_border wb_save wb_dims wb_color
+#' @importFrom openxlsx2 wb_workbook wb_add_worksheet wb_add_data
+#'   wb_add_filter wb_set_col_widths wb_freeze_pane wb_add_font wb_add_cell_style
+#'   wb_add_border wb_save wb_dims wb_color wb_add_dxfs_style wb_add_conditional_formatting
+#'   int2col
 #' @importFrom dplyr filter select mutate across where
 #' @importFrom purrr map_chr
-#' @importFrom stringr str_detect fixed
 #' @export
 ks_save2xlsx_by <- function(data, file, colors,
                              split_col    = type,
@@ -69,6 +69,23 @@ ks_save2xlsx_by <- function(data, file, colors,
   status_col_name <- if (!is.null(substitute(status_col))) deparse(substitute(status_col)) else NULL
 
   wb <- openxlsx2::wb_workbook()
+
+  for (i in seq_along(colors)) {
+    wb <- openxlsx2::wb_add_dxfs_style(
+      wb,
+      name    = paste0(".ks_mfill_", i),
+      bg_fill = openxlsx2::wb_color(colors[[i]])
+    )
+  }
+  if (!is.null(status_colors)) {
+    for (j in seq_along(status_colors)) {
+      wb <- openxlsx2::wb_add_dxfs_style(
+        wb,
+        name    = paste0(".ks_sfill_", j),
+        bg_fill = openxlsx2::wb_color(status_colors[[j]])
+      )
+    }
+  }
 
   for (tp in unique(data[[split_col_name]])) {
     sheet_data <- data %>%
@@ -128,38 +145,52 @@ ks_save2xlsx_by <- function(data, file, colors,
         )
     }
 
-    for (msg in names(colors)) {
-      rows <- which(stringr::str_detect(sheet_data[[msg_col_name]], stringr::fixed(msg))) +
-        1L + row_offset
-      if (length(rows) > 0) {
-        for (r in rows) {
-          wb <- wb %>%
-            openxlsx2::wb_add_fill(
-              dims  = openxlsx2::wb_dims(rows = r, cols = 1:nc),
-              color = openxlsx2::wb_color(colors[[msg]])
-            )
-        }
-      }
-    }
-
-    if (!is.null(status_col_name) && !is.null(status_colors) &&
-        status_col_name %in% names(sheet_data)) {
-      status_col_idx <- which(names(sheet_data) == status_col_name)
-      for (st in names(status_colors)) {
-        rows <- which(sheet_data[[status_col_name]] == st) + 1L + row_offset
-        if (length(rows) > 0) {
-          for (r in rows) {
-            wb <- wb %>%
-              openxlsx2::wb_add_fill(
-                dims  = openxlsx2::wb_dims(rows = r, cols = status_col_idx),
-                color = openxlsx2::wb_color(status_colors[[st]])
-              )
-          }
-        }
-      }
-    }
-
     nr <- nrow(sheet_data)
+    first_data_row <- 2L + row_offset
+
+    # Status CF first — higher priority → overrides msg CF on the status column
+    if (!is.null(status_col_name) && !is.null(status_colors) &&
+        status_col_name %in% names(sheet_data) && nr > 0) {
+      status_col_idx    <- which(names(sheet_data) == status_col_name)
+      status_col_letter <- openxlsx2::int2col(status_col_idx)
+      status_cf_dims <- openxlsx2::wb_dims(
+        rows = first_data_row:(nr + 1L + row_offset),
+        cols = status_col_idx
+      )
+      for (j in seq_along(status_colors)) {
+        wb <- openxlsx2::wb_add_conditional_formatting(
+          wb,
+          sheet = tp,
+          dims  = status_cf_dims,
+          type  = "expression",
+          rule  = paste0('$', status_col_letter, first_data_row, '="',
+                         names(status_colors)[j], '"'),
+          style = paste0(".ks_sfill_", j)
+        )
+      }
+    }
+
+    # Msg CF second — lower priority; applies to all columns
+    if (nr > 0 && msg_col_name %in% names(sheet_data)) {
+      msg_col_idx    <- which(names(sheet_data) == msg_col_name)
+      msg_col_letter <- openxlsx2::int2col(msg_col_idx)
+      msg_cf_dims    <- openxlsx2::wb_dims(
+        rows = first_data_row:(nr + 1L + row_offset),
+        cols = 1:nc
+      )
+      for (i in seq_along(colors)) {
+        wb <- openxlsx2::wb_add_conditional_formatting(
+          wb,
+          sheet = tp,
+          dims  = msg_cf_dims,
+          type  = "expression",
+          rule  = paste0('ISNUMBER(FIND("', names(colors)[i], '",$',
+                         msg_col_letter, first_data_row, '))'),
+          style = paste0(".ks_mfill_", i)
+        )
+      }
+    }
+
     if (nr > 0) {
       data_dims <- openxlsx2::wb_dims(
         rows = (1L + row_offset):(nr + 1L + row_offset),
