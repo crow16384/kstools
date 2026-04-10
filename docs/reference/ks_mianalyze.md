@@ -1,14 +1,16 @@
 # Analogue of SAS PROC MIANALYZE (Rubin pooling)
 
 Pools point estimates and standard errors across multiple imputations
-according to Rubin's rules.
+according to Rubin's rules. Degrees of freedom follow the Barnard-Rubin
+(1999) small-sample adjustment when complete-data df are supplied via
+`edf` (equivalent to the SAS `EDF=` option).
 
 ## Usage
 
 ``` r
-ks_mianalyze(est, err, alpha = 0.05, theta0 = 0, v0)
+ks_mianalyze(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0)
 
-mianalyze(est, err, alpha = 0.05, theta0 = 0, v0)
+mianalyze(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0)
 ```
 
 ## Arguments
@@ -23,44 +25,119 @@ mianalyze(est, err, alpha = 0.05, theta0 = 0, v0)
 
 - alpha:
 
-  Significance level for confidence intervals. Default \code0.05.
+  Significance level for confidence intervals. Default `0.05`.
 
 - theta0:
 
-  Null value for hypothesis test \eqnH_0: theta = theta_0.
+  Null value for hypothesis test \\H_0: \theta = \theta_0\\.
+
+- edf:
+
+  Complete-data degrees of freedom (positive numeric scalar or `Inf`).
+  Equivalent to the SAS `EDF=` option in `PROC MIANALYZE`. When finite,
+  the Barnard-Rubin (1999) adjusted degrees of freedom \\v_m^\*\\ are
+  used instead of the Rubin (1987) large-sample \\v_m\\. Default `Inf`
+  (no adjustment, Rubin large-sample df).
 
 - v0:
 
-  Optional complete-data degrees of freedom used for Barnard-Rubin style
-  small-sample df adjustment.
+  Deprecated alias for `edf`. Kept for backward compatibility; ignored
+  when `edf` is also supplied.
 
 ## Value
 
-An object of class \codeks_mianalyze with components: \describe
-\itemEstimatePooled estimate. \itemStdErrPooled standard error.
-\itemmNumber of imputations. \itemVbBetween-imputation variance.
-\itemVwWithin-imputation variance. \itemVtTotal variance. \itemdfDegrees
-of freedom. \itemrRelative increase in variance due to nonresponse.
-\itemlambdaFraction of missing information. \itemreRelative efficiency.
-\itemlcl, uclTwo-sided confidence limits for \codeEstimate.
-\itemalphaAlpha used for CI. \itemtheta0Null value used in hypothesis
-test. \itemminim, maximMin/max of input \codeest. \itemtTest statistic
-for \eqnH_0. \itempvalTwo-sided p-value.
+An object of class `ks_mianalyze` with components:
+
+- Estimate:
+
+  Pooled estimate.
+
+- StdErr:
+
+  Pooled standard error.
+
+- m:
+
+  Number of imputations.
+
+- Vb:
+
+  Between-imputation variance.
+
+- Vw:
+
+  Within-imputation variance.
+
+- Vt:
+
+  Total variance.
+
+- df:
+
+  Degrees of freedom (adjusted when `edf` is finite).
+
+- r:
+
+  Relative increase in variance due to nonresponse.
+
+- lambda:
+
+  Fraction of missing information.
+
+- re:
+
+  Relative efficiency.
+
+- lcl, ucl:
+
+  Two-sided confidence limits for `Estimate`.
+
+- alpha:
+
+  Alpha used for CI.
+
+- theta0:
+
+  Null value used in hypothesis test.
+
+- edf:
+
+  Complete-data degrees of freedom used.
+
+- minim, maxim:
+
+  Min/max of input `est`.
+
+- t:
+
+  Test statistic for \\H_0\\.
+
+- pval:
+
+  Two-sided p-value.
 
 ## Details
 
-Let \eqnQ_i and \eqnU_i be estimate and variance from imputation \eqni.
-The pooled estimate is \eqn\barQ = m^-1\sum_i Q_i; within variance
-\eqn\barU = m^-1\sum_i U_i; between variance \eqnB = (m-1)^-1\sum_i
-(Q_i-\barQ)^2; total variance \eqnT = \barU + (1 + 1/m)B.
+Let \\Q_i\\ and \\U_i\\ be estimate and variance from imputation \\i\\.
+The pooled estimate is \\\bar{Q} = m^{-1}\sum_i Q_i\\; within variance
+\\\bar{U} = m^{-1}\sum_i U_i\\; between variance \\B = (m-1)^{-1}\sum_i
+(Q_i-\bar{Q})^2\\; total variance \\T = \bar{U} + (1 + 1/m)B\\.
 
-Degrees of freedom default to Rubin's large-sample expression and can be
-adjusted using \codev0.
+Rubin's (1987) large-sample degrees of freedom are \\v_m = (m-1)(1 +
+\bar{U}/((1+m^{-1})B))^2\\. When the complete-data degrees of freedom
+\\v_0\\ are small and the fraction of missing information is modest,
+\\v_m\\ can greatly exceed \\v_0\\, which is inappropriate. The
+Barnard-Rubin (1999) adjustment computes \\v_m^\* = (1/v_m +
+1/\hat{v}\_{obs})^{-1}\\ where \\\hat{v}\_{obs} = (1-\gamma) v_0
+(v_0+1)/(v_0+3)\\ and \\\gamma = (1+m^{-1})B/T\\.
 
 ## References
 
-Rubin, D. B. (1987). \emphMultiple Imputation for Nonresponse in
-Surveys. Wiley.
+Barnard, J. and Rubin, D. B. (1999). Small-sample degrees of freedom
+with multiple imputation. *Biometrika*, 86, 948–955.
+
+Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
+Wiley.
 
 ## Examples
 
@@ -92,12 +169,12 @@ out
 #> -------      -------     ------      ----------------    ------
 #> 0.298000 0.378000    0.00        3.7345          0.0004
 
-## With finite complete-data df adjustment
-mianalyze(est, err, v0 = 120)
+## Barnard-Rubin adjusted df (equivalent to SAS EDF=120)
+mianalyze(est, err, edf = 120)
 #> 
 #> 
 #> ***Variance information (4 Imputations)***
-#> Between      Within      Total       DF
+#> Between      Within      Total       DF (Barnard-Rubin adjusted)
 #> -------      ------      -----       --
 #> 0.001426 0.006074    0.007856    35.6
 #> 

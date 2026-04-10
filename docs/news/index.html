@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,20 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.8" id="kstools-038">kstools 0.3.8<a class="anchor" aria-label="anchor" href="#kstools-038"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-8"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code> / <code><a href="../reference/ks_mianalyze.html">mianalyze()</a></code>: aligned degrees-of-freedom handling with SAS <code>PROC MIANALYZE</code> behavior by adding <code>edf</code> (SAS <code>EDF=</code> analogue) and applying Barnard-Rubin small-sample adjustment when finite complete-data df are supplied.</li>
+<li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code> / <code><a href="../reference/ks_mianalyze.html">mianalyze()</a></code>: kept backward compatibility for <code>v0</code> while adding input validation for conflicting <code>edf</code>/<code>v0</code> specifications.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-3-8">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-8"></a></h3>
+<ul><li>Updated function docs and examples for the new <code>edf</code> argument and SAS-style DF behavior.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.7" id="kstools-037">kstools 0.3.7<a class="anchor" aria-label="anchor" href="#kstools-037"></a></h2>
 <div class="section level3">

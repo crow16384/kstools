@@ -1,48 +1,66 @@
 #' Analogue of SAS PROC MIANALYZE (Rubin pooling)
 #'
 #' Pools point estimates and standard errors across multiple imputations
-#' according to Rubin's rules.
+#' according to Rubin's rules.  Degrees of freedom follow the Barnard-Rubin
+#' (1999) small-sample adjustment when complete-data df are supplied via
+#' \code{edf} (equivalent to the SAS \code{EDF=} option).
 #'
 #' @param est Numeric vector of point estimates from each imputation.
 #' @param err Numeric vector of corresponding standard errors.
-#' @param alpha Significance level for confidence intervals. Default \\code{0.05}.
-#' @param theta0 Null value for hypothesis test \\eqn{H_0: theta = theta_0}.
-#' @param v0 Optional complete-data degrees of freedom used for Barnard-Rubin
-#'   style small-sample df adjustment.
+#' @param alpha Significance level for confidence intervals. Default \code{0.05}.
+#' @param theta0 Null value for hypothesis test \eqn{H_0: \theta = \theta_0}.
+#' @param edf Complete-data degrees of freedom (positive numeric scalar or
+#'   \code{Inf}).
+#'   Equivalent to the SAS \code{EDF=} option in \code{PROC MIANALYZE}.
+#'   When finite, the Barnard-Rubin (1999) adjusted degrees of freedom
+#'   \eqn{v_m^*} are used instead of the Rubin (1987) large-sample
+#'   \eqn{v_m}.  Default \code{Inf} (no adjustment, Rubin large-sample df).
+#' @param v0 Deprecated alias for \code{edf}.  Kept for backward
+#'   compatibility; ignored when \code{edf} is also supplied.
 #'
-#' @return An object of class \\code{ks_mianalyze} with components:
-#' \\describe{
-#'   \\item{Estimate}{Pooled estimate.}
-#'   \\item{StdErr}{Pooled standard error.}
-#'   \\item{m}{Number of imputations.}
-#'   \\item{Vb}{Between-imputation variance.}
-#'   \\item{Vw}{Within-imputation variance.}
-#'   \\item{Vt}{Total variance.}
-#'   \\item{df}{Degrees of freedom.}
-#'   \\item{r}{Relative increase in variance due to nonresponse.}
-#'   \\item{lambda}{Fraction of missing information.}
-#'   \\item{re}{Relative efficiency.}
-#'   \\item{lcl, ucl}{Two-sided confidence limits for \\code{Estimate}.}
-#'   \\item{alpha}{Alpha used for CI.}
-#'   \\item{theta0}{Null value used in hypothesis test.}
-#'   \\item{minim, maxim}{Min/max of input \\code{est}.}
-#'   \\item{t}{Test statistic for \\eqn{H_0}.}
-#'   \\item{pval}{Two-sided p-value.}
+#' @return An object of class \code{ks_mianalyze} with components:
+#' \describe{
+#'   \item{Estimate}{Pooled estimate.}
+#'   \item{StdErr}{Pooled standard error.}
+#'   \item{m}{Number of imputations.}
+#'   \item{Vb}{Between-imputation variance.}
+#'   \item{Vw}{Within-imputation variance.}
+#'   \item{Vt}{Total variance.}
+#'   \item{df}{Degrees of freedom (adjusted when \code{edf} is finite).}
+#'   \item{r}{Relative increase in variance due to nonresponse.}
+#'   \item{lambda}{Fraction of missing information.}
+#'   \item{re}{Relative efficiency.}
+#'   \item{lcl, ucl}{Two-sided confidence limits for \code{Estimate}.}
+#'   \item{alpha}{Alpha used for CI.}
+#'   \item{theta0}{Null value used in hypothesis test.}
+#'   \item{edf}{Complete-data degrees of freedom used.}
+#'   \item{minim, maxim}{Min/max of input \code{est}.}
+#'   \item{t}{Test statistic for \eqn{H_0}.}
+#'   \item{pval}{Two-sided p-value.}
 #' }
 #'
 #' @details
-#' Let \\eqn{Q_i} and \\eqn{U_i} be estimate and variance from imputation \\eqn{i}.
-#' The pooled estimate is \\eqn{\\bar{Q} = m^{-1}\\sum_i Q_i};
-#' within variance \\eqn{\\bar{U} = m^{-1}\\sum_i U_i};
-#' between variance \\eqn{B = (m-1)^{-1}\\sum_i (Q_i-\\bar{Q})^2};
-#' total variance \\eqn{T = \\bar{U} + (1 + 1/m)B}.
+#' Let \eqn{Q_i} and \eqn{U_i} be estimate and variance from imputation \eqn{i}.
+#' The pooled estimate is \eqn{\bar{Q} = m^{-1}\sum_i Q_i};
+#' within variance \eqn{\bar{U} = m^{-1}\sum_i U_i};
+#' between variance \eqn{B = (m-1)^{-1}\sum_i (Q_i-\bar{Q})^2};
+#' total variance \eqn{T = \bar{U} + (1 + 1/m)B}.
 #'
-#' Degrees of freedom default to Rubin's large-sample expression and can be
-#' adjusted using \\code{v0}.
+#' Rubin's (1987) large-sample degrees of freedom are
+#' \eqn{v_m = (m-1)(1 + \bar{U}/((1+m^{-1})B))^2}.  When the complete-data
+#' degrees of freedom \eqn{v_0} are small and the fraction of missing
+#' information is modest, \eqn{v_m} can greatly exceed \eqn{v_0}, which is
+#' inappropriate.  The Barnard-Rubin (1999) adjustment computes
+#' \eqn{v_m^* = (1/v_m + 1/\hat{v}_{obs})^{-1}} where
+#' \eqn{\hat{v}_{obs} = (1-\gamma) v_0 (v_0+1)/(v_0+3)} and
+#' \eqn{\gamma = (1+m^{-1})B/T}.
 #'
 #' @references
-#' Rubin, D. B. (1987). \\emph{Multiple Imputation for Nonresponse in Surveys}.
-#' Wiley.
+#' Barnard, J. and Rubin, D. B. (1999). Small-sample degrees of freedom with
+#'   multiple imputation. \emph{Biometrika}, 86, 948--955.
+#'
+#' Rubin, D. B. (1987). \emph{Multiple Imputation for Nonresponse in Surveys}.
+#'   Wiley.
 #'
 #' @examples
 #' est <- c(0.345, 0.303, 0.298, 0.378)
@@ -50,13 +68,13 @@
 #' out <- mianalyze(est, err)
 #' out
 #'
-#' ## With finite complete-data df adjustment
-#' mianalyze(est, err, v0 = 120)
+#' ## Barnard-Rubin adjusted df (equivalent to SAS EDF=120)
+#' mianalyze(est, err, edf = 120)
 #' @name ks_mianalyze
 #' @importFrom cli cli_abort
 #' @importFrom stats pt qt
 #' @export
-ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
+ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0) {
   if (!is.numeric(est) || !is.numeric(err))
     cli::cli_abort("{.arg est} and {.arg err} must be numeric vectors.")
   if (length(est) != length(err))
@@ -72,11 +90,14 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
   if (length(theta0) != 1L || is.na(theta0) || !is.finite(theta0))
     cli::cli_abort("{.arg theta0} must be a single finite numeric value.")
 
-  has_v0 <- !missing(v0)
-  if (has_v0) {
-    if (length(v0) != 1L || is.na(v0) || !is.finite(v0) || v0 <= 0)
-      cli::cli_abort("{.arg v0} must be a single positive finite value when provided.")
+  # Resolve edf / v0 (backward compatibility)
+  if (!missing(v0)) {
+    if (!missing(edf) && !identical(edf, Inf))
+      cli::cli_abort("Specify either {.arg edf} or {.arg v0}, not both.")
+    edf <- v0
   }
+  if (length(edf) != 1L || is.na(edf) || edf <= 0)
+    cli::cli_abort("{.arg edf} must be a single positive value or {.code Inf}.")
 
   # number of imputations
   m <- length(est)
@@ -110,8 +131,9 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
   # v.obs - for adjusted DF
   gamma <- if (Vt == 0) 0 else (1 + 1 / m) * Vb / Vt
 
-  if (has_v0) {
-    v_obs <- (1 - gamma) * v0 * (1 + v0) / (v0 + 3)
+  # Barnard-Rubin (1999) small-sample adjustment (SAS EDF= option)
+  if (is.finite(edf)) {
+    v_obs <- (1 - gamma) * edf * (edf + 1) / (edf + 3)
     df <- if (is.infinite(df)) v_obs else 1 / (1 / df + 1 / v_obs)
   }
   # Pooled Std Error
@@ -147,6 +169,7 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
     ucl = Q_bar + crit * err_pool,
     alpha = alpha,
     theta0 = theta0,
+    edf = edf,
     minim = minim,
     maxim = maxim,
     t = t_val,
@@ -160,15 +183,22 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
 
 #' @rdname ks_mianalyze
 #' @export
-mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
-  ks_mianalyze(est = est, err = err, alpha = alpha, theta0 = theta0, v0 = v0)
+mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0) {
+  if (!missing(v0) && !missing(edf) && !identical(edf, Inf))
+    cli::cli_abort("Specify either {.arg edf} or {.arg v0}, not both.")
+  if (!missing(v0) && missing(edf)) {
+    ks_mianalyze(est = est, err = err, alpha = alpha, theta0 = theta0, v0 = v0)
+  } else {
+    ks_mianalyze(est = est, err = err, alpha = alpha, theta0 = theta0, edf = edf)
+  }
 }
 
 
 #' @export
 print.ks_mianalyze <- function(x, ...) {
+  adj <- if (is.finite(x$edf)) " (Barnard-Rubin adjusted)" else ""
   cat(sprintf("\n\n***Variance information (%d Imputations)***\n", x$m))
-  cat("Between\t\tWithin\t\tTotal\t\tDF\n")
+  cat("Between\t\tWithin\t\tTotal\t\tDF", adj, "\n", sep = "")
   cat("-------\t\t------\t\t-----\t\t--\n")
   cat(sprintf("%.6f\t%.6f\t%.6f\t%.1f\n\n", x$Vb, x$Vw, x$Vt, x$df))
 

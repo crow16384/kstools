@@ -6,7 +6,7 @@ GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gn
 Site](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml/badge.svg)](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml)
 [![pkgdown
 site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
-[![Version](https://img.shields.io/badge/version-0.3.7-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.3.8-blue)](https://github.com/crow16384/kstools/releases/latest)
 
 Clinical and data science utilities for R.
 

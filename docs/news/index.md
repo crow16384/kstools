@@ -1,5 +1,28 @@
 # Changelog
 
+## kstools 0.3.8
+
+### Bug fixes
+
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  /
+  [`mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  aligned degrees-of-freedom handling with SAS `PROC MIANALYZE` behavior
+  by adding `edf` (SAS `EDF=` analogue) and applying Barnard-Rubin
+  small-sample adjustment when finite complete-data df are supplied.
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  /
+  [`mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  kept backward compatibility for `v0` while adding input validation for
+  conflicting `edf`/`v0` specifications.
+
+### Documentation
+
+- Updated function docs and examples for the new `edf` argument and
+  SAS-style DF behavior.
+
+------------------------------------------------------------------------
+
 ## kstools 0.3.7
 
 ### Bug fixes
