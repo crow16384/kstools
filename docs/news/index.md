@@ -1,5 +1,53 @@
 # Changelog
 
+## kstools 0.3.7
+
+### Bug fixes
+
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  corrected pooled total-variance and Rubin degrees-of-freedom
+  calculations used for multiple-imputation inference.
+
+### Documentation
+
+- Bumped package version metadata and refreshed release documentation.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.6
+
+### Documentation
+
+- Added pkgdown configuration (`_pkgdown.yml`) and generated docs site
+  workflow.
+- Added vignettes: `getting-started` and `clinical-workflows`.
+- Expanded `inst/examples` coverage and added `run_all_examples.R` index
+  runner.
+- Added CI workflow to keep README version badge synchronized with
+  `DESCRIPTION`.
+
+### New functions
+
+- Added
+  [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  /
+  [`mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  (Rubin pooling; SAS MIANALYZE analogue).
+- Added
+  [`ks_roc()`](https://crow16384.github.io/kstools/reference/ks_roc.md)
+  (correlated ROC AUC comparison with contrast tests).
+- Added
+  [`ks_williams()`](https://crow16384.github.io/kstools/reference/ks_williams.md)
+  (randomized Williams cross-over design and schedule generator).
+
+### Bug fixes
+
+- [`ks_collapse_check_msgs()`](https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.md):
+  removed unqualified `%>%` dependency so function and vignettes run
+  without attaching dplyr.
+
+------------------------------------------------------------------------
+
 ## kstools 0.3.5
 
 ### Performance

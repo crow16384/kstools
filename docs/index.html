@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="kstools">kstools<a class="anchor" aria-label="anchor" href="#kstools"></a>
 </h1></div>
-<p><a href="https://www.gnu.org/licenses/gpl-3.0.en.html" class="external-link"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0"></a></p>
+<p><a href="https://www.gnu.org/licenses/gpl-3.0.en.html" class="external-link"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0"></a> <a href="https://github.com/crow16384/kstools/actions/workflows/docs-site.yml" class="external-link"><img src="https://github.com/crow16384/kstools/actions/workflows/docs-site.yml/badge.svg" alt="Docs and Site"></a> <a href="https://crow16384.github.io/kstools/"><img src="https://img.shields.io/badge/pkgdown-site-2A7FFF" alt="pkgdown site"></a> <!-- version-badge:start --> <a href="https://github.com/crow16384/kstools/releases/latest" class="external-link"><img src="https://img.shields.io/badge/version-0.3.7-blue" alt="Version"></a> <!-- version-badge:end --></p>
 <p>Clinical and data science utilities for R.</p>
 <p>Current package version is maintained in <a href="DESCRIPTION">DESCRIPTION</a>; detailed release history is in <a href="NEWS.html">NEWS.md</a>.</p>
 <p>Repository: <a href="https://github.com/crow16384/kstools" class="external-link">github.com/crow16384/kstools</a></p>
@@ -163,11 +163,52 @@
 <span><span class="fu">roxygen2</span><span class="fu">::</span><span class="fu"><a href="https://roxygen2.r-lib.org/reference/roxygenize.html" class="external-link">roxygenise</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 2) Build vignettes</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">build_vignettes</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/build_vignettes.html" class="external-link">build_vignettes</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 3) Build package site (pkgdown)</span></span>
 <span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The pkgdown configuration is in <a href="_pkgdown.yml">_pkgdown.yml</a>, and vignettes are in <a href="vignettes">vignettes</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="serena-ai-code-navigation">Serena (AI Code Navigation)<a class="anchor" aria-label="anchor" href="#serena-ai-code-navigation"></a>
+</h2>
+<p>This repo is configured for <a href="https://github.com/oraios/serena" class="external-link">Serena</a> semantic code navigation. VS Code launches the Serena MCP server automatically via <code>.vscode/mcp.json</code>.</p>
+<div class="section level3">
+<h3 id="initial-setup">Initial setup<a class="anchor" aria-label="anchor" href="#initial-setup"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Re-index project or run a health-check</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="ex">./scripts/start-serena.sh</span></span></code></pre></div>
+<p>That script creates <code>.serena/project.yml</code> if missing, runs <code>serena project index</code>, and runs <code>serena project health-check</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
+</h3>
+<div class="section level4">
+<h4 id="no-active-project--mcp-tools-fail">“No active project” / MCP tools fail<a class="anchor" aria-label="anchor" href="#no-active-project--mcp-tools-fail"></a>
+</h4>
+<p>Activate the project from the agent/chat session:</p>
+<pre><code><span><span class="fu">activate_project</span><span class="op">(</span><span class="st">"/Users/meguty/Develop/R/kstools"</span><span class="op">)</span></span></code></pre>
+<p>Or from the terminal:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="bu">cd</span> /path/to/kstools</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="ex">serena</span> project activate <span class="at">--name</span> kstools</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="ex">serena</span> project health-check <span class="st">"</span><span class="va">$PWD</span><span class="st">"</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="health-check-fails-on-vignettes-or-test-helpers">Health-check fails on vignettes or test helpers<a class="anchor" aria-label="anchor" href="#health-check-fails-on-vignettes-or-test-helpers"></a>
+</h4>
+<p>Non-R files (<code>.Rmd</code>) and symbol-less bootstrap files confuse the R LSP.<br>
+They are excluded in <a href=".serena/project.yml">.serena/project.yml</a> via <code>ignored_paths</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">ignored_paths</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"vignettes/*.Rmd"</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"tests/**"</span></span></code></pre></div>
+<p>If a new non-R file triggers a failure, add it to <code>ignored_paths</code> in the same way.</p>
+</div>
+<div class="section level4">
+<h4 id="re-index-after-large-changes">Re-index after large changes<a class="anchor" aria-label="anchor" href="#re-index-after-large-changes"></a>
+</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">serena</span> project index . <span class="at">--name</span> kstools <span class="at">--language</span> r</span></code></pre></div>
+</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>

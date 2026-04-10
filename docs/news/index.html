@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,39 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.7" id="kstools-037">kstools 0.3.7<a class="anchor" aria-label="anchor" href="#kstools-037"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-7">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-7"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code>: corrected pooled total-variance and Rubin degrees-of-freedom calculations used for multiple-imputation inference.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-3-7">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-7"></a></h3>
+<ul><li>Bumped package version metadata and refreshed release documentation.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.6" id="kstools-036">kstools 0.3.6<a class="anchor" aria-label="anchor" href="#kstools-036"></a></h2>
+<div class="section level3">
+<h3 id="documentation-0-3-6">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-6"></a></h3>
+<ul><li>Added pkgdown configuration (<code>_pkgdown.yml</code>) and generated docs site workflow.</li>
+<li>Added vignettes: <code>getting-started</code> and <code>clinical-workflows</code>.</li>
+<li>Expanded <code>inst/examples</code> coverage and added <code>run_all_examples.R</code> index runner.</li>
+<li>Added CI workflow to keep README version badge synchronized with <code>DESCRIPTION</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-functions-0-3-6">New functions<a class="anchor" aria-label="anchor" href="#new-functions-0-3-6"></a></h3>
+<ul><li>Added <code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code> / <code><a href="../reference/ks_mianalyze.html">mianalyze()</a></code> (Rubin pooling; SAS MIANALYZE analogue).</li>
+<li>Added <code><a href="../reference/ks_roc.html">ks_roc()</a></code> (correlated ROC AUC comparison with contrast tests).</li>
+<li>Added <code><a href="../reference/ks_williams.html">ks_williams()</a></code> (randomized Williams cross-over design and schedule generator).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-6"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_collapse_check_msgs.html">ks_collapse_check_msgs()</a></code>: removed unqualified <code>%&gt;%</code> dependency so function and vignettes run without attaching dplyr.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.5" id="kstools-035">kstools 0.3.5<a class="anchor" aria-label="anchor" href="#kstools-035"></a></h2>
 <div class="section level3">

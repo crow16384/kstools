@@ -2,7 +2,7 @@
 
 Reads a single member from the file by splicing the file-level header
 bytes onto the member's raw bytes, then passing the combined buffer to
-`read_xpt`.
+[`read_xpt`](https://haven.tidyverse.org/reference/read_xpt.html).
 
 ## Usage
 
@@ -29,13 +29,16 @@ ks_extract_single_xpt(name, file, content)
 ## Value
 
 A [`tibble`](https://tibble.tidyverse.org/reference/tibble.html) (as
-returned by `read_xpt`).
+returned by
+[`read_xpt`](https://haven.tidyverse.org/reference/read_xpt.html)).
 
 ## Details
 
 A valid XPORT stream requires both the 240-byte file header (three
 80-byte LIBV8 records) and the member data. This function prepends the
-file header so that `haven::read_xpt` can parse the member in isolation.
+file header so that
+[`haven::read_xpt`](https://haven.tidyverse.org/reference/read_xpt.html)
+can parse the member in isolation.
 
 ## See also
 

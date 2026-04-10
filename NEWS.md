@@ -1,3 +1,15 @@
+# kstools 0.3.7
+
+## Bug fixes
+
+- `ks_mianalyze()`: corrected pooled total-variance and Rubin degrees-of-freedom calculations used for multiple-imputation inference.
+
+## Documentation
+
+- Bumped package version metadata and refreshed release documentation.
+
+---
+
 # kstools 0.3.6
 
 ## Documentation

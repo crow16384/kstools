@@ -78,20 +78,28 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
       cli::cli_abort("{.arg v0} must be a single positive finite value when provided.")
   }
 
+  # number of imputations
   m <- length(est)
+  # Q.bar - average of the estimator
   Q_bar <- mean(est)
+  # W.bar - within-imputation variance
   Vw <- mean(err^2)
+  # Between imputation variance
   Vb <- if (m > 1L) sum((est - Q_bar)^2) / (m - 1) else 0
-  Vt <- Vw + (1 + 1 / m) * Vb
+  # Total variance
+  Vt <- Vw + Vb + Vb/m
 
+  # Rubin's (1987) degrees of freedom
   if (Vb == 0 && Vw == 0) {
     r <- 0
     df <- Inf
   } else {
+    # Relative increase in variance
     r <- if (Vw == 0) Inf else (1 + 1 / m) * Vb / Vw
-    df <- if (Vb == 0) Inf else (m - 1) * (1 + 1 / r)^2
+    df <- if (Vb == 0) Inf else (m-1)*(1+(Vw/(Vb+Vb/m)))^2
   }
 
+  # fraction fo missing information
   lambda <- if (is.infinite(r)) {
     1
   } else if (is.infinite(df)) {
@@ -99,18 +107,19 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, v0) {
   } else {
     (r + 2 / (df + 3)) / (r + 1)
   }
-
+  # v.obs - for adjusted DF
   gamma <- if (Vt == 0) 0 else (1 + 1 / m) * Vb / Vt
 
   if (has_v0) {
     v_obs <- (1 - gamma) * v0 * (1 + v0) / (v0 + 3)
     df <- if (is.infinite(df)) v_obs else 1 / (1 / df + 1 / v_obs)
   }
-
+  # Pooled Std Error
   err_pool <- sqrt(Vt)
   crit <- stats::qt(1 - alpha / 2, df = df)
-
+  # Relative efficiency
   re <- 1 / (1 + lambda / m)
+  # Range
   minim <- min(est)
   maxim <- max(est)
 

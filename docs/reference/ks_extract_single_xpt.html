@@ -11,7 +11,7 @@ read_xpt."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ read_xpt."></head><body>
     <div class="ref-description section level2">
     <p>Reads a single member from the file by splicing the file-level header
 bytes onto the member's raw bytes, then passing the combined buffer to
-<code>read_xpt</code>.</p>
+<code><a href="https://haven.tidyverse.org/reference/read_xpt.html" class="external-link">read_xpt</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -72,13 +72,13 @@ bytes onto the member's raw bytes, then passing the combined buffer to
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></code> (as returned by
-  <code>read_xpt</code>).</p>
+  <code><a href="https://haven.tidyverse.org/reference/read_xpt.html" class="external-link">read_xpt</a></code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>A valid XPORT stream requires both the 240-byte file header (three 80-byte
 LIBV8 records) and the member data.  This function prepends the file header
-so that <code>haven::read_xpt</code> can parse the member in isolation.</p>
+so that <code><a href="https://haven.tidyverse.org/reference/read_xpt.html" class="external-link">haven::read_xpt</a></code> can parse the member in isolation.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

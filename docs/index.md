@@ -2,6 +2,11 @@
 
 [![License:
 GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Docs and
+Site](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml/badge.svg)](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml)
+[![pkgdown
+site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
+[![Version](https://img.shields.io/badge/version-0.3.7-blue)](https://github.com/crow16384/kstools/releases/latest)
 
 Clinical and data science utilities for R.
 
@@ -141,6 +146,60 @@ The pkgdown configuration is in
 [\_pkgdown.yml](https://crow16384.github.io/kstools/_pkgdown.yml), and
 vignettes are in
 [vignettes](https://crow16384.github.io/kstools/vignettes).
+
+## Serena (AI Code Navigation)
+
+This repo is configured for [Serena](https://github.com/oraios/serena)
+semantic code navigation. VS Code launches the Serena MCP server
+automatically via `.vscode/mcp.json`.
+
+### Initial setup
+
+``` sh
+# Re-index project or run a health-check
+./scripts/start-serena.sh
+```
+
+That script creates `.serena/project.yml` if missing, runs
+`serena project index`, and runs `serena project health-check`.
+
+### Troubleshooting
+
+#### “No active project” / MCP tools fail
+
+Activate the project from the agent/chat session:
+
+    activate_project("/Users/meguty/Develop/R/kstools")
+
+Or from the terminal:
+
+``` sh
+cd /path/to/kstools
+serena project activate --name kstools
+serena project health-check "$PWD"
+```
+
+#### Health-check fails on vignettes or test helpers
+
+Non-R files (`.Rmd`) and symbol-less bootstrap files confuse the R LSP.\
+They are excluded in
+[.serena/project.yml](https://crow16384.github.io/kstools/.serena/project.yml)
+via `ignored_paths`:
+
+``` yaml
+ignored_paths:
+  - "vignettes/*.Rmd"
+  - "tests/**"
+```
+
+If a new non-R file triggers a failure, add it to `ignored_paths` in the
+same way.
+
+#### Re-index after large changes
+
+``` sh
+serena project index . --name kstools --language r
+```
 
 ## Dependencies
 
