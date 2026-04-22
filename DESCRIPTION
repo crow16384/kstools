@@ -1,7 +1,7 @@
 Package: kstools
 Type: Package
 Title: Clinical and Data Science Utilities
-Version: 0.3.8
+Version: 0.3.9
 Authors@R: c(
     person(
       "Vladimir", "Larchenko",

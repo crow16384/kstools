@@ -49,11 +49,77 @@ read.csv3 <- function(file, with_length = FALSE) {
 }
 
 
-#' Load domain files into the global environment
+## Resolve a data file in `path` whose stem matches `stem` (case-insensitive)
+## and whose extension is among `exts` (case-insensitive, without leading dot).
+## Returns a list(path, ext) where `ext` is the matched extension lowercased.
+## Ambiguity (more than one match) is handled via `strategy`.
+.ks_resolve_domain_file <- function(stem, exts, path, strategy) {
+  files <- list.files(path, full.names = FALSE, no.. = TRUE)
+  if (!length(files))
+    cli::cli_abort(c(
+      "No file found for domain {.val {stem}} in: {.path {path}}.",
+      "i" = "Directory is empty."
+    ))
+
+  file_stem <- tools::file_path_sans_ext(files)
+  file_ext  <- tolower(tools::file_ext(files))
+
+  ok <- tolower(file_stem) == tolower(stem) & file_ext %in% tolower(exts)
+  cand <- files[ok]
+
+  if (!length(cand))
+    cli::cli_abort(c(
+      "No file found for domain {.val {stem}} in: {.path {path}}.",
+      "i" = "Looked for extensions: {.val {exts}} (case-insensitive)."
+    ))
+
+  if (length(cand) == 1L) {
+    return(list(path = file.path(path, cand),
+                ext  = tolower(tools::file_ext(cand))))
+  }
+
+  chosen <- switch(
+    strategy,
+    error = cli::cli_abort(c(
+      "Multiple files match domain {.val {stem}} in: {.path {path}}.",
+      "i" = "Found: {.file {cand}}.",
+      "i" = paste0("Set {.code options(kstools.get_data.case = ",
+                   "\"first\" | \"lower\" | \"upper\")} to resolve.")
+    )),
+    first = sort(cand)[1L],
+    lower = {
+      low <- paste0(tolower(stem), ".", tolower(tools::file_ext(cand)))
+      hit <- cand[cand %in% low]
+      if (!length(hit))
+        cli::cli_abort(c(
+          "No all-lowercase file for domain {.val {stem}} in: {.path {path}}.",
+          "i" = "Found: {.file {cand}}."
+        ))
+      hit[1L]
+    },
+    upper = {
+      up <- paste0(toupper(stem), ".", toupper(tools::file_ext(cand)))
+      hit <- cand[cand %in% up]
+      if (!length(hit))
+        cli::cli_abort(c(
+          "No all-uppercase file for domain {.val {stem}} in: {.path {path}}.",
+          "i" = "Found: {.file {cand}}."
+        ))
+      hit[1L]
+    }
+  )
+
+  list(path = file.path(path, chosen),
+       ext  = tolower(tools::file_ext(chosen)))
+}
+
+
+#' Load domain files and return them
 #'
-#' Reads one or more data files from \code{path} and assigns them as
-#' \code{\link[dplyr]{tibble}}s to variables in \code{.GlobalEnv} using the
-#' file stem (name without extension) as the variable name.
+#' Reads one or more data files from \code{path} and returns them as
+#' \code{\link[dplyr]{tibble}}s. A single-domain call returns a tibble; a
+#' multi-domain call returns a named list of tibbles (names are the
+#' lowercased domain names).
 #'
 #' Supported formats: \code{.rds} (R native), \code{.xpt} (SAS XPORT),
 #' \code{.xlsx} (Microsoft Excel), \code{.csv} (plain CSV),
@@ -61,11 +127,14 @@ read.csv3 <- function(file, with_length = FALSE) {
 #'
 #' @details
 #' Domain names can be passed as bare names (\code{dm, ae}) or as quoted
-#' strings (\code{"dm", "ae"}); both forms are accepted.
+#' strings (\code{"dm", "ae"}); both forms are accepted. Lookup against the
+#' directory is \strong{case-insensitive} for both stem and extension, so
+#' \code{ks_get_data(dm)} and \code{ks_get_data(DM)} match any of
+#' \code{dm.xpt}, \code{DM.XPT}, \code{Dm.Xpt}, etc.
 #'
 #' When \code{type = "auto"} (default), the function scans the directory for
 #' files matching the requested domains and determines the format from the
-#' extension of the first match.  All requested domains must use the same
+#' extension of the first match. All requested domains must use the same
 #' format.
 #'
 #' The default search path is read from
@@ -73,31 +142,50 @@ read.csv3 <- function(file, with_length = FALSE) {
 #' \code{.Rprofile} to avoid repeating the path in every call:
 #' \preformatted{options(path.data = "/my/project/data")}
 #'
+#' When two or more files in \code{path} share the same stem but differ only
+#' in case (e.g. both \code{dm.xpt} and \code{DM.xpt} exist), the resolution
+#' strategy is controlled by the global option \code{kstools.get_data.case}:
+#' \describe{
+#'   \item{\code{"error"}}{(default) abort with a message listing the
+#'     candidates.}
+#'   \item{\code{"first"}}{pick the first match in alphabetical order.}
+#'   \item{\code{"lower"}}{require the all-lowercase name to exist; otherwise
+#'     abort.}
+#'   \item{\code{"upper"}}{require the all-uppercase name to exist; otherwise
+#'     abort.}
+#' }
+#'
 #' @param ... Unquoted (or quoted) domain names, e.g. \code{dm, ae, lb}.
 #' @param path Directory containing the data files.
 #'   Defaults to \code{getOption("path.data", ".")}.
 #' @param type File type: \code{"auto"} (detect from extension), \code{"rds"},
 #'   \code{"xpt"}, \code{"xlsx"}, \code{"csv"}, or \code{"csvks"}
 #'   (CSV with KeyStat comment metadata).
-#' @return Invisibly returns the character vector of loaded domain names.
+#' @return For a single domain, a tibble. For two or more domains, a named
+#'   list of tibbles keyed by the lowercased domain name.
 #' @seealso \code{\link{ks_batch_load}}, \code{\link{read.csv3}}
 #' @examples
 #' \dontrun{
-#' ## Load dm and ae from the default path set via options()
+#' ## Load a single domain
 #' options(path.data = "/project/data")
-#' ks_get_data(dm, ae)
+#' dm <- ks_get_data(dm)
 #'
-#' ## Load from an explicit path (auto-detects file type)
-#' ks_get_data(dm, ae, lb, path = "/project/data/xpt")
+#' ## Case-insensitive lookup: works whether folder has dm.xpt or DM.XPT
+#' dm <- ks_get_data(DM)
+#'
+#' ## Load multiple domains: returns a named list
+#' dat <- ks_get_data(dm, ae, lb, path = "/project/data/xpt")
+#' head(dat$dm)
 #'
 #' ## Force a specific file type
-#' ks_get_data(dm, ae, path = "/project/data", type = "xpt")
+#' dm <- ks_get_data(dm, path = "/project/data", type = "xpt")
 #'
-#' ## Load CSV files with KeyStat comment headers
-#' ks_get_data(dm, ae, path = "/project/data", type = "csvks")
+#' ## Resolve case-duplicate filenames
+#' options(kstools.get_data.case = "lower")  # prefer dm.xpt over DM.xpt
+#' dm <- ks_get_data(dm, path = "/project/data")
 #'
 #' ## Quoted strings are also accepted
-#' ks_get_data("dm", "ae", path = "/project/data")
+#' dat <- ks_get_data("dm", "ae", path = "/project/data")
 #' }
 #' @name ks_get_data
 #' @importFrom cli cli_abort
@@ -115,31 +203,37 @@ ks_get_data <- function(...,
     cli::cli_abort("Directory not found: {.path {path}}.")
 
   nm_vec <- unname(vapply(rlang::ensyms(...), rlang::as_name, character(1L)))
+  if (!length(nm_vec))
+    cli::cli_abort("At least one domain name is required.")
 
-  ## Auto-detect file type from first domain
-  if (type == "auto") {
-    first <- nm_vec[1L]
-    candidates <- c(
-      rds  = file.path(path, paste0(first, ".rds")),
-      xpt  = file.path(path, paste0(first, ".xpt")),
-      xlsx = file.path(path, paste0(first, ".xlsx")),
-      csv  = file.path(path, paste0(first, ".csv"))
-    )
-    found <- vapply(candidates, file.exists, logical(1L))
-    if (!any(found))
-      cli::cli_abort(c(
-        "No file found for domain {.val {first}} in: {.path {path}}.",
-        "i" = "Checked: {.file {basename(candidates)}}."
-      ))
-    type <- names(candidates)[which(found)[1L]]
+  strategy <- getOption("kstools.get_data.case", "error")
+  allowed  <- c("error", "first", "lower", "upper")
+  if (!is.character(strategy) || length(strategy) != 1L ||
+      !strategy %in% allowed)
+    cli::cli_abort(c(
+      "Invalid {.code kstools.get_data.case}: {.val {strategy}}.",
+      "i" = "Must be one of: {.val {allowed}}."
+    ))
+
+  ## Candidate extensions for auto-detection; otherwise a single extension.
+  auto_exts <- c("rds", "xpt", "xlsx", "csv")
+  exts_for_lookup <- if (type == "auto") {
+    auto_exts
+  } else if (type == "csvks") {
+    "csv"
+  } else {
+    type
   }
 
-  ## Map type to file extension (csvks uses .csv files)
-  ext <- if (type == "csvks") ".csv" else paste0(".", type)
+  ## Resolve the first domain — this also fixes the file type for auto.
+  first_res <- .ks_resolve_domain_file(nm_vec[1L], exts_for_lookup,
+                                       path, strategy)
 
-  ## Select reader function
+  effective_type <- if (type == "auto") first_res$ext else type
+
+  ## Select reader function based on the effective type.
   read_fn <- switch(
-    type,
+    effective_type,
     rds  = readRDS,
     xpt  = {
       if (!requireNamespace("haven", quietly = TRUE))
@@ -155,12 +249,19 @@ ks_get_data <- function(...,
     csvks = function(f) read.csv3(f, with_length = TRUE)
   )
 
-  for (nm in nm_vec) {
-    fp <- file.path(path, paste0(nm, ext))
-    if (!file.exists(fp))
-      cli::cli_abort("File not found: {.path {fp}}.")
-    assign(nm, dplyr::as_tibble(read_fn(fp)), envir = .GlobalEnv)
+  ## Single extension to use for remaining domains (lowercased).
+  one_ext <- if (effective_type == "csvks") "csv" else effective_type
+
+  out <- vector("list", length(nm_vec))
+  names(out) <- tolower(nm_vec)
+  out[[1L]] <- dplyr::as_tibble(read_fn(first_res$path))
+
+  if (length(nm_vec) > 1L) {
+    for (i in seq.int(2L, length(nm_vec))) {
+      res <- .ks_resolve_domain_file(nm_vec[i], one_ext, path, strategy)
+      out[[i]] <- dplyr::as_tibble(read_fn(res$path))
+    }
   }
 
-  invisible(nm_vec)
+  if (length(out) == 1L) out[[1L]] else out
 }

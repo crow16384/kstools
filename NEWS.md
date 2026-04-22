@@ -1,3 +1,24 @@
+# kstools 0.3.9
+
+## Breaking changes
+
+- `ks_get_data()`: no longer assigns loaded data to `.GlobalEnv`. It now
+  **returns** the data directly — a tibble for a single-domain call, or a
+  named list of tibbles for multi-domain calls. Migrate
+  `ks_get_data(dm)` to `dm <- ks_get_data(dm)` and
+  `ks_get_data(dm, ae)` to `dat <- ks_get_data(dm, ae); dm <- dat$dm`.
+
+## New features
+
+- `ks_get_data()`: file lookup against `path` is now **case-insensitive**
+  for both stem and extension, so `ks_get_data(dm)` and `ks_get_data(DM)`
+  both match `dm.xpt`, `DM.XPT`, `Dm.Xpt`, etc.
+- `ks_get_data()`: new global option `kstools.get_data.case` to resolve
+  ambiguity when multiple files share the same stem but differ in case.
+  Accepted values: `"error"` (default), `"first"`, `"lower"`, `"upper"`.
+
+---
+
 # kstools 0.3.8
 
 ## Bug fixes

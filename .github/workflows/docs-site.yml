@@ -1,14 +1,7 @@
 name: Docs and Site
 
 on:
-  push:
-    branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+  workflow_dispatch:
 
 permissions:
   contents: read

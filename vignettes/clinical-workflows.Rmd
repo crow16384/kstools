@@ -110,8 +110,12 @@ ks_save2xlsx_by(
 ## 5. Data Loaders
 
 ```{r eval=FALSE}
-# one-shot load of multiple domains from RDS directory
-ks_get_data(dm, ae, adlb, path = "data/rds")
+# one-shot load of multiple domains from RDS directory (returns a named list)
+dat <- ks_get_data(dm, ae, adlb, path = "data/rds")
+dm  <- dat$dm
+
+# case-insensitive lookup works too
+dm <- ks_get_data(DM, path = "data/rds")  # matches dm.rds, DM.RDS, etc.
 
 # or bulk by file type
 x <- ks_batch_load("data/rds", type = "rds")
