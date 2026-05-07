@@ -272,7 +272,13 @@ ks_get_data <- function(...,
     } else {
       if (!requireNamespace("haven", quietly = TRUE))
         cli::cli_abort("Package {.pkg haven} is required for XPT loading.")
-      haven::read_xpt
+      function(f) withCallingHandlers(
+        haven::read_xpt(f),
+        warning = function(w) {
+          if (grepl("trailing byte", conditionMessage(w), fixed = TRUE))
+            invokeRestart("muffleWarning")
+        }
+      )
     },
     xlsx = {
       if (!requireNamespace("openxlsx2", quietly = TRUE))
