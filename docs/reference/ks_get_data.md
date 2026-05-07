@@ -11,7 +11,8 @@ list of tibbles (names are the lowercased domain names).
 ks_get_data(
   ...,
   path = getOption("path.data", "."),
-  type = c("auto", "rds", "xpt", "xlsx", "csv", "csvks")
+  type = c("auto", "rds", "xpt", "xlsx", "csv", "csvks"),
+  xpt_reader = getOption("kstools.xpt.reader", "haven")
 )
 ```
 
@@ -30,6 +31,13 @@ ks_get_data(
 
   File type: `"auto"` (detect from extension), `"rds"`, `"xpt"`,
   `"xlsx"`, `"csv"`, or `"csvks"` (CSV with KeyStat comment metadata).
+
+- xpt_reader:
+
+  Reader to use for `.xpt` files: `"haven"` (default) or `"internal"`
+  (use
+  [`ks_read_xpt`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md)).
+  Defaults to `getOption("kstools.xpt.reader", "haven")`.
 
 ## Value
 
@@ -56,6 +64,23 @@ The default search path is read from `getOption("path.data", ".")`. Set
 this option in `.Rprofile` to avoid repeating the path in every call:
 
     options(path.data = "/my/project/data")
+
+For `.xpt` (SAS XPORT) files, the reader is selected by the `xpt_reader`
+argument (default from option `kstools.xpt.reader`, fallback `"haven"`):
+
+- `"haven"`:
+
+  (default) use
+  [`haven::read_xpt()`](https://haven.tidyverse.org/reference/read_xpt.html).
+
+- `"internal"`:
+
+  use the package-internal
+  [`ks_read_xpt()`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md)
+  parser. This avoids the “ignored N trailing byte(s) after row parsing”
+  warning emitted by haven on some XPORT files. For multi-member XPORT
+  files, the domain slot will contain a named list of tibbles (one per
+  member).
 
 When two or more files in `path` share the same stem but differ only in
 case (e.g. both `dm.xpt` and `DM.xpt` exist), the resolution strategy is
@@ -106,5 +131,12 @@ dm <- ks_get_data(dm, path = "/project/data")
 
 ## Quoted strings are also accepted
 dat <- ks_get_data("dm", "ae", path = "/project/data")
+
+## Use the internal XPT reader to avoid haven's trailing-byte warning
+options(kstools.xpt.reader = "internal")
+dm <- ks_get_data(dm, type = "xpt")
+
+## Or override per call without changing the global option
+dm <- ks_get_data(dm, type = "xpt", xpt_reader = "internal")
 } # }
 ```

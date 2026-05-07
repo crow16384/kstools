@@ -13,7 +13,7 @@ lowercased domain names)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,8 @@ lowercased domain names).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ks_get_data</span><span class="op">(</span></span>
 <span>  <span class="va">...</span>,</span>
 <span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"path.data"</span>, <span class="st">"."</span><span class="op">)</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"rds"</span>, <span class="st">"xpt"</span>, <span class="st">"xlsx"</span>, <span class="st">"csv"</span>, <span class="st">"csvks"</span><span class="op">)</span></span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"rds"</span>, <span class="st">"xpt"</span>, <span class="st">"xlsx"</span>, <span class="st">"csv"</span>, <span class="st">"csvks"</span><span class="op">)</span>,</span>
+<span>  xpt_reader <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"kstools.xpt.reader"</span>, <span class="st">"haven"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -76,6 +77,12 @@ Defaults to <code>getOption("path.data", ".")</code>.</p></dd>
 <dd><p>File type: <code>"auto"</code> (detect from extension), <code>"rds"</code>,
 <code>"xpt"</code>, <code>"xlsx"</code>, <code>"csv"</code>, or <code>"csvks"</code>
 (CSV with KeyStat comment metadata).</p></dd>
+
+
+<dt id="arg-xpt-reader">xpt_reader<a class="anchor" aria-label="anchor" href="#arg-xpt-reader"></a></dt>
+<dd><p>Reader to use for <code>.xpt</code> files: <code>"haven"</code>
+(default) or <code>"internal"</code> (use <code><a href="ks_read_xpt.html">ks_read_xpt</a></code>).
+Defaults to <code>getOption("kstools.xpt.reader", "haven")</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -102,7 +109,21 @@ format.</p>
 <code>getOption("path.data", ".")</code>. Set this option in
 <code>.Rprofile</code> to avoid repeating the path in every call:</p><div class="sourceCode"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>path.data <span class="op">=</span> <span class="st">"/my/project/data"</span><span class="op">)</span></span></code></pre></div>
 
-<p>When two or more files in <code>path</code> share the same stem but differ only
+<p>For <code>.xpt</code> (SAS XPORT) files, the reader is selected by the
+<code>xpt_reader</code> argument (default from option
+<code>kstools.xpt.reader</code>, fallback <code>"haven"</code>):</p><dl><dt><code>"haven"</code></dt>
+<dd><p>(default) use <code><a href="https://haven.tidyverse.org/reference/read_xpt.html" class="external-link">haven::read_xpt()</a></code>.</p></dd>
+
+  <dt><code>"internal"</code></dt>
+<dd><p>use the package-internal
+    <code><a href="ks_read_xpt.html">ks_read_xpt()</a></code> parser. This avoids the
+    “ignored N trailing byte(s) after row parsing” warning emitted
+    by <span class="pkg">haven</span> on some XPORT files. For multi-member XPORT files,
+    the domain slot will contain a named list of tibbles (one per
+    member).</p></dd>
+
+
+</dl><p>When two or more files in <code>path</code> share the same stem but differ only
 in case (e.g. both <code>dm.xpt</code> and <code>DM.xpt</code> exist), the resolution
 strategy is controlled by the global option <code>kstools.get_data.case</code>:</p><dl><dt><code>"error"</code></dt>
 <dd><p>(default) abort with a message listing the
@@ -149,6 +170,13 @@ strategy is controlled by the global option <code>kstools.get_data.case</code>:<
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Quoted strings are also accepted</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">ks_get_data</span><span class="op">(</span><span class="st">"dm"</span>, <span class="st">"ae"</span>, path <span class="op">=</span> <span class="st">"/project/data"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Use the internal XPT reader to avoid haven's trailing-byte warning</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>kstools.xpt.reader <span class="op">=</span> <span class="st">"internal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dm</span> <span class="op">&lt;-</span> <span class="fu">ks_get_data</span><span class="op">(</span><span class="va">dm</span>, type <span class="op">=</span> <span class="st">"xpt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Or override per call without changing the global option</span></span></span>
+<span class="r-in"><span><span class="va">dm</span> <span class="op">&lt;-</span> <span class="fu">ks_get_data</span><span class="op">(</span><span class="va">dm</span>, type <span class="op">=</span> <span class="st">"xpt"</span>, xpt_reader <span class="op">=</span> <span class="st">"internal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

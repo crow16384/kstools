@@ -142,6 +142,19 @@ read.csv3 <- function(file, with_length = FALSE) {
 #' \code{.Rprofile} to avoid repeating the path in every call:
 #' \preformatted{options(path.data = "/my/project/data")}
 #'
+#' For \code{.xpt} (SAS XPORT) files, the reader is selected by the
+#' \code{xpt_reader} argument (default from option
+#' \code{kstools.xpt.reader}, fallback \code{"haven"}):
+#' \describe{
+#'   \item{\code{"haven"}}{(default) use \code{haven::read_xpt()}.}
+#'   \item{\code{"internal"}}{use the package-internal
+#'     \code{\link{ks_read_xpt}()} parser. This avoids the
+#'     \dQuote{ignored N trailing byte(s) after row parsing} warning emitted
+#'     by \pkg{haven} on some XPORT files. For multi-member XPORT files,
+#'     the domain slot will contain a named list of tibbles (one per
+#'     member).}
+#' }
+#'
 #' When two or more files in \code{path} share the same stem but differ only
 #' in case (e.g. both \code{dm.xpt} and \code{DM.xpt} exist), the resolution
 #' strategy is controlled by the global option \code{kstools.get_data.case}:
@@ -161,6 +174,9 @@ read.csv3 <- function(file, with_length = FALSE) {
 #' @param type File type: \code{"auto"} (detect from extension), \code{"rds"},
 #'   \code{"xpt"}, \code{"xlsx"}, \code{"csv"}, or \code{"csvks"}
 #'   (CSV with KeyStat comment metadata).
+#' @param xpt_reader Reader to use for \code{.xpt} files: \code{"haven"}
+#'   (default) or \code{"internal"} (use \code{\link{ks_read_xpt}}).
+#'   Defaults to \code{getOption("kstools.xpt.reader", "haven")}.
 #' @return For a single domain, a tibble. For two or more domains, a named
 #'   list of tibbles keyed by the lowercased domain name.
 #' @seealso \code{\link{ks_batch_load}}, \code{\link{read.csv3}}
@@ -186,6 +202,13 @@ read.csv3 <- function(file, with_length = FALSE) {
 #'
 #' ## Quoted strings are also accepted
 #' dat <- ks_get_data("dm", "ae", path = "/project/data")
+#'
+#' ## Use the internal XPT reader to avoid haven's trailing-byte warning
+#' options(kstools.xpt.reader = "internal")
+#' dm <- ks_get_data(dm, type = "xpt")
+#'
+#' ## Or override per call without changing the global option
+#' dm <- ks_get_data(dm, type = "xpt", xpt_reader = "internal")
 #' }
 #' @name ks_get_data
 #' @importFrom cli cli_abort
@@ -195,9 +218,18 @@ read.csv3 <- function(file, with_length = FALSE) {
 ks_get_data <- function(...,
                         path = getOption("path.data", "."),
                         type = c("auto", "rds", "xpt", "xlsx",
-                                 "csv", "csvks")) {
+                                 "csv", "csvks"),
+                        xpt_reader = getOption("kstools.xpt.reader",
+                                               "haven")) {
 
   type <- match.arg(type)
+
+  if (!is.character(xpt_reader) || length(xpt_reader) != 1L ||
+      !xpt_reader %in% c("haven", "internal"))
+    cli::cli_abort(c(
+      "Invalid {.arg xpt_reader}: {.val {xpt_reader}}.",
+      "i" = "Must be one of: {.val {c(\"haven\", \"internal\")}}."
+    ))
 
   if (!dir.exists(path))
     cli::cli_abort("Directory not found: {.path {path}}.")
@@ -235,7 +267,9 @@ ks_get_data <- function(...,
   read_fn <- switch(
     effective_type,
     rds  = readRDS,
-    xpt  = {
+    xpt  = if (xpt_reader == "internal") {
+      ks_read_xpt
+    } else {
       if (!requireNamespace("haven", quietly = TRUE))
         cli::cli_abort("Package {.pkg haven} is required for XPT loading.")
       haven::read_xpt
@@ -252,14 +286,21 @@ ks_get_data <- function(...,
   ## Single extension to use for remaining domains (lowercased).
   one_ext <- if (effective_type == "csvks") "csv" else effective_type
 
+  ## Wrap a reader's output: tibbles are normalised; lists (multi-member
+  ## XPORT from ks_read_xpt) are returned as-is so the caller can inspect
+  ## individual members.
+  finalise <- function(x) {
+    if (is.data.frame(x)) dplyr::as_tibble(x) else x
+  }
+
   out <- vector("list", length(nm_vec))
   names(out) <- tolower(nm_vec)
-  out[[1L]] <- dplyr::as_tibble(read_fn(first_res$path))
+  out[[1L]] <- finalise(read_fn(first_res$path))
 
   if (length(nm_vec) > 1L) {
     for (i in seq.int(2L, length(nm_vec))) {
       res <- .ks_resolve_domain_file(nm_vec[i], one_ext, path, strategy)
-      out[[i]] <- dplyr::as_tibble(read_fn(res$path))
+      out[[i]] <- finalise(read_fn(res$path))
     }
   }
 

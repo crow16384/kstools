@@ -15,13 +15,13 @@ Source:
 [`DESCRIPTION`](https://github.com/crow16384/kstools/blob/HEAD/DESCRIPTION)
 
 Larchenko V, Aleschenkov I (2026). *kstools: Clinical and Data Science
-Utilities*. R package version 0.4.0,
+Utilities*. R package version 0.4.1,
 <https://crow16384.github.io/kstools/>.
 
     @Manual{,
       title = {kstools: Clinical and Data Science Utilities},
       author = {Vladimir Larchenko and Igor Aleschenkov},
       year = {2026},
-      note = {R package version 0.4.0},
+      note = {R package version 0.4.1},
       url = {https://crow16384.github.io/kstools/},
     }

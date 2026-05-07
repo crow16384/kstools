@@ -454,12 +454,16 @@ functions for common clinical programming tasks.</p>
 </div>
 <div id="data-loaders" class="section level2">
 <h2>5. Data Loaders</h2>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># one-shot load of multiple domains from RDS directory</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">ks_get_data</span>(dm, ae, adlb, <span class="at">path =</span> <span class="st">&quot;data/rds&quot;</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># or bulk by file type</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">ks_batch_load</span>(<span class="st">&quot;data/rds&quot;</span>, <span class="at">type =</span> <span class="st">&quot;rds&quot;</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">names</span>(x)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># one-shot load of multiple domains from RDS directory (returns a named list)</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">ks_get_data</span>(dm, ae, adlb, <span class="at">path =</span> <span class="st">&quot;data/rds&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>dm  <span class="ot">&lt;-</span> dat<span class="sc">$</span>dm</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># case-insensitive lookup works too</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">ks_get_data</span>(DM, <span class="at">path =</span> <span class="st">&quot;data/rds&quot;</span>)  <span class="co"># matches dm.rds, DM.RDS, etc.</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co"># or bulk by file type</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">ks_batch_load</span>(<span class="st">&quot;data/rds&quot;</span>, <span class="at">type =</span> <span class="st">&quot;rds&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">names</span>(x)</span></code></pre></div>
 <p>These pieces can be mixed to build reproducible data review and
 reporting pipelines.</p>
 </div>

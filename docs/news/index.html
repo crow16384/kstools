@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,14 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.1" id="kstools-041">kstools 0.4.1<a class="anchor" aria-label="anchor" href="#kstools-041"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-4-1">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-1"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_get_data.html">ks_get_data()</a></code>: added <code>xpt_reader</code> argument (and global option <code>kstools.xpt.reader</code>) to select the XPT loading back-end. Use <code>xpt_reader = "internal"</code> (or <code>options(kstools.xpt.reader = "internal")</code>) to suppress the <em>“ignored N trailing byte(s) after row parsing”</em> warning emitted by <strong>haven</strong> on some XPORT files. <code>"haven"</code> remains the default. When the internal reader is used and the file contains multiple members, the domain slot in the output is a named list of tibbles.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="kstools-040">kstools 0.4.0<a class="anchor" aria-label="anchor" href="#kstools-040"></a></h2>
 <div class="section level3">

@@ -1,3 +1,17 @@
+# kstools 0.4.1
+
+## New features
+
+- `ks_get_data()`: added `xpt_reader` argument (and global option
+  `kstools.xpt.reader`) to select the XPT loading back-end.
+  Use `xpt_reader = "internal"` (or `options(kstools.xpt.reader = "internal")`)
+  to suppress the *"ignored N trailing byte(s) after row parsing"* warning
+  emitted by **haven** on some XPORT files. `"haven"` remains the default.
+  When the internal reader is used and the file contains multiple members,
+  the domain slot in the output is a named list of tibbles.
+
+---
+
 # kstools 0.4.0
 
 ## New features
