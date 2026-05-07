@@ -34,7 +34,10 @@ ks_read_xpt <- function(file, convert_dates = TRUE, warn = TRUE) {
   res <- .rcpp_read_xpt(path.expand(file), isTRUE(convert_dates))
 
   if (warn && length(res$warnings) > 0L) {
-    for (w in res$warnings) cli::cli_warn(w)
+    for (w in res$warnings) {
+      if (!grepl("trailing byte", w, fixed = TRUE))
+        cli::cli_warn(w)
+    }
   }
 
   if (isTRUE(res$multi_member)) {
