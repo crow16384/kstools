@@ -160,7 +160,13 @@ ks_extract_single_xpt <- function(name, file, content) {
   seek(con, range[["start"]] - 1L)
   member_data <- readBin(con, "raw", range[["stop"]] - range[["start"]])
 
-  haven::read_xpt(c(header, member_data))
+  withCallingHandlers(
+    haven::read_xpt(c(header, member_data)),
+    warning = function(w) {
+      if (grepl("trailing byte", conditionMessage(w), fixed = TRUE))
+        invokeRestart("muffleWarning")
+    }
+  )
 }
 
 

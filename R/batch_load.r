@@ -88,7 +88,13 @@ ks_batch_load <- function(data,
       if (!requireNamespace("haven", quietly = TRUE)) {
         cli::cli_abort("Package {.pkg haven} is required for xpt loading.")
       }
-      haven::read_xpt(path)
+      withCallingHandlers(
+        haven::read_xpt(path),
+        warning = function(w) {
+          if (grepl("trailing byte", conditionMessage(w), fixed = TRUE))
+            invokeRestart("muffleWarning")
+        }
+      )
     },
     rds = function(path) {
       readRDS(path)
