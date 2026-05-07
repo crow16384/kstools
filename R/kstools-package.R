@@ -9,6 +9,8 @@
 #'   \item \strong{Utilities}: \code{\link{ks_swap_cols}}, \code{\link{ks_del_tmp}}, \code{\link{ks_aligndec}}, \code{\link{ks_sum_na}}, \code{\link{ks_auc}}, \code{\link{ks_swoe}}, \code{\link{ks_simulate_ar1}}, \code{\link{ks_eairdiff_mn}}, \code{\link{ks_eairdiff_strata_mn}}, \code{\link{ks_newcombe_hs}}, \code{\link{ks_newcombe_hs_strata}}, \code{\link{ks_current_filename}}, \code{\link{ks_get_numdec}}
 #' }
 #' @keywords internal
+#' @useDynLib kstools, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 "_PACKAGE"
 
 ## Suppress R CMD check NOTEs for NSE column references used as function defaults

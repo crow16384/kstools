@@ -1,3 +1,25 @@
+# kstools 0.4.0
+
+## New features
+
+- `ks_read_xpt()`: read SAS XPORT V5/V8/V9 files into tibbles. Variable labels,
+  SAS formats, and informats are preserved as column attributes (`"label"`,
+  `"format.sas"`, `"sas.informat"`). Multi-member files are returned as a named
+  list of tibbles.
+- `ks_write_xpt()`: write a data frame to a SAS XPORT V5 or V8 file. Labels and
+  formats can be supplied via column attributes or explicit `labels`/`formats`
+  arguments.
+- `ks_xpt_labels()` / `ks_xpt_formats()`: extract variable labels and SAS
+  formats from a data frame as named character vectors.
+- `ks_set_labels()` / `ks_set_formats()`: set `"label"` / `"format.sas"`
+  attributes on selected columns from named character vectors.
+- Date and datetime epoch conversion between SAS (1960-01-01) and R
+  (1970-01-01) is applied automatically; disable with `convert_dates = FALSE`.
+- IBM hexadecimal floating-point encoding/decoding and SAS tagged-missing
+  values are fully supported.
+
+---
+
 # kstools 0.3.9
 
 ## Breaking changes

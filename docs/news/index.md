@@ -1,5 +1,60 @@
 # Changelog
 
+## kstools 0.4.0
+
+### New features
+
+- [`ks_read_xpt()`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md):
+  read SAS XPORT V5/V8/V9 files into tibbles. Variable labels, SAS
+  formats, and informats are preserved as column attributes (`"label"`,
+  `"format.sas"`, `"sas.informat"`). Multi-member files are returned as
+  a named list of tibbles.
+- [`ks_write_xpt()`](https://crow16384.github.io/kstools/reference/ks_write_xpt.md):
+  write a data frame to a SAS XPORT V5 or V8 file. Labels and formats
+  can be supplied via column attributes or explicit `labels`/`formats`
+  arguments.
+- [`ks_xpt_labels()`](https://crow16384.github.io/kstools/reference/ks_xpt_labels.md)
+  /
+  [`ks_xpt_formats()`](https://crow16384.github.io/kstools/reference/ks_xpt_formats.md):
+  extract variable labels and SAS formats from a data frame as named
+  character vectors.
+- [`ks_set_labels()`](https://crow16384.github.io/kstools/reference/ks_set_labels.md)
+  /
+  [`ks_set_formats()`](https://crow16384.github.io/kstools/reference/ks_set_formats.md):
+  set `"label"` / `"format.sas"` attributes on selected columns from
+  named character vectors.
+- Date and datetime epoch conversion between SAS (1960-01-01) and R
+  (1970-01-01) is applied automatically; disable with
+  `convert_dates = FALSE`.
+- IBM hexadecimal floating-point encoding/decoding and SAS
+  tagged-missing values are fully supported.
+
+------------------------------------------------------------------------
+
+## kstools 0.3.9
+
+### Breaking changes
+
+- [`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md):
+  no longer assigns loaded data to `.GlobalEnv`. It now **returns** the
+  data directly — a tibble for a single-domain call, or a named list of
+  tibbles for multi-domain calls. Migrate `ks_get_data(dm)` to
+  `dm <- ks_get_data(dm)` and `ks_get_data(dm, ae)` to
+  `dat <- ks_get_data(dm, ae); dm <- dat$dm`.
+
+### New features
+
+- [`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md):
+  file lookup against `path` is now **case-insensitive** for both stem
+  and extension, so `ks_get_data(dm)` and `ks_get_data(DM)` both match
+  `dm.xpt`, `DM.XPT`, `Dm.Xpt`, etc.
+- [`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md):
+  new global option `kstools.get_data.case` to resolve ambiguity when
+  multiple files share the same stem but differ in case. Accepted
+  values: `"error"` (default), `"first"`, `"lower"`, `"upper"`.
+
+------------------------------------------------------------------------
+
 ## kstools 0.3.8
 
 ### Bug fixes

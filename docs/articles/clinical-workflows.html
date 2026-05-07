@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -189,8 +189,12 @@ functions for common clinical programming tasks.</p>
 <h2 id="data-loaders">5. Data Loaders<a class="anchor" aria-label="anchor" href="#data-loaders"></a>
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># one-shot load of multiple domains from RDS directory</span></span>
-<span><span class="fu"><a href="../reference/ks_get_data.html">ks_get_data</a></span><span class="op">(</span><span class="va">dm</span>, <span class="va">ae</span>, <span class="va">adlb</span>, path <span class="op">=</span> <span class="st">"data/rds"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># one-shot load of multiple domains from RDS directory (returns a named list)</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_get_data.html">ks_get_data</a></span><span class="op">(</span><span class="va">dm</span>, <span class="va">ae</span>, <span class="va">adlb</span>, path <span class="op">=</span> <span class="st">"data/rds"</span><span class="op">)</span></span>
+<span><span class="va">dm</span>  <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">dm</span></span>
+<span></span>
+<span><span class="co"># case-insensitive lookup works too</span></span>
+<span><span class="va">dm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_get_data.html">ks_get_data</a></span><span class="op">(</span><span class="va">DM</span>, path <span class="op">=</span> <span class="st">"data/rds"</span><span class="op">)</span>  <span class="co"># matches dm.rds, DM.RDS, etc.</span></span>
 <span></span>
 <span><span class="co"># or bulk by file type</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_batch_load.html">ks_batch_load</a></span><span class="op">(</span><span class="st">"data/rds"</span>, type <span class="op">=</span> <span class="st">"rds"</span><span class="op">)</span></span>

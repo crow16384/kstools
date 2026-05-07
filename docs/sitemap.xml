@@ -37,8 +37,11 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_p_norm.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_q1.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_q3.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_read_xpt.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_roc.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_set_formats.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_set_labels.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_simulate_ar1.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_sum_na.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_summary.html</loc></url>
@@ -47,7 +50,10 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_swap_cols.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_swoe.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_williams.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_write_xpt.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_xpt_content.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_xpt_formats.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_xpt_labels.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_z_score.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/kstools-package.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/read.csv3.html</loc></url>

@@ -1,7 +1,7 @@
 Package: kstools
 Type: Package
 Title: Clinical and Data Science Utilities
-Version: 0.3.9
+Version: 0.4.0
 Authors@R: c(
     person(
       "Vladimir", "Larchenko",
@@ -23,7 +23,7 @@ License: GPL-3
 URL: https://crow16384.github.io/kstools/, https://github.com/crow16384/kstools
 BugReports: https://github.com/crow16384/kstools/issues
 Encoding: UTF-8
-Depends: R (>= 4.1.0)
+Depends: R (>= 4.4.0)
 Imports:
     boot,
     cli,
@@ -35,11 +35,15 @@ Imports:
     openxlsx2,
     parallel,
     purrr,
+    Rcpp,
     rlang,
     rootSolve,
     stringr,
     tibble,
     tidyr
+LinkingTo:
+    Rcpp
+SystemRequirements: C++23
 Suggests:
     arrow,
     foreign,

@@ -6,7 +6,7 @@ GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gn
 Site](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml/badge.svg)](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml)
 [![pkgdown
 site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
-[![Version](https://img.shields.io/badge/version-0.3.8-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue)](https://github.com/crow16384/kstools/releases/latest)
 
 Clinical and data science utilities for R.
 
@@ -282,7 +282,7 @@ SDTM helpers and supplemental-domain workflows.
 File readers, batch loaders, and report writers.
 
 - [`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md)
-  : Load domain files into the global environment
+  : Load domain files and return them
 
 - [`read.csv3()`](https://crow16384.github.io/kstools/reference/read.csv3.md)
   : Read CSV file with column types and lengths in comments
@@ -306,6 +306,24 @@ File readers, batch loaders, and report writers.
 
 - [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md)
   : Save a data frame to an XLSX workbook split by a grouping column
+
+## SAS XPORT Read / Write
+
+Read and write SAS XPORT (XPT) V5/V8 files with label and format
+support.
+
+- [`ks_read_xpt()`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md)
+  : Read a SAS XPORT (.xpt) file
+- [`ks_write_xpt()`](https://crow16384.github.io/kstools/reference/ks_write_xpt.md)
+  : Write a data frame to a SAS XPORT (.xpt) file
+- [`ks_xpt_labels()`](https://crow16384.github.io/kstools/reference/ks_xpt_labels.md)
+  : Get SAS variable labels from a data frame
+- [`ks_xpt_formats()`](https://crow16384.github.io/kstools/reference/ks_xpt_formats.md)
+  : Get SAS variable formats from a data frame
+- [`ks_set_labels()`](https://crow16384.github.io/kstools/reference/ks_set_labels.md)
+  : Set SAS variable labels on a data frame
+- [`ks_set_formats()`](https://crow16384.github.io/kstools/reference/ks_set_formats.md)
+  : Set SAS variable formats on a data frame
 
 ## Miscellaneous Utilities
 

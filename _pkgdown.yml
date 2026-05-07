@@ -87,6 +87,16 @@ reference:
       - ks_batch_load_from_single_xpt
       - ks_save2xlsx_by
 
+  - title: SAS XPORT Read / Write
+    desc: Read and write SAS XPORT (XPT) V5/V8 files with label and format support.
+    contents:
+      - ks_read_xpt
+      - ks_write_xpt
+      - ks_xpt_labels
+      - ks_xpt_formats
+      - ks_set_labels
+      - ks_set_formats
+
   - title: Miscellaneous Utilities
     contents:
       - ks_swap_cols

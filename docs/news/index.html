@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,37 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="kstools-040">kstools 0.4.0<a class="anchor" aria-label="anchor" href="#kstools-040"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-4-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-0"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_read_xpt.html">ks_read_xpt()</a></code>: read SAS XPORT V5/V8/V9 files into tibbles. Variable labels, SAS formats, and informats are preserved as column attributes (<code>"label"</code>, <code>"format.sas"</code>, <code>"sas.informat"</code>). Multi-member files are returned as a named list of tibbles.</li>
+<li>
+<code><a href="../reference/ks_write_xpt.html">ks_write_xpt()</a></code>: write a data frame to a SAS XPORT V5 or V8 file. Labels and formats can be supplied via column attributes or explicit <code>labels</code>/<code>formats</code> arguments.</li>
+<li>
+<code><a href="../reference/ks_xpt_labels.html">ks_xpt_labels()</a></code> / <code><a href="../reference/ks_xpt_formats.html">ks_xpt_formats()</a></code>: extract variable labels and SAS formats from a data frame as named character vectors.</li>
+<li>
+<code><a href="../reference/ks_set_labels.html">ks_set_labels()</a></code> / <code><a href="../reference/ks_set_formats.html">ks_set_formats()</a></code>: set <code>"label"</code> / <code>"format.sas"</code> attributes on selected columns from named character vectors.</li>
+<li>Date and datetime epoch conversion between SAS (1960-01-01) and R (1970-01-01) is applied automatically; disable with <code>convert_dates = FALSE</code>.</li>
+<li>IBM hexadecimal floating-point encoding/decoding and SAS tagged-missing values are fully supported.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.9" id="kstools-039">kstools 0.3.9<a class="anchor" aria-label="anchor" href="#kstools-039"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-3-9">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-9"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_get_data.html">ks_get_data()</a></code>: no longer assigns loaded data to <code>.GlobalEnv</code>. It now <strong>returns</strong> the data directly — a tibble for a single-domain call, or a named list of tibbles for multi-domain calls. Migrate <code>ks_get_data(dm)</code> to <code>dm &lt;- ks_get_data(dm)</code> and <code>ks_get_data(dm, ae)</code> to <code>dat &lt;- ks_get_data(dm, ae); dm &lt;- dat$dm</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-3-9">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-9"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_get_data.html">ks_get_data()</a></code>: file lookup against <code>path</code> is now <strong>case-insensitive</strong> for both stem and extension, so <code>ks_get_data(dm)</code> and <code>ks_get_data(DM)</code> both match <code>dm.xpt</code>, <code>DM.XPT</code>, <code>Dm.Xpt</code>, etc.</li>
+<li>
+<code><a href="../reference/ks_get_data.html">ks_get_data()</a></code>: new global option <code>kstools.get_data.case</code> to resolve ambiguity when multiple files share the same stem but differ in case. Accepted values: <code>"error"</code> (default), <code>"first"</code>, <code>"lower"</code>, <code>"upper"</code>.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.8" id="kstools-038">kstools 0.3.8<a class="anchor" aria-label="anchor" href="#kstools-038"></a></h2>
 <div class="section level3">

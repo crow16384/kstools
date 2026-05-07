@@ -1,0 +1,6 @@
+CXX_STD = CXX23
+
+PKG_CPPFLAGS = -I.
+
+SOURCES = $(wildcard *.cpp) core/text.cpp xpt/parser.cpp xpt/writer.cpp
+OBJECTS = $(SOURCES:.cpp=.o)

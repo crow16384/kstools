@@ -21,3 +21,4 @@ kstools.Rcheck/
 .serena/cache/
 .serena/logs/
 .serena/project.local.yml
+.positai
