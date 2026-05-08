@@ -1,281 +1,318 @@
 // Rcpp interface for SAS XPORT read/write.
+//
+// The reader memory-maps the input file (POSIX `mmap`), decodes its header
+// once, then streams row data into pre-allocated R column vectors. Numeric
+// columns are decoded in parallel by a `std::thread` worker pool; string
+// columns are finalised serially on the main thread because the R API is not
+// thread-safe.
+//
+// Total parser scratch is bounded by:
+//   * the row-buffer per writer (rowLen bytes, ~few KB)
+//   * the 64 KB writer output buffer
+//   * one `double` and side-bookkeeping array per numeric column (size = rowCount,
+//     but these are part of the returned R vectors, not scratch)
+//   * per-thread tagged-missing index lists (typically empty)
+// regardless of file size.
 
 #include <Rcpp.h>
 
 #include <algorithm>
-#include <array>
+#include <atomic>
+#include <cmath>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
-#include <fstream>
+#include <stdexcept>
 #include <string>
+#include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/types.hpp"
+#include "xpt/mmap_file.hpp"
 #include "xpt/parser.hpp"
 #include "xpt/writer.hpp"
 #include "xpt_epoch.hpp"
 
 using namespace Rcpp;
 
-// -------- Helpers --------
-
 namespace {
 
-// Reconstruct full SAS format string from parser's already-built variable.format,
-// which uses convention "<NAME><width>[.<dec>]" (no trailing '.' if no decimals).
-// We normalise to canonical "<NAME><width>.<dec>" if width != 0.
+// Normalise format strings stored in column attributes to canonical
+// "<NAME><width>.<dec>" form.
 std::string canonicalFormat(const std::string &fmt) {
     if (fmt.empty()) return fmt;
     if (fmt.find('.') != std::string::npos) return fmt;
     return fmt + ".";
 }
 
-// Build a NumericVector from XptFile column index, applying epoch conversion if requested.
-// Returns the vector with attributes/class set.
-SEXP buildNumericColumn(const cxpt::XptFile &file,
-                        std::size_t colIdx,
-                        const std::vector<bool> &keepRow,
-                        bool convert_dates) {
-    const auto &var = file.variables[colIdx];
-    std::size_t nKeep = 0;
-    for (bool k : keepRow) if (k) ++nKeep;
+// ----- Resolve thread count --------------------------------------------------
 
-    NumericVector out(nKeep);
-    CharacterVector tags(nKeep);   // tagged-missing tag character per row, "" otherwise
-    bool anyTag = false;
+unsigned resolveThreadCount(SEXP nThreadsSEXP) {
+    unsigned hw = std::max(1u, std::thread::hardware_concurrency());
+    if (Rf_isNull(nThreadsSEXP)) {
+        // Default: leave one core for the main thread + the OS.
+        return std::max(1u, hw > 1 ? hw - 1 : 1u);
+    }
+    int n = Rf_asInteger(nThreadsSEXP);
+    if (n == NA_INTEGER || n < 1) return 1u;
+    return static_cast<unsigned>(std::min<int>(n, static_cast<int>(hw * 4)));
+}
 
-    std::size_t j = 0;
-    for (std::size_t i = 0; i < file.rows.size(); ++i) {
-        if (!keepRow[i]) continue;
-        const auto &cell = file.rows[i].cells[colIdx];
-        const auto &num = cell.numeric;
-        if (num.isSystemMissing) {
-            out[j] = NA_REAL;
-            tags[j] = "";
-        } else if (num.isTaggedMissing) {
-            out[j] = NA_REAL;
-            tags[j] = std::string(1, num.tag);
-            anyTag = true;
-        } else if (num.hasValue) {
-            out[j] = num.value;
-            tags[j] = "";
+// ----- Numeric decode per column over a row range ---------------------------
+//
+// Writes into `outValue[r]` and `outFlag[r]` (for r in [rowBegin, rowEnd)).
+// Tagged-missing entries are appended to `tagsOut` as (rowIdx, tagChar).
+
+struct TagEntry {
+    std::uint32_t row;
+    char tag;
+};
+
+void decodeNumericChunk(const std::uint8_t *base,
+                        std::size_t rowLen,
+                        std::size_t rowBegin,
+                        std::size_t rowEnd,
+                        const cxpt::XptVariable &var,
+                        double *outValue,
+                        std::uint8_t *outFlag,
+                        std::vector<TagEntry> &tagsOut) {
+    const std::size_t off = var.byteOffset;
+    const std::size_t width = var.storageWidth;
+    for (std::size_t r = rowBegin; r < rowEnd; ++r) {
+        const std::uint8_t *p = base + r * rowLen + off;
+        double v = 0.0;
+        std::uint8_t flag = 0;
+        char tag = 0;
+        cxpt::decodeNumericFast(p, width, &v, &flag, &tag);
+        if (flag == 1) {
+            outValue[r - rowBegin] = v;
+            outFlag[r - rowBegin] = 1;
+        } else if (flag == 2) {
+            outValue[r - rowBegin] = NA_REAL;
+            outFlag[r - rowBegin] = 2;
+            tagsOut.push_back({static_cast<std::uint32_t>(r), tag});
         } else {
-            out[j] = NA_REAL;
-            tags[j] = "";
+            outValue[r - rowBegin] = NA_REAL;
+            outFlag[r - rowBegin] = 0;
         }
-        ++j;
     }
-
-    const std::string fmt = var.format;
-    const bool isDate = convert_dates && kstools::isSasDateFormat(fmt);
-    const bool isDateTime = convert_dates && kstools::isSasDatetimeFormat(fmt);
-
-    if (isDate) {
-        for (R_xlen_t k = 0; k < out.size(); ++k) {
-            if (!NumericVector::is_na(out[k])) {
-                out[k] = kstools::sasDateToR(out[k]);
-            }
-        }
-        out.attr("class") = "Date";
-    } else if (isDateTime) {
-        for (R_xlen_t k = 0; k < out.size(); ++k) {
-            if (!NumericVector::is_na(out[k])) {
-                out[k] = kstools::sasDatetimeToR(out[k]);
-            }
-        }
-        out.attr("class") = CharacterVector::create("POSIXct", "POSIXt");
-        out.attr("tzone") = "UTC";
-    }
-
-    if (!var.label.empty())    out.attr("label") = var.label;
-    if (!fmt.empty())          out.attr("format.sas") = canonicalFormat(fmt);
-    if (!var.informat.empty()) out.attr("sas.informat") = canonicalFormat(var.informat);
-    if (var.displayWidth != 0) out.attr("sas.display.width") = static_cast<int>(var.displayWidth);
-    if (var.decimals != 0)     out.attr("sas.decimals") = static_cast<int>(var.decimals);
-    if (anyTag)                out.attr("sas.missing.tag") = tags;
-
-    return out;
 }
 
-SEXP buildStringColumn(const cxpt::XptFile &file,
-                       std::size_t colIdx,
-                       const std::vector<bool> &keepRow) {
-    const auto &var = file.variables[colIdx];
-    std::size_t nKeep = 0;
-    for (bool k : keepRow) if (k) ++nKeep;
+// ----- Build R columns from schema + mmap ------------------------------------
 
-    CharacterVector out(nKeep);
-    std::size_t j = 0;
-    for (std::size_t i = 0; i < file.rows.size(); ++i) {
-        if (!keepRow[i]) continue;
-        const auto &cell = file.rows[i].cells[colIdx];
-        out[j++] = cell.stringTrimmed;
-    }
-    if (!var.label.empty())    out.attr("label") = var.label;
-    if (!var.format.empty())   out.attr("format.sas") = canonicalFormat(var.format);
-    if (!var.informat.empty()) out.attr("sas.informat") = canonicalFormat(var.informat);
-    if (var.displayWidth != 0) out.attr("sas.display.width") = static_cast<int>(var.displayWidth);
-    return out;
-}
+SEXP buildColumns(const cxpt::MappedFile &mf,
+                  std::size_t fileBaseOffset,   // offset into mmap of member data start
+                  const cxpt::XptSchema &schema,
+                  bool convert_dates,
+                  unsigned nThreads) {
+    const std::size_t ncol = schema.variables.size();
+    const std::size_t nrow = schema.rowCount;
+    const std::size_t rowLen = schema.rowLen;
 
-// Convert a parsed XptFile to an R data.frame (no tibble class).
-List xptFileToDataFrame(const cxpt::XptFile &file, bool convert_dates) {
-    // Determine which rows to keep (skip blank-padding rows)
-    std::vector<bool> keepRow(file.rows.size(), true);
-    std::size_t nKeep = 0;
-    for (std::size_t i = 0; i < file.rows.size(); ++i) {
-        if (file.rows[i].wasBlankPaddingRow) keepRow[i] = false;
-        else ++nKeep;
-    }
-
-    const std::size_t ncol = file.variables.size();
     List cols(ncol);
-    CharacterVector names(ncol);
+    CharacterVector names(static_cast<R_xlen_t>(ncol));
+
+    // Identify numeric columns for parallel decode.
+    std::vector<std::size_t> numIdx;
+    numIdx.reserve(ncol);
     for (std::size_t i = 0; i < ncol; ++i) {
-        names[i] = file.variables[i].name;
-        if (file.variables[i].isString) {
-            cols[i] = buildStringColumn(file, i, keepRow);
-        } else {
-            cols[i] = buildNumericColumn(file, i, keepRow, convert_dates);
+        names[i] = schema.variables[i].name;
+        if (!schema.variables[i].isString) numIdx.push_back(i);
+    }
+
+    // Allocate numeric column SEXPs first so workers can write into REAL(.).
+    std::vector<SEXP> numericColSexps(ncol, R_NilValue);
+    for (std::size_t i : numIdx) {
+        SEXP s = PROTECT(Rf_allocVector(REALSXP, static_cast<R_xlen_t>(nrow)));
+        numericColSexps[i] = s;
+        cols[i] = s;
+        UNPROTECT(1);  // protected by the List `cols`
+    }
+
+    // Per-numeric-column flag arrays: 0=NA, 1=value, 2=tagged. We only need to
+    // remember system-vs-tagged when the file actually has tagged missings.
+    // Allocate a single flat buffer to keep allocation count constant.
+    std::vector<std::vector<std::uint8_t>> flagBuffers(numIdx.size());
+    std::vector<std::vector<TagEntry>> tagBuffers(numIdx.size());
+
+    // ---- Parallel numeric decode ----
+    if (nrow > 0 && !numIdx.empty()) {
+        const std::uint8_t *base = mf.data() + fileBaseOffset;
+
+        // Choose chunking: split rows so each thread gets a contiguous range.
+        unsigned actualThreads = std::min<unsigned>(nThreads, std::max<unsigned>(1u,
+                                  static_cast<unsigned>((nrow + 1023) / 1024)));
+        if (actualThreads == 0) actualThreads = 1;
+
+        const std::size_t rowsPerThread = (nrow + actualThreads - 1) / actualThreads;
+
+        // Pre-allocate per-thread output buffers per numeric column.
+        // Layout: column-major over threads to minimise false-sharing.
+        std::vector<std::vector<std::vector<std::uint8_t>>> tFlags(actualThreads);
+        std::vector<std::vector<std::vector<TagEntry>>> tTags(actualThreads);
+        for (unsigned t = 0; t < actualThreads; ++t) {
+            tFlags[t].resize(numIdx.size());
+            tTags[t].resize(numIdx.size());
+        }
+
+        std::vector<std::thread> workers;
+        workers.reserve(actualThreads);
+
+        std::atomic<bool> failed{false};
+        std::vector<std::string> threadErrors(actualThreads);
+
+        for (unsigned t = 0; t < actualThreads; ++t) {
+            const std::size_t rb = t * rowsPerThread;
+            const std::size_t re = std::min(nrow, rb + rowsPerThread);
+            if (rb >= re) continue;
+            workers.emplace_back([&, t, rb, re]() {
+                try {
+                    for (std::size_t k = 0; k < numIdx.size(); ++k) {
+                        const std::size_t colIdx = numIdx[k];
+                        const auto &var = schema.variables[colIdx];
+                        double *outV = REAL(numericColSexps[colIdx]) + rb;
+                        tFlags[t][k].assign(re - rb, 0);
+                        decodeNumericChunk(base, rowLen, rb, re, var,
+                                           outV, tFlags[t][k].data(), tTags[t][k]);
+                        // Re-base tag row indices to absolute (already absolute).
+                    }
+                } catch (const std::exception &e) {
+                    threadErrors[t] = e.what();
+                    failed.store(true, std::memory_order_relaxed);
+                } catch (...) {
+                    threadErrors[t] = "unknown decode error";
+                    failed.store(true, std::memory_order_relaxed);
+                }
+            });
+        }
+        for (auto &th : workers) th.join();
+
+        if (failed.load()) {
+            for (const auto &e : threadErrors) {
+                if (!e.empty()) Rcpp::stop("XPORT decode error: %s", e);
+            }
+            Rcpp::stop("XPORT decode error");
+        }
+
+        // Stitch per-thread flag/tag buffers into per-column arrays.
+        for (std::size_t k = 0; k < numIdx.size(); ++k) {
+            std::size_t colTotal = 0;
+            for (unsigned t = 0; t < actualThreads; ++t) colTotal += tFlags[t][k].size();
+            flagBuffers[k].assign(colTotal, 0);
+            std::size_t pos = 0;
+            for (unsigned t = 0; t < actualThreads; ++t) {
+                std::memcpy(flagBuffers[k].data() + pos, tFlags[t][k].data(),
+                            tFlags[t][k].size());
+                pos += tFlags[t][k].size();
+                tFlags[t][k].clear();
+                tFlags[t][k].shrink_to_fit();
+            }
+            // Concatenate tags.
+            std::size_t tagTotal = 0;
+            for (unsigned t = 0; t < actualThreads; ++t) tagTotal += tTags[t][k].size();
+            tagBuffers[k].reserve(tagTotal);
+            for (unsigned t = 0; t < actualThreads; ++t) {
+                tagBuffers[k].insert(tagBuffers[k].end(), tTags[t][k].begin(), tTags[t][k].end());
+                tTags[t][k].clear();
+                tTags[t][k].shrink_to_fit();
+            }
         }
     }
+
+    // ---- String columns: serial decode (R API is not thread-safe) ----
+    for (std::size_t i = 0; i < ncol; ++i) {
+        const auto &var = schema.variables[i];
+        if (!var.isString) continue;
+        SEXP s = PROTECT(Rf_allocVector(STRSXP, static_cast<R_xlen_t>(nrow)));
+        const std::size_t off = var.byteOffset;
+        const std::size_t width = var.storageWidth;
+        const std::uint8_t *base = mf.data() + fileBaseOffset;
+        for (std::size_t r = 0; r < nrow; ++r) {
+            const char *cell = reinterpret_cast<const char *>(base + r * rowLen + off);
+            // Trim trailing 0x20 spaces.
+            std::size_t len = width;
+            while (len > 0 && cell[len - 1] == ' ') --len;
+            SET_STRING_ELT(s, r, Rf_mkCharLenCE(cell, static_cast<int>(len), CE_NATIVE));
+        }
+        cols[i] = s;
+        UNPROTECT(1);
+    }
+
+    // ---- Apply attributes + date conversion ----
+    for (std::size_t i = 0; i < ncol; ++i) {
+        const auto &var = schema.variables[i];
+        SEXP col = cols[i];
+
+        if (var.isString) {
+            if (!var.label.empty())   Rf_setAttrib(col, Rf_install("label"), Rf_mkString(var.label.c_str()));
+            if (!var.format.empty())  Rf_setAttrib(col, Rf_install("format.sas"), Rf_mkString(canonicalFormat(var.format).c_str()));
+            if (!var.informat.empty()) Rf_setAttrib(col, Rf_install("sas.informat"), Rf_mkString(canonicalFormat(var.informat).c_str()));
+            if (var.displayWidth != 0) Rf_setAttrib(col, Rf_install("sas.display.width"), Rf_ScalarInteger(var.displayWidth));
+            continue;
+        }
+
+        // Numeric: optional date/datetime conversion + attributes.
+        const std::string &fmt = var.format;
+        const bool isDate = convert_dates && kstools::isSasDateFormat(fmt);
+        const bool isDateTime = convert_dates && kstools::isSasDatetimeFormat(fmt);
+
+        if (isDate || isDateTime) {
+            const double offset = isDate ? -kstools::kSasRDateOffset : -kstools::kSasRDatetimeOffset;
+            (void)offset;
+            const R_xlen_t n = Rf_xlength(col);
+            double *p = REAL(col);
+            if (isDate) {
+                for (R_xlen_t k = 0; k < n; ++k) {
+                    if (!ISNA(p[k]) && !std::isnan(p[k])) {
+                        p[k] = kstools::sasDateToR(p[k]);
+                    }
+                }
+                Rf_setAttrib(col, R_ClassSymbol, Rf_mkString("Date"));
+            } else {
+                for (R_xlen_t k = 0; k < n; ++k) {
+                    if (!ISNA(p[k]) && !std::isnan(p[k])) {
+                        p[k] = kstools::sasDatetimeToR(p[k]);
+                    }
+                }
+                CharacterVector klass = CharacterVector::create("POSIXct", "POSIXt");
+                Rf_setAttrib(col, R_ClassSymbol, klass);
+                Rf_setAttrib(col, Rf_install("tzone"), Rf_mkString("UTC"));
+            }
+        }
+
+        if (!var.label.empty())   Rf_setAttrib(col, Rf_install("label"), Rf_mkString(var.label.c_str()));
+        if (!fmt.empty())         Rf_setAttrib(col, Rf_install("format.sas"), Rf_mkString(canonicalFormat(fmt).c_str()));
+        if (!var.informat.empty()) Rf_setAttrib(col, Rf_install("sas.informat"), Rf_mkString(canonicalFormat(var.informat).c_str()));
+        if (var.displayWidth != 0) Rf_setAttrib(col, Rf_install("sas.display.width"), Rf_ScalarInteger(var.displayWidth));
+        if (var.decimals != 0)    Rf_setAttrib(col, Rf_install("sas.decimals"), Rf_ScalarInteger(var.decimals));
+    }
+
+    // ---- Tagged-missing attribute (only if any column has any tag) ----
+    bool anyTagsAtAll = false;
+    for (const auto &t : tagBuffers) if (!t.empty()) { anyTagsAtAll = true; break; }
+    if (anyTagsAtAll) {
+        for (std::size_t k = 0; k < numIdx.size(); ++k) {
+            if (tagBuffers[k].empty()) continue;
+            const std::size_t colIdx = numIdx[k];
+            SEXP col = cols[colIdx];
+            CharacterVector tags(static_cast<R_xlen_t>(nrow));
+            for (R_xlen_t r = 0; r < static_cast<R_xlen_t>(nrow); ++r) tags[r] = "";
+            for (const auto &te : tagBuffers[k]) {
+                tags[te.row] = std::string(1, te.tag);
+            }
+            Rf_setAttrib(col, Rf_install("sas.missing.tag"), tags);
+        }
+    }
+
+    // Build data.frame.
     cols.attr("names") = names;
     cols.attr("class") = "data.frame";
-    cols.attr("row.names") = IntegerVector::create(NA_INTEGER, -static_cast<int>(nKeep));
+    cols.attr("row.names") = IntegerVector::create(NA_INTEGER, -static_cast<int>(nrow));
     return cols;
 }
 
-// -------- Multi-member detection --------
-//
-// We scan for occurrences of the MEMBER/MEMBV8 header magic in the file:
-// "HEADER RECORD*******MEMBER  HEADER RECORD!!!!!!!" (V5)
-// "HEADER RECORD*******MEMBV8  HEADER RECORD!!!!!!!" (V8) -- name is space-padded to 8.
-//
-// Returns vector of byte offsets where MEMBER/MEMBV8 records begin.
-std::vector<std::size_t> scanMemberOffsets(const std::vector<std::uint8_t> &bytes) {
-    std::vector<std::size_t> out;
-    static const char kPrefix[]  = "HEADER RECORD*******";
-    static const char kInfix[]   = "HEADER RECORD!!!!!!!";
-    const std::size_t prefLen = 20;
-    const std::size_t infixLen = 20;
-    const std::size_t recLen = 80;
+// ===== Writer helpers ========================================================
 
-    if (bytes.size() < recLen) return out;
-    // Headers always start at 80-byte boundaries
-    for (std::size_t pos = 0; pos + recLen <= bytes.size(); pos += recLen) {
-        if (std::memcmp(bytes.data() + pos, kPrefix, prefLen) != 0) continue;
-        if (std::memcmp(bytes.data() + pos + 28, kInfix, infixLen) != 0) continue;
-        // Read the 8-char name field at offset 20..27
-        std::string name(reinterpret_cast<const char *>(bytes.data() + pos + 20), 8);
-        // Trim trailing spaces
-        while (!name.empty() && name.back() == ' ') name.pop_back();
-        if (name == "MEMBER" || name == "MEMBV8") {
-            out.push_back(pos);
-        }
-    }
-    return out;
-}
-
-// Read entire file into bytes vector
-std::vector<std::uint8_t> readFileBytes(const std::string &path) {
-    std::ifstream ifs(path, std::ios::binary);
-    if (!ifs) throw std::runtime_error("Cannot open file for reading: " + path);
-    ifs.seekg(0, std::ios::end);
-    const std::streamoff sz = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
-    std::vector<std::uint8_t> buf(static_cast<std::size_t>(sz));
-    if (sz > 0) ifs.read(reinterpret_cast<char *>(buf.data()), sz);
-    return buf;
-}
-
-// Write bytes to a temp file and return its path. Caller must remove.
-std::string writeTempFile(const std::vector<std::uint8_t> &bytes) {
-    // Use R's tempfile()
-    Function tempfile_fn("tempfile");
-    std::string path = as<std::string>(tempfile_fn(Named("fileext") = ".xpt"));
-    std::ofstream ofs(path, std::ios::binary);
-    if (!ofs) throw std::runtime_error("Cannot create temp file: " + path);
-    ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
-    return path;
-}
-
-void removeFile(const std::string &path) {
-    (void)::remove(path.c_str());
-}
-
-}  // namespace
-
-// [[Rcpp::export(name = ".rcpp_read_xpt")]]
-Rcpp::List rcpp_read_xpt(const std::string &path, bool convert_dates) {
-    std::vector<std::uint8_t> bytes = readFileBytes(path);
-    if (bytes.size() < 240) stop("File too small to be a valid XPORT: %s", path);
-
-    auto memberOffsets = scanMemberOffsets(bytes);
-    const bool multi = memberOffsets.size() > 1;
-
-    CharacterVector warnings;
-
-    if (!multi) {
-        // Single-member: parse the file path directly.
-        auto pr = cxpt::parseXptFile(path);
-        if (!pr.error.empty()) stop("XPORT parse error: %s", pr.error);
-        for (const auto &w : pr.file.warnings) warnings.push_back(w);
-        List df = xptFileToDataFrame(pr.file, convert_dates);
-        return List::create(
-            Named("data") = df,
-            Named("warnings") = warnings,
-            Named("multi_member") = false);
-    }
-
-    // Multi-member: extract each member to a temp file (with file-header prefix) and parse.
-    // The file header (3 × 80 bytes = 240) must precede each member.
-    if (bytes.size() < 240) stop("Multi-member file truncated: %s", path);
-    std::vector<std::uint8_t> fileHeader(bytes.begin(), bytes.begin() + 240);
-
-    List members(memberOffsets.size());
-    CharacterVector memberNames(memberOffsets.size());
-
-    for (std::size_t k = 0; k < memberOffsets.size(); ++k) {
-        std::size_t startOff = memberOffsets[k];
-        std::size_t endOff = (k + 1 < memberOffsets.size()) ? memberOffsets[k + 1] : bytes.size();
-
-        std::vector<std::uint8_t> single;
-        single.reserve(240 + (endOff - startOff));
-        single.insert(single.end(), fileHeader.begin(), fileHeader.end());
-        single.insert(single.end(), bytes.begin() + startOff, bytes.begin() + endOff);
-
-        std::string tmpPath = writeTempFile(single);
-        cxpt::ParseResult pr;
-        try {
-            pr = cxpt::parseXptFile(tmpPath);
-        } catch (...) {
-            removeFile(tmpPath);
-            throw;
-        }
-        removeFile(tmpPath);
-
-        if (!pr.error.empty()) {
-            warnings.push_back(std::string("member ") + std::to_string(k + 1) + ": " + pr.error);
-            continue;
-        }
-        for (const auto &w : pr.file.warnings) warnings.push_back(w);
-        memberNames[k] = pr.file.tableName.empty() ? std::string("MEMBER_") + std::to_string(k + 1)
-                                                   : pr.file.tableName;
-        members[k] = xptFileToDataFrame(pr.file, convert_dates);
-    }
-    members.attr("names") = memberNames;
-    return List::create(
-        Named("data") = members,
-        Named("warnings") = warnings,
-        Named("multi_member") = true);
-}
-
-// -------- Writer side --------
-
-namespace {
-
-// Detect R column class to pick a default SAS format if no explicit one is given.
 std::string defaultFormatForClass(SEXP col) {
     SEXP klassSexp = Rf_getAttrib(col, R_ClassSymbol);
     if (!Rf_isNull(klassSexp)) {
@@ -290,7 +327,6 @@ std::string defaultFormatForClass(SEXP col) {
     return "";
 }
 
-// Get an attribute as string, or fallback.
 std::string getAttrStr(SEXP col, const char *name, const std::string &fallback = "") {
     SEXP a = Rf_getAttrib(col, Rf_install(name));
     if (Rf_isNull(a)) return fallback;
@@ -300,7 +336,6 @@ std::string getAttrStr(SEXP col, const char *name, const std::string &fallback =
     return fallback;
 }
 
-// Look up a name in a named CharacterVector (or return empty if not present / vec is null).
 std::string lookupNamed(SEXP namedVec, const std::string &key) {
     if (Rf_isNull(namedVec) || TYPEOF(namedVec) != STRSXP) return "";
     SEXP names = Rf_getAttrib(namedVec, R_NamesSymbol);
@@ -317,11 +352,86 @@ std::string lookupNamed(SEXP namedVec, const std::string &key) {
     return "";
 }
 
-bool inheritsClass(SEXP col, const char *name) {
-    return Rf_inherits(col, name);
+}  // namespace
+
+// ===== Reader entry point ====================================================
+
+// [[Rcpp::export(name = ".rcpp_read_xpt")]]
+Rcpp::List rcpp_read_xpt(const std::string &path,
+                         bool convert_dates,
+                         Rcpp::Nullable<int> n_threads = R_NilValue) {
+    cxpt::MappedFile mf;
+    try {
+        mf.open(path);
+    } catch (const std::exception &e) {
+        stop("%s", e.what());
+    }
+    if (mf.size() < 240) stop("File too small to be a valid XPORT: %s", path);
+
+    SEXP nThreadsSEXP = n_threads.isNotNull() ? SEXP(IntegerVector(n_threads)) : R_NilValue;
+    unsigned nThreads = resolveThreadCount(nThreadsSEXP);
+
+    const std::uint8_t *data = mf.data();
+    const std::size_t size = mf.size();
+
+    // Member detection: scan for additional MEMBER/MEMBV8 records beyond the
+    // mandatory leading one.
+    std::vector<std::size_t> memberOffsets = cxpt::scanMemberOffsets(data, size);
+    const bool multi = memberOffsets.size() > 1;
+
+    CharacterVector warnings;
+
+    if (!multi) {
+        cxpt::XptSchema schema;
+        std::string err;
+        if (!cxpt::parseSchema(data, size, 0, schema, err)) {
+            stop("XPORT parse error: %s", err);
+        }
+        for (const auto &w : schema.warnings) warnings.push_back(w);
+
+        SEXP df = PROTECT(buildColumns(mf, schema.dataOffset, schema, convert_dates, nThreads));
+        List out = List::create(
+            Named("data") = df,
+            Named("warnings") = warnings,
+            Named("multi_member") = false);
+        UNPROTECT(1);
+        return out;
+    }
+
+    // ---- Multi-member (zero-copy via mmap offsets) ----
+    List members(memberOffsets.size());
+    CharacterVector memberNames(memberOffsets.size());
+
+    for (std::size_t k = 0; k < memberOffsets.size(); ++k) {
+        const std::size_t startOff = memberOffsets[k];
+        const std::size_t endOff = (k + 1 < memberOffsets.size())
+                                       ? memberOffsets[k + 1]
+                                       : size;
+        cxpt::XptSchema schema;
+        std::string err;
+        // For non-leading members, parseSchema is given a window that begins at
+        // the MEMBER record itself; it will skip the LIBRARY prelude logic.
+        if (!cxpt::parseSchema(data, endOff, startOff, schema, err)) {
+            warnings.push_back(std::string("member ") + std::to_string(k + 1) + ": " + err);
+            continue;
+        }
+        for (const auto &w : schema.warnings) warnings.push_back(w);
+
+        memberNames[k] = schema.tableName.empty()
+                              ? std::string("MEMBER_") + std::to_string(k + 1)
+                              : schema.tableName;
+        SEXP df = PROTECT(buildColumns(mf, schema.dataOffset, schema, convert_dates, nThreads));
+        members[k] = df;
+        UNPROTECT(1);
+    }
+    members.attr("names") = memberNames;
+    return List::create(
+        Named("data") = members,
+        Named("warnings") = warnings,
+        Named("multi_member") = true);
 }
 
-}  // namespace
+// ===== Writer entry point ====================================================
 
 // [[Rcpp::export(name = ".rcpp_write_xpt")]]
 void rcpp_write_xpt(Rcpp::List df,
@@ -348,17 +458,15 @@ void rcpp_write_xpt(Rcpp::List df,
         if (Rf_xlength(col) != nrow) stop("all columns must have the same length");
     }
 
-    SEXP labelsSexp  = labels.isNotNull()  ? SEXP(Rcpp::CharacterVector(labels))  : R_NilValue;
-    SEXP formatsSexp = formats.isNotNull() ? SEXP(Rcpp::CharacterVector(formats)) : R_NilValue;
+    SEXP labelsSexp  = labels.isNotNull()  ? SEXP(CharacterVector(labels))  : R_NilValue;
+    SEXP formatsSexp = formats.isNotNull() ? SEXP(CharacterVector(formats)) : R_NilValue;
 
-    // -------- Build XptFile --------
-    cxpt::XptFile file;
-    file.version = version;
-    if (dataset_label.isNotNull()) file.fileLabel = as<std::string>(dataset_label);
+    // ---- Build schema (no row data!) ----
+    cxpt::XptSchema schema;
+    schema.version = version;
+    if (dataset_label.isNotNull()) schema.fileLabel = as<std::string>(dataset_label);
 
-    std::vector<int> colTypes(ncol);   // 1=numeric, 2=character
-    std::vector<std::uint16_t> storageWidths(ncol);
-
+    schema.variables.reserve(ncol);
     for (std::size_t i = 0; i < ncol; ++i) {
         std::string nm = as<std::string>(colNames[i]);
         SEXP col = df[i];
@@ -367,40 +475,35 @@ void rcpp_write_xpt(Rcpp::List df,
         v.varNumber = static_cast<std::uint16_t>(i + 1);
         v.name = nm;
 
-        // Resolve label
         std::string lbl = lookupNamed(labelsSexp, nm);
         if (lbl.empty()) lbl = getAttrStr(col, "label");
         v.label = lbl;
 
-        // Resolve format
         std::string fmt = lookupNamed(formatsSexp, nm);
         if (fmt.empty()) fmt = getAttrStr(col, "format.sas");
         if (fmt.empty()) fmt = defaultFormatForClass(col);
         v.format = fmt;
 
-        // Informat (no command-line override; pull from attribute only)
         v.informat = getAttrStr(col, "sas.informat");
 
-        // Type detection
         bool isChar = (TYPEOF(col) == STRSXP) || Rf_isFactor(col);
         if (isChar) {
             v.ntypeRaw = 2;
             v.isString = true;
-            // Storage width: max nchar across rows, min 1
             std::uint16_t w = 1;
             if (TYPEOF(col) == STRSXP) {
                 R_xlen_t n = Rf_xlength(col);
                 for (R_xlen_t r = 0; r < n; ++r) {
                     SEXP s = STRING_ELT(col, r);
                     if (s != NA_STRING) {
-                        std::size_t L = strlen(CHAR(s));
+                        std::size_t L = std::strlen(CHAR(s));
                         if (L > w) w = static_cast<std::uint16_t>(std::min<std::size_t>(L, 32767));
                     }
                 }
-            } else {  // factor: get levels and use max level width
+            } else {
                 CharacterVector levels = Rf_getAttrib(col, R_LevelsSymbol);
                 for (R_xlen_t r = 0; r < levels.size(); ++r) {
-                    std::size_t L = strlen(CHAR(STRING_ELT(levels, r)));
+                    std::size_t L = std::strlen(CHAR(STRING_ELT(levels, r)));
                     if (L > w) w = static_cast<std::uint16_t>(std::min<std::size_t>(L, 32767));
                 }
             }
@@ -410,86 +513,114 @@ void rcpp_write_xpt(Rcpp::List df,
             v.isString = false;
             v.storageWidth = 8;
         }
-
-        // Set displayWidth/decimals from format if not yet
-        // (writer's buildNamestr handles parsing again from v.format)
-
-        colTypes[i] = v.ntypeRaw;
-        storageWidths[i] = v.storageWidth;
-        file.variables.push_back(std::move(v));
+        schema.variables.push_back(std::move(v));
     }
 
-    // -------- Build rows --------
-    file.rows.reserve(static_cast<std::size_t>(nrow));
+    cxpt::WriteOptions opts;
+    opts.version = version;
+    opts.datasetName = dataset_name.isNotNull() ? as<std::string>(dataset_name)
+                                                : std::string("DATASET");
+    if (dataset_label.isNotNull()) opts.fileLabel = as<std::string>(dataset_label);
+
+    // Compute per-variable byte offsets so the row-buffer fill loop matches the
+    // writer's row layout.
+    {
+        std::size_t off = 0;
+        for (auto &v : schema.variables) {
+            v.byteOffset = off;
+            off += v.storageWidth;
+        }
+    }
+
+    cxpt::XptWriter writer(path, schema, opts);
+
+    // ---- Stream rows ----
+    // Cache column SEXPs and types once.
+    std::vector<SEXP> colSexps(ncol);
+    std::vector<int> colTypes(ncol);  // 1=numeric, 2=character, 3=factor
+    std::vector<bool> isDate(ncol, false);
+    std::vector<bool> isDateTime(ncol, false);
+    for (std::size_t i = 0; i < ncol; ++i) {
+        colSexps[i] = df[i];
+        if (schema.variables[i].isString) {
+            colTypes[i] = (TYPEOF(colSexps[i]) == STRSXP) ? 2 : 3;
+        } else {
+            colTypes[i] = 1;
+            if (convert_dates) {
+                if (Rf_inherits(colSexps[i], "Date")) isDate[i] = true;
+                else if (Rf_inherits(colSexps[i], "POSIXct")) isDateTime[i] = true;
+            }
+        }
+    }
+
+    std::uint8_t *rowBuf = writer.rowBuffer();
     for (R_xlen_t r = 0; r < nrow; ++r) {
-        cxpt::XptRow row;
-        row.cells.resize(ncol);
         for (std::size_t i = 0; i < ncol; ++i) {
-            SEXP col = df[i];
-            cxpt::CellValue &cell = row.cells[i];
-            if (colTypes[i] == 2) {
-                cell.isString = true;
-                if (TYPEOF(col) == STRSXP) {
-                    SEXP s = STRING_ELT(col, r);
-                    cell.stringRaw = (s == NA_STRING) ? std::string{} : std::string(CHAR(s));
-                } else {  // factor
-                    int idx = INTEGER(col)[r];
-                    if (idx == NA_INTEGER) {
-                        cell.stringRaw = "";
-                    } else {
-                        CharacterVector levels = Rf_getAttrib(col, R_LevelsSymbol);
-                        cell.stringRaw = std::string(CHAR(STRING_ELT(levels, idx - 1)));
-                    }
-                }
-                cell.stringTrimmed = cell.stringRaw;
-            } else {
-                cell.isString = false;
-                cell.numeric.hasValue = false;
+            const auto &var = schema.variables[i];
+            std::uint8_t *slot = rowBuf + var.byteOffset;
+
+            if (colTypes[i] == 1) {
                 double d = NA_REAL;
                 bool isNA = false;
-                if (TYPEOF(col) == REALSXP) {
+                SEXP col = colSexps[i];
+                int tp = TYPEOF(col);
+                if (tp == REALSXP) {
                     d = REAL(col)[r];
                     isNA = ISNA(d) || std::isnan(d);
-                } else if (TYPEOF(col) == INTSXP) {
+                } else if (tp == INTSXP) {
                     int iv = INTEGER(col)[r];
-                    if (iv == NA_INTEGER) { isNA = true; }
+                    if (iv == NA_INTEGER) isNA = true;
                     else d = static_cast<double>(iv);
-                } else if (TYPEOF(col) == LGLSXP) {
+                } else if (tp == LGLSXP) {
                     int lv = LOGICAL(col)[r];
-                    if (lv == NA_LOGICAL) { isNA = true; }
+                    if (lv == NA_LOGICAL) isNA = true;
                     else d = static_cast<double>(lv);
                 } else {
                     isNA = true;
                 }
+                std::uint8_t enc[8] = {0};
                 if (isNA) {
-                    cell.numeric.isSystemMissing = true;
+                    enc[0] = 0x2E;  // '.'
                 } else {
-                    if (convert_dates) {
-                        if (inheritsClass(col, "Date")) {
-                            d = kstools::rDateToSas(d);
-                        } else if (inheritsClass(col, "POSIXct")) {
-                            d = kstools::rDatetimeToSas(d);
-                        }
+                    if (isDate[i]) d = kstools::rDateToSas(d);
+                    else if (isDateTime[i]) d = kstools::rDatetimeToSas(d);
+                    cxpt::encodeIbmXport(d, enc);
+                }
+                std::size_t w = std::min<std::size_t>(8, var.storageWidth);
+                if (w == 0) w = 8;
+                std::memcpy(slot, enc, w);
+            } else if (colTypes[i] == 2) {
+                SEXP s = STRING_ELT(colSexps[i], r);
+                if (s == NA_STRING) {
+                    // Leave slot as spaces (already memset by writer).
+                } else {
+                    const char *cstr = CHAR(s);
+                    std::size_t L = std::strlen(cstr);
+                    std::size_t n = std::min<std::size_t>(L, var.storageWidth);
+                    std::memcpy(slot, cstr, n);
+                    if (n < var.storageWidth) {
+                        std::memset(slot + n, 0x20, var.storageWidth - n);
                     }
-                    cell.numeric.hasValue = true;
-                    cell.numeric.value = d;
+                }
+            } else {  // factor
+                int idx = INTEGER(colSexps[i])[r];
+                if (idx == NA_INTEGER) {
+                    // spaces (already)
+                } else {
+                    CharacterVector levels = Rf_getAttrib(colSexps[i], R_LevelsSymbol);
+                    SEXP s = STRING_ELT(levels, idx - 1);
+                    const char *cstr = CHAR(s);
+                    std::size_t L = std::strlen(cstr);
+                    std::size_t n = std::min<std::size_t>(L, var.storageWidth);
+                    std::memcpy(slot, cstr, n);
+                    if (n < var.storageWidth) {
+                        std::memset(slot + n, 0x20, var.storageWidth - n);
+                    }
                 }
             }
         }
-        file.rows.push_back(std::move(row));
+        writer.commitRow();
     }
 
-    // -------- Write --------
-    cxpt::WriteOptions opts;
-    opts.version = version;
-    if (dataset_name.isNotNull()) {
-        opts.datasetName = as<std::string>(dataset_name);
-    } else {
-        opts.datasetName = "DATASET";
-    }
-    if (dataset_label.isNotNull()) {
-        opts.fileLabel = as<std::string>(dataset_label);
-    }
-
-    cxpt::writeXptFile(file, path, opts);
+    writer.finish();
 }

@@ -3,11 +3,9 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <limits>
+#include <cstring>
 #include <span>
 #include <sstream>
 #include <string>
@@ -19,56 +17,81 @@
 namespace cxpt {
 namespace {
 
-class ByteCursor {
-public:
-    explicit ByteCursor(const std::vector<std::uint8_t> &bytes) : bytes_(bytes) {}
+// ===== Bit/byte helpers ======================================================
 
-    [[nodiscard]] std::size_t pos() const { return pos_; }
-    [[nodiscard]] std::size_t remaining() const { return bytes_.size() - pos_; }
+[[nodiscard]] std::uint16_t readBe16(const std::uint8_t *ptr) {
+    return static_cast<std::uint16_t>((static_cast<std::uint16_t>(ptr[0]) << 8U) |
+                                      static_cast<std::uint16_t>(ptr[1]));
+}
+
+[[nodiscard]] std::uint32_t readBe32(const std::uint8_t *ptr) {
+    return (static_cast<std::uint32_t>(ptr[0]) << 24U) |
+           (static_cast<std::uint32_t>(ptr[1]) << 16U) |
+           (static_cast<std::uint32_t>(ptr[2]) << 8U) |
+           static_cast<std::uint32_t>(ptr[3]);
+}
+
+// ===== Lightweight read cursor over the mmap region ==========================
+
+class Cursor {
+public:
+    Cursor(const std::uint8_t *data, std::size_t size, std::size_t pos)
+        : data_(data), size_(size), pos_(pos) {}
+
+    [[nodiscard]] std::size_t pos() const noexcept { return pos_; }
+    [[nodiscard]] std::size_t remaining() const noexcept { return size_ - pos_; }
+    [[nodiscard]] const std::uint8_t *ptr() const noexcept { return data_ + pos_; }
 
     bool readRecord(std::string &out) {
-        if (remaining() < kRecordLen) {
-            return false;
-        }
-        out.assign(reinterpret_cast<const char *>(bytes_.data() + pos_), kRecordLen);
+        if (remaining() < kRecordLen) return false;
+        out.assign(reinterpret_cast<const char *>(data_ + pos_), kRecordLen);
         pos_ += kRecordLen;
         return true;
     }
-
+    bool peekRecord(std::string &out) const {
+        if (remaining() < kRecordLen) return false;
+        out.assign(reinterpret_cast<const char *>(data_ + pos_), kRecordLen);
+        return true;
+    }
     bool skipRecord() {
-        if (remaining() < kRecordLen) {
-            return false;
-        }
+        if (remaining() < kRecordLen) return false;
         pos_ += kRecordLen;
         return true;
     }
-
-    bool readBlock(std::size_t len, std::span<const std::uint8_t> &out) {
-        if (remaining() < len) {
-            return false;
-        }
-        out = std::span<const std::uint8_t>(bytes_.data() + pos_, len);
+    bool readBlock(std::size_t len, const std::uint8_t *&out) {
+        if (remaining() < len) return false;
+        out = data_ + pos_;
         pos_ += len;
         return true;
     }
-
+    bool readU16Be(std::uint16_t &v) {
+        if (remaining() < 2) return false;
+        v = readBe16(data_ + pos_);
+        pos_ += 2;
+        return true;
+    }
+    bool readVarBlock(std::size_t len, std::string &out) {
+        if (remaining() < len) return false;
+        out.assign(reinterpret_cast<const char *>(data_ + pos_), len);
+        pos_ += len;
+        return true;
+    }
     bool alignToRecordBoundary() {
         const std::size_t rem = pos_ % kRecordLen;
-        if (rem == 0) {
-            return true;
-        }
+        if (rem == 0) return true;
         const std::size_t pad = kRecordLen - rem;
-        if (remaining() < pad) {
-            return false;
-        }
+        if (remaining() < pad) return false;
         pos_ += pad;
         return true;
     }
 
 private:
-    const std::vector<std::uint8_t> &bytes_;
-    std::size_t pos_ = 0;
+    const std::uint8_t *data_;
+    std::size_t size_;
+    std::size_t pos_;
 };
+
+// ===== Header record parsing =================================================
 
 [[nodiscard]] bool parseFixedIntField(std::string_view token, int &out) {
     const std::string_view trimmed = trimBothSpacesView(token);
@@ -76,14 +99,15 @@ private:
         out = 0;
         return true;
     }
-
     auto *begin = trimmed.data();
     auto *end = begin + trimmed.size();
     auto [ptr, ec] = std::from_chars(begin, end, out, 10);
     return ec == std::errc{} && ptr == end;
 }
 
-[[nodiscard]] bool parseHeaderRecordLine(const std::string &line, HeaderRecord &header, std::string &error) {
+[[nodiscard]] bool parseHeaderRecordLine(const std::string &line,
+                                         HeaderRecord &header,
+                                         std::string &error) {
     constexpr std::string_view kPrefix = "HEADER RECORD*******";
     constexpr std::string_view kMiddle = "HEADER RECORD!!!!!!!";
 
@@ -124,550 +148,376 @@ private:
         }
         header.numbers[i] = value;
     }
-
     return true;
 }
 
-[[nodiscard]] bool readHeaderRecord(ByteCursor &cursor, HeaderRecord &header, std::string &error) {
+[[nodiscard]] bool readHeaderRecord(Cursor &cur, HeaderRecord &header, std::string &error) {
     std::string line;
-    if (!cursor.readRecord(line)) {
+    if (!cur.readRecord(line)) {
         error = "unexpected EOF while reading header record";
         return false;
     }
-
     return parseHeaderRecordLine(line, header, error);
 }
 
-[[nodiscard]] std::uint16_t readBe16(const std::uint8_t *ptr) {
-    return static_cast<std::uint16_t>((static_cast<std::uint16_t>(ptr[0]) << 8U) |
-                                      static_cast<std::uint16_t>(ptr[1]));
-}
+// ===== NAMESTR parsing =======================================================
 
-[[nodiscard]] std::uint32_t readBe32(const std::uint8_t *ptr) {
-    return (static_cast<std::uint32_t>(ptr[0]) << 24U) |
-           (static_cast<std::uint32_t>(ptr[1]) << 16U) |
-           (static_cast<std::uint32_t>(ptr[2]) << 8U) |
-           static_cast<std::uint32_t>(ptr[3]);
-}
+[[nodiscard]] XptVariable parseNameStr(const std::uint8_t *ns, int version, std::size_t index) {
+    XptVariable v;
+    v.index = index;
+    std::copy_n(ns, kNameStrLen, v.namestrRaw.begin());
 
-[[nodiscard]] bool ibmXportToDouble(std::span<const std::uint8_t> rawValue, double &outValue) {
-    if (rawValue.empty()) {
-        return false;
-    }
-
-    std::array<std::uint8_t, 8> full{};
-    const std::size_t width = std::min<std::size_t>(8, rawValue.size());
-    std::copy_n(rawValue.begin(), width, full.begin());
-
-    const bool allZero = std::all_of(full.begin(), full.end(), [](std::uint8_t b) { return b == 0; });
-    if (allZero) {
-        outValue = 0.0;
-        return true;
-    }
-
-    const int sign = (full[0] & 0x80U) ? -1 : 1;
-    const int exponent16 = static_cast<int>(full[0] & 0x7FU) - 64;
-
-    std::uint64_t fraction = 0;
-    for (std::size_t i = 1; i < full.size(); ++i) {
-        fraction = (fraction << 8U) | full[i];
-    }
-
-    const long double mantissa = static_cast<long double>(fraction) /
-                                 static_cast<long double>(std::uint64_t{1} << 56U);
-    const long double value = std::ldexp(mantissa, exponent16 * 4);
-    const long double signedValue = static_cast<long double>(sign) * value;
-    const double result = static_cast<double>(signedValue);
-
-    if (!std::isfinite(result)) {
-        return false;
-    }
-
-    outValue = result;
-    return true;
-}
-
-[[nodiscard]] bool isSasTaggedMissingByte(std::uint8_t value) {
-    return value == '_' || (value >= 'A' && value <= 'Z');
-}
-
-[[nodiscard]] NumericValue decodeNumericCell(const std::vector<std::uint8_t> &raw) {
-    NumericValue numeric;
-    numeric.raw = raw;
-
-    if (raw.size() < 3 || raw.size() > 8) {
-        return numeric;
-    }
-
-    bool restZero = true;
-    for (std::size_t i = 1; i < raw.size(); ++i) {
-        if (raw[i] != 0) {
-            restZero = false;
-            break;
-        }
-    }
-
-    if (restZero && (raw[0] == '.' || isSasTaggedMissingByte(raw[0]))) {
-        if (raw[0] == '.') {
-            numeric.isSystemMissing = true;
-        } else {
-            numeric.isTaggedMissing = true;
-            numeric.tag = static_cast<char>(raw[0]);
-        }
-        return numeric;
-    }
-
-    double parsed = std::numeric_limits<double>::quiet_NaN();
-    if (ibmXportToDouble(raw, parsed)) {
-        numeric.hasValue = true;
-        numeric.value = parsed;
-    }
-
-    return numeric;
-}
-
-[[nodiscard]] std::vector<std::uint8_t> readWholeFile(const std::string &path, std::string &error) {
-    std::ifstream in(path, std::ios::binary);
-    if (!in) {
-        error = "failed to open file";
-        return {};
-    }
-
-    in.seekg(0, std::ios::end);
-    const std::streampos end = in.tellg();
-    if (end < 0) {
-        error = "failed to determine file size";
-        return {};
-    }
-    in.seekg(0, std::ios::beg);
-
-    std::vector<std::uint8_t> bytes(static_cast<std::size_t>(end));
-    if (!bytes.empty()) {
-        in.read(reinterpret_cast<char *>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
-        if (!in) {
-            error = "failed to read file bytes";
-            return {};
-        }
-    }
-
-    return bytes;
-}
-
-[[nodiscard]] XptVariable parseNameStr(std::span<const std::uint8_t, kNameStrLen> ns, int version,
-                                       std::size_t index) {
-    XptVariable variable;
-    variable.index = index;
-
-    std::copy_n(ns.begin(), kNameStrLen, variable.namestrRaw.begin());
-
-    variable.ntypeRaw = readBe16(ns.data() + 0);
-    variable.storageWidth = readBe16(ns.data() + 4);
-    variable.varNumber = readBe16(ns.data() + 6);
-    variable.displayWidth = readBe16(ns.data() + 64);
-    variable.decimals = readBe16(ns.data() + 66);
-    variable.alignmentCode = readBe16(ns.data() + 68);
-    variable.position = readBe32(ns.data() + 84);
-
-    variable.isString = (variable.ntypeRaw == 2);
+    v.ntypeRaw = readBe16(ns + 0);
+    v.storageWidth = readBe16(ns + 4);
+    v.varNumber = readBe16(ns + 6);
+    v.displayWidth = readBe16(ns + 64);
+    v.decimals = readBe16(ns + 66);
+    v.alignmentCode = readBe16(ns + 68);
+    v.position = readBe32(ns + 84);
+    v.isString = (v.ntypeRaw == 2);
 
     const std::string nname = trimRightSpacesAndNulls(
-        std::string_view(reinterpret_cast<const char *>(ns.data() + 8), 8));
+        std::string_view(reinterpret_cast<const char *>(ns + 8), 8));
     const std::string longname = trimRightSpacesAndNulls(
-        std::string_view(reinterpret_cast<const char *>(ns.data() + 88), 32));
-    variable.name = (version == 8 && !longname.empty()) ? longname : nname;
+        std::string_view(reinterpret_cast<const char *>(ns + 88), 32));
+    v.name = (version == 8 && !longname.empty()) ? longname : nname;
 
-    variable.label = trimRightSpacesAndNulls(
-        std::string_view(reinterpret_cast<const char *>(ns.data() + 16), 40));
+    v.label = trimRightSpacesAndNulls(
+        std::string_view(reinterpret_cast<const char *>(ns + 16), 40));
 
     const std::string nform = trimRightSpacesAndNulls(
-        std::string_view(reinterpret_cast<const char *>(ns.data() + 56), 8));
+        std::string_view(reinterpret_cast<const char *>(ns + 56), 8));
     if (!nform.empty()) {
-        std::ostringstream format;
-        format << nform;
-        if (variable.displayWidth != 0) {
-            format << variable.displayWidth;
-        }
-        if (variable.decimals != 0) {
-            format << '.' << variable.decimals;
-        }
-        variable.format = format.str();
+        std::ostringstream f;
+        f << nform;
+        if (v.displayWidth != 0) f << v.displayWidth;
+        if (v.decimals != 0) f << '.' << v.decimals;
+        v.format = f.str();
     }
 
     const std::string niform = trimRightSpacesAndNulls(
-        std::string_view(reinterpret_cast<const char *>(ns.data() + 72), 8));
-    const std::uint16_t nifl = readBe16(ns.data() + 80);
-    const std::uint16_t nifd = readBe16(ns.data() + 82);
+        std::string_view(reinterpret_cast<const char *>(ns + 72), 8));
+    const std::uint16_t nifl = readBe16(ns + 80);
+    const std::uint16_t nifd = readBe16(ns + 82);
     if (!niform.empty()) {
-        std::ostringstream informat;
-        informat << niform;
-        if (nifl != 0) {
-            informat << nifl;
-        }
-        if (nifd != 0) {
-            informat << '.' << nifd;
-        }
-        variable.informat = informat.str();
+        std::ostringstream f;
+        f << niform;
+        if (nifl != 0) f << nifl;
+        if (nifd != 0) f << '.' << nifd;
+        v.informat = f.str();
     }
-
-    return variable;
+    return v;
 }
 
-[[nodiscard]] bool readU16Be(ByteCursor &cursor, std::uint16_t &value) {
-    std::span<const std::uint8_t> data;
-    if (!cursor.readBlock(2, data)) {
-        return false;
-    }
-    value = readBe16(data.data());
-    return true;
-}
+// ===== LABELV8 / LABELV9 sections (V8 only) ==================================
 
-[[nodiscard]] bool readVariableLengthBlock(ByteCursor &cursor, std::size_t len, std::string &out) {
-    std::span<const std::uint8_t> data;
-    if (!cursor.readBlock(len, data)) {
-        return false;
-    }
-    out.assign(reinterpret_cast<const char *>(data.data()), data.size());
-    return true;
-}
-
-[[nodiscard]] bool parseLabelV8Section(ByteCursor &cursor, XptFile &file, int labelCount,
+[[nodiscard]] bool parseLabelV8Section(Cursor &cur, XptSchema &schema, int labelCount,
                                        std::string &error) {
     for (int i = 0; i < labelCount; ++i) {
-        std::uint16_t index = 0;
-        std::uint16_t nameLen = 0;
-        std::uint16_t labelLen = 0;
-        if (!readU16Be(cursor, index) || !readU16Be(cursor, nameLen) || !readU16Be(cursor, labelLen)) {
+        std::uint16_t index = 0, nameLen = 0, labelLen = 0;
+        if (!cur.readU16Be(index) || !cur.readU16Be(nameLen) || !cur.readU16Be(labelLen)) {
             error = "unexpected EOF while reading LABELV8 descriptor";
             return false;
         }
-
-        if (index == 0 || index > file.variables.size()) {
+        if (index == 0 || index > schema.variables.size()) {
             error = "LABELV8 variable index is out of range";
             return false;
         }
-
-        std::string name;
-        std::string label;
-        if (!readVariableLengthBlock(cursor, nameLen, name) || !readVariableLengthBlock(cursor, labelLen, label)) {
+        std::string name, label;
+        if (!cur.readVarBlock(nameLen, name) || !cur.readVarBlock(labelLen, label)) {
             error = "unexpected EOF while reading LABELV8 payload";
             return false;
         }
-
-        XptVariable &var = file.variables[index - 1];
-        var.name = trimRightSpacesAndNulls(name);
-        var.label = trimRightSpacesAndNulls(label);
+        XptVariable &v = schema.variables[index - 1];
+        v.name = trimRightSpacesAndNulls(name);
+        v.label = trimRightSpacesAndNulls(label);
     }
-
-    if (!cursor.alignToRecordBoundary()) {
+    if (!cur.alignToRecordBoundary()) {
         error = "unexpected EOF while aligning after LABELV8 section";
         return false;
     }
-
-    HeaderRecord obsHeader;
-    if (!readHeaderRecord(cursor, obsHeader, error)) {
-        return false;
-    }
-    if (obsHeader.name != "OBSV8") {
+    HeaderRecord obs;
+    if (!readHeaderRecord(cur, obs, error)) return false;
+    if (obs.name != "OBSV8") {
         error = "expected OBSV8 after LABELV8 section";
         return false;
     }
-
     return true;
 }
 
-[[nodiscard]] bool parseLabelV9Section(ByteCursor &cursor, XptFile &file, int labelCount,
+[[nodiscard]] bool parseLabelV9Section(Cursor &cur, XptSchema &schema, int labelCount,
                                        std::string &error) {
     for (int i = 0; i < labelCount; ++i) {
-        std::uint16_t index = 0;
-        std::uint16_t nameLen = 0;
-        std::uint16_t labelLen = 0;
-        std::uint16_t formatLen = 0;
-        std::uint16_t informatLen = 0;
-
-        if (!readU16Be(cursor, index) || !readU16Be(cursor, nameLen) || !readU16Be(cursor, labelLen) ||
-            !readU16Be(cursor, formatLen) || !readU16Be(cursor, informatLen)) {
+        std::uint16_t index = 0, nameLen = 0, labelLen = 0, formatLen = 0, informatLen = 0;
+        if (!cur.readU16Be(index) || !cur.readU16Be(nameLen) || !cur.readU16Be(labelLen) ||
+            !cur.readU16Be(formatLen) || !cur.readU16Be(informatLen)) {
             error = "unexpected EOF while reading LABELV9 descriptor";
             return false;
         }
-
-        if (index == 0 || index > file.variables.size()) {
+        if (index == 0 || index > schema.variables.size()) {
             error = "LABELV9 variable index is out of range";
             return false;
         }
-
-        std::string name;
-        std::string label;
-        std::string format;
-        std::string informat;
-
-        if (!readVariableLengthBlock(cursor, nameLen, name) || !readVariableLengthBlock(cursor, labelLen, label) ||
-            !readVariableLengthBlock(cursor, formatLen, format) ||
-            !readVariableLengthBlock(cursor, informatLen, informat)) {
+        std::string name, label, format, informat;
+        if (!cur.readVarBlock(nameLen, name) || !cur.readVarBlock(labelLen, label) ||
+            !cur.readVarBlock(formatLen, format) || !cur.readVarBlock(informatLen, informat)) {
             error = "unexpected EOF while reading LABELV9 payload";
             return false;
         }
-
-        XptVariable &var = file.variables[index - 1];
-        var.name = trimRightSpacesAndNulls(name);
-        var.label = trimRightSpacesAndNulls(label);
-        var.format = trimRightSpacesAndNulls(format);
-        var.informat = trimRightSpacesAndNulls(informat);
+        XptVariable &v = schema.variables[index - 1];
+        v.name = trimRightSpacesAndNulls(name);
+        v.label = trimRightSpacesAndNulls(label);
+        v.format = trimRightSpacesAndNulls(format);
+        v.informat = trimRightSpacesAndNulls(informat);
     }
-
-    if (!cursor.alignToRecordBoundary()) {
+    if (!cur.alignToRecordBoundary()) {
         error = "unexpected EOF while aligning after LABELV9 section";
         return false;
     }
-
-    HeaderRecord obsHeader;
-    if (!readHeaderRecord(cursor, obsHeader, error)) {
-        return false;
-    }
-    if (obsHeader.name != "OBSV8") {
+    HeaderRecord obs;
+    if (!readHeaderRecord(cur, obs, error)) return false;
+    if (obs.name != "OBSV8") {
         error = "expected OBSV8 after LABELV9 section";
         return false;
     }
-
     return true;
 }
 
-[[nodiscard]] XptRow parseRow(const std::vector<std::uint8_t> &rowBytes,
-                              const std::vector<XptVariable> &variables, bool wasBlankPaddingRow) {
-    XptRow row;
-    row.raw = rowBytes;
-    row.wasBlankPaddingRow = wasBlankPaddingRow;
-    row.cells.reserve(variables.size());
+// ===== Trailing blank-row strip =============================================
 
-    std::size_t pos = 0;
-    for (const XptVariable &var : variables) {
-        CellValue cell;
-        cell.isString = var.isString;
+// Compute how many full all-space `rowLen`-byte records sit at the tail end of
+// the data block. These are stripped from the output (matches XPORT spec
+// padding behaviour).
+[[nodiscard]] std::size_t countTrailingBlankRows(const std::uint8_t *data,
+                                                 std::size_t dataOffset,
+                                                 std::size_t dataEnd,
+                                                 std::size_t rowLen) {
+    if (rowLen == 0 || dataEnd <= dataOffset) return 0;
+    const std::size_t totalBytes = dataEnd - dataOffset;
+    const std::size_t fullRows = totalBytes / rowLen;
+    std::size_t blank = 0;
+    for (std::size_t r = fullRows; r > 0; --r) {
+        const std::uint8_t *p = data + dataOffset + (r - 1) * rowLen;
+        if (!isBlankRow(p, rowLen)) break;
+        ++blank;
+    }
+    return blank;
+}
 
-        const std::size_t width = var.storageWidth;
-        cell.raw.assign(rowBytes.begin() + static_cast<std::ptrdiff_t>(pos),
-                        rowBytes.begin() + static_cast<std::ptrdiff_t>(pos + width));
+}  // namespace
 
-        if (var.isString) {
-            cell.stringRaw.assign(reinterpret_cast<const char *>(cell.raw.data()), cell.raw.size());
-            cell.stringTrimmed = trimRightSpaces(cell.stringRaw);
+// ===== Public API ============================================================
+
+bool parseSchema(const std::uint8_t *data,
+                 std::size_t size,
+                 std::size_t memberPrefixOffset,
+                 XptSchema &schema,
+                 std::string &error) {
+    schema.fileSize = size;
+
+    // Single-member files start with the LIBRARY/LIBV8 prelude (3 records, 240 B)
+    // followed by the MEMBER/MEMBV8 record. Multi-member callers point us
+    // directly at the MEMBER record and hand us the version separately via
+    // schema.version (set non-zero before calling).
+    Cursor cur(data, size, memberPrefixOffset);
+
+    bool sawLibraryPrelude = false;
+    if (memberPrefixOffset == 0) {
+        HeaderRecord libHeader;
+        if (!readHeaderRecord(cur, libHeader, error)) {
+            error = "failed to read first header record: " + error;
+            return false;
+        }
+        if (libHeader.name == "LIBRARY") {
+            schema.version = 5;
+        } else if (libHeader.name == "LIBV8") {
+            schema.version = 8;
         } else {
-            cell.numeric = decodeNumericCell(cell.raw);
+            error = "unsupported XPORT library header: " + libHeader.name;
+            return false;
         }
-
-        pos += width;
-        row.cells.push_back(std::move(cell));
-    }
-
-    return row;
-}
-
-void parseDataRows(ByteCursor &cursor, XptFile &file) {
-    std::size_t rowLen = 0;
-    for (const XptVariable &var : file.variables) {
-        rowLen += var.storageWidth;
-    }
-
-    if (rowLen == 0) {
-        return;
-    }
-
-    std::vector<std::uint8_t> blankRow(rowLen, static_cast<std::uint8_t>(' '));
-    std::size_t pendingBlankRows = 0;
-
-    while (cursor.remaining() >= rowLen) {
-        std::span<const std::uint8_t> rowData;
-        if (!cursor.readBlock(rowLen, rowData)) {
-            break;
+        if (!cur.skipRecord()) {
+            error = "unexpected EOF while skipping real header record";
+            return false;
         }
-
-        std::vector<std::uint8_t> rowBytes(rowData.begin(), rowData.end());
-        const bool allSpaces = std::all_of(rowBytes.begin(), rowBytes.end(), [](std::uint8_t b) {
-            return b == static_cast<std::uint8_t>(' ');
-        });
-
-        if (allSpaces) {
-            ++pendingBlankRows;
-            continue;
+        std::string ts;
+        if (!cur.readRecord(ts)) {
+            error = "unexpected EOF while reading timestamp record";
+            return false;
         }
-
-        while (pendingBlankRows > 0) {
-            file.rows.push_back(parseRow(blankRow, file.variables, true));
-            --pendingBlankRows;
-        }
-
-        file.rows.push_back(parseRow(rowBytes, file.variables, false));
+        schema.timestamp = trimRightSpaces(ts.substr(0, 16));
+        sawLibraryPrelude = true;
     }
-
-    if (pendingBlankRows > 0) {
-        std::ostringstream warn;
-        warn << "dropped " << pendingBlankRows
-             << " trailing all-space row chunk(s) due to end-of-file padding ambiguity";
-        file.warnings.push_back(warn.str());
-    }
-
-    if (cursor.remaining() > 0) {
-        std::ostringstream warn;
-        warn << "ignored " << cursor.remaining()
-             << " trailing byte(s) after row parsing (likely record padding)";
-        file.warnings.push_back(warn.str());
-    }
-}
-
-} // namespace
-
-ParseResult parseXptFile(const std::string &path) {
-    ParseResult result;
-    result.file.path = path;
-
-    std::string ioError;
-    std::vector<std::uint8_t> bytes = readWholeFile(path, ioError);
-    if (!ioError.empty()) {
-        result.error = ioError;
-        return result;
-    }
-
-    result.file.fileSize = bytes.size();
-    ByteCursor cursor(bytes);
-
-    HeaderRecord libHeader;
-    if (!readHeaderRecord(cursor, libHeader, result.error)) {
-        result.error = "failed to read first header record: " + result.error;
-        return result;
-    }
-
-    if (libHeader.name == "LIBRARY") {
-        result.file.version = 5;
-    } else if (libHeader.name == "LIBV8") {
-        result.file.version = 8;
-    } else {
-        result.error = "unsupported XPORT library header: " + libHeader.name;
-        return result;
-    }
-
-    if (!cursor.skipRecord()) {
-        result.error = "unexpected EOF while skipping real header record";
-        return result;
-    }
-
-    std::string timestampRecord;
-    if (!cursor.readRecord(timestampRecord)) {
-        result.error = "unexpected EOF while reading timestamp record";
-        return result;
-    }
-    result.file.timestamp = trimRightSpaces(timestampRecord.substr(0, 16));
 
     HeaderRecord memberHeader;
-    if (!readHeaderRecord(cursor, memberHeader, result.error)) {
-        result.error = "failed to read MEMBER header: " + result.error;
-        return result;
+    if (!readHeaderRecord(cur, memberHeader, error)) {
+        error = "failed to read MEMBER header: " + error;
+        return false;
     }
-    if ((result.file.version == 5 && memberHeader.name != "MEMBER") ||
-        (result.file.version == 8 && memberHeader.name != "MEMBV8")) {
-        result.error = "unexpected member header: " + memberHeader.name;
-        return result;
+    if (memberHeader.name == "MEMBER") {
+        if (schema.version == 0) schema.version = 5;
+        else if (schema.version != 5) {
+            error = "MEMBER record found but file version is not 5";
+            return false;
+        }
+    } else if (memberHeader.name == "MEMBV8") {
+        if (schema.version == 0) schema.version = 8;
+        else if (schema.version != 8) {
+            error = "MEMBV8 record found but file version is not 8";
+            return false;
+        }
+    } else {
+        error = "unexpected member header: " + memberHeader.name;
+        return false;
     }
 
-    HeaderRecord descriptorHeader;
-    if (!readHeaderRecord(cursor, descriptorHeader, result.error)) {
-        result.error = "failed to read descriptor header: " + result.error;
-        return result;
+    HeaderRecord descHeader;
+    if (!readHeaderRecord(cur, descHeader, error)) {
+        error = "failed to read descriptor header: " + error;
+        return false;
     }
-    if ((result.file.version == 5 && descriptorHeader.name != "DSCRPTR") ||
-        (result.file.version == 8 && descriptorHeader.name != "DSCPTV8")) {
-        result.error = "unexpected descriptor header: " + descriptorHeader.name;
-        return result;
+    if ((schema.version == 5 && descHeader.name != "DSCRPTR") ||
+        (schema.version == 8 && descHeader.name != "DSCPTV8")) {
+        error = "unexpected descriptor header: " + descHeader.name;
+        return false;
     }
 
     std::string tableRecord;
-    if (!cursor.readRecord(tableRecord)) {
-        result.error = "unexpected EOF while reading table name record";
-        return result;
+    if (!cur.readRecord(tableRecord)) {
+        error = "unexpected EOF while reading table name record";
+        return false;
     }
-    const std::size_t tableNameLen = result.file.version == 5 ? 8 : 32;
-    result.file.tableName = trimRightSpacesAndNulls(tableRecord.substr(8, tableNameLen));
+    const std::size_t tableNameLen = schema.version == 5 ? 8 : 32;
+    schema.tableName = trimRightSpacesAndNulls(tableRecord.substr(8, tableNameLen));
 
     std::string fileLabelRecord;
-    if (!cursor.readRecord(fileLabelRecord)) {
-        result.error = "unexpected EOF while reading file label record";
-        return result;
+    if (!cur.readRecord(fileLabelRecord)) {
+        error = "unexpected EOF while reading file label record";
+        return false;
     }
-    result.file.fileLabel = trimRightSpacesAndNulls(fileLabelRecord.substr(32, 40));
+    schema.fileLabel = trimRightSpacesAndNulls(fileLabelRecord.substr(32, 40));
 
-    HeaderRecord namestrHeader;
-    if (!readHeaderRecord(cursor, namestrHeader, result.error)) {
-        result.error = "failed to read NAMESTR/NAMSTV8 header: " + result.error;
-        return result;
+    HeaderRecord nsHeader;
+    if (!readHeaderRecord(cur, nsHeader, error)) {
+        error = "failed to read NAMESTR/NAMSTV8 header: " + error;
+        return false;
+    }
+    if ((schema.version == 5 && nsHeader.name != "NAMESTR") ||
+        (schema.version == 8 && nsHeader.name != "NAMSTV8")) {
+        error = "unexpected namestr header: " + nsHeader.name;
+        return false;
     }
 
-    if ((result.file.version == 5 && namestrHeader.name != "NAMESTR") ||
-        (result.file.version == 8 && namestrHeader.name != "NAMSTV8")) {
-        result.error = "unexpected namestr header: " + namestrHeader.name;
-        return result;
-    }
-
-    const int varCount = namestrHeader.numbers[1];
+    const int varCount = nsHeader.numbers[1];
     if (varCount < 0) {
-        result.error = "invalid negative variable count in namestr header";
-        return result;
+        error = "invalid negative variable count in namestr header";
+        return false;
     }
-
-    result.file.variables.reserve(static_cast<std::size_t>(varCount));
+    schema.variables.reserve(static_cast<std::size_t>(varCount));
     for (int i = 0; i < varCount; ++i) {
-        std::span<const std::uint8_t> namestrData;
-        if (!cursor.readBlock(kNameStrLen, namestrData)) {
-            result.error = "unexpected EOF while reading NAMESTR entry " + std::to_string(i + 1);
-            return result;
+        const std::uint8_t *nsBytes = nullptr;
+        if (!cur.readBlock(kNameStrLen, nsBytes)) {
+            error = "unexpected EOF while reading NAMESTR entry " + std::to_string(i + 1);
+            return false;
         }
-
-        const auto fixedSpan = std::span<const std::uint8_t, kNameStrLen>(namestrData.data(), kNameStrLen);
-        XptVariable variable = parseNameStr(fixedSpan, result.file.version, static_cast<std::size_t>(i));
-        if (variable.ntypeRaw != 1 && variable.ntypeRaw != 2) {
-            std::ostringstream warn;
-            warn << "variable index " << (i + 1) << " has unexpected ntype=" << variable.ntypeRaw
-                 << "; treating non-2 as numeric";
-            result.file.warnings.push_back(warn.str());
+        XptVariable v = parseNameStr(nsBytes, schema.version, static_cast<std::size_t>(i));
+        if (v.ntypeRaw != 1 && v.ntypeRaw != 2) {
+            std::ostringstream w;
+            w << "variable index " << (i + 1) << " has unexpected ntype=" << v.ntypeRaw
+              << "; treating non-2 as numeric";
+            schema.warnings.push_back(w.str());
         }
-
-        result.file.variables.push_back(std::move(variable));
+        schema.variables.push_back(std::move(v));
     }
 
-    if (!cursor.alignToRecordBoundary()) {
-        result.error = "unexpected EOF while aligning after NAMESTR records";
-        return result;
+    if (!cur.alignToRecordBoundary()) {
+        error = "unexpected EOF while aligning after NAMESTR records";
+        return false;
     }
 
-    HeaderRecord postSchemaHeader;
-    if (!readHeaderRecord(cursor, postSchemaHeader, result.error)) {
-        result.error = "failed to read post-schema header: " + result.error;
-        return result;
+    HeaderRecord post;
+    if (!readHeaderRecord(cur, post, error)) {
+        error = "failed to read post-schema header: " + error;
+        return false;
     }
-
-    if (result.file.version == 5) {
-        if (postSchemaHeader.name != "OBS") {
-            result.error = "expected OBS header, found: " + postSchemaHeader.name;
-            return result;
+    if (schema.version == 5) {
+        if (post.name != "OBS") {
+            error = "expected OBS header, found: " + post.name;
+            return false;
         }
     } else {
-        if (postSchemaHeader.name == "OBSV8") {
-            // Ready for row data.
-        } else if (postSchemaHeader.name == "LABELV8") {
-            if (!parseLabelV8Section(cursor, result.file, postSchemaHeader.numbers[0], result.error)) {
-                return result;
-            }
-        } else if (postSchemaHeader.name == "LABELV9") {
-            if (!parseLabelV9Section(cursor, result.file, postSchemaHeader.numbers[0], result.error)) {
-                return result;
-            }
+        if (post.name == "OBSV8") {
+            // ready for data
+        } else if (post.name == "LABELV8") {
+            if (!parseLabelV8Section(cur, schema, post.numbers[0], error)) return false;
+        } else if (post.name == "LABELV9") {
+            if (!parseLabelV9Section(cur, schema, post.numbers[0], error)) return false;
         } else {
-            result.error = "expected OBSV8/LABELV8/LABELV9 header, found: " + postSchemaHeader.name;
-            return result;
+            error = "expected OBSV8/LABELV8/LABELV9 header, found: " + post.name;
+            return false;
         }
     }
 
-    result.file.dataOffset = cursor.pos();
-    parseDataRows(cursor, result.file);
+    // Compute per-variable byte offsets within a row.
+    std::size_t rowLen = 0;
+    for (auto &v : schema.variables) {
+        v.byteOffset = rowLen;
+        rowLen += v.storageWidth;
+    }
+    schema.rowLen = rowLen;
+    schema.dataOffset = cur.pos();
 
-    return result;
+    // Find the end of this member's data block. For a single-member file, that
+    // is the end of the buffer (modulo trailing space padding). For
+    // multi-member files the caller will have constrained `size` to the byte
+    // range of this member.
+    schema.dataEnd = size;
+
+    // Strip trailing all-space records from the row-count tally.
+    schema.trailingBlankRows = countTrailingBlankRows(data, schema.dataOffset, schema.dataEnd, rowLen);
+
+    if (rowLen == 0) {
+        schema.rowCount = 0;
+    } else {
+        const std::size_t totalBytes = schema.dataEnd - schema.dataOffset;
+        const std::size_t fullRows = totalBytes / rowLen;
+        const std::size_t trailingPartial = totalBytes - fullRows * rowLen;
+        if (trailingPartial > 0) {
+            std::ostringstream w;
+            w << "ignored " << trailingPartial
+              << " trailing byte(s) after row parsing (likely record padding)";
+            schema.warnings.push_back(w.str());
+        }
+        schema.rowCount = fullRows - schema.trailingBlankRows;
+        // Adjust dataEnd to exclude the stripped trailing blanks so the row
+        // decoder treats the file as ending exactly at row N.
+        schema.dataEnd = schema.dataOffset + schema.rowCount * rowLen;
+    }
+
+    if (sawLibraryPrelude && schema.version != 5 && schema.version != 8) {
+        error = "unsupported XPORT version";
+        return false;
+    }
+    return true;
 }
 
-} // namespace cxpt
+std::vector<std::size_t> scanMemberOffsets(const std::uint8_t *data, std::size_t size) {
+    std::vector<std::size_t> out;
+    static constexpr char kPrefix[] = "HEADER RECORD*******";
+    static constexpr char kInfix[] = "HEADER RECORD!!!!!!!";
+    constexpr std::size_t prefLen = 20;
+    constexpr std::size_t infixLen = 20;
+    constexpr std::size_t recLen = kRecordLen;
+
+    if (size < recLen) return out;
+    for (std::size_t pos = 0; pos + recLen <= size; pos += recLen) {
+        if (std::memcmp(data + pos, kPrefix, prefLen) != 0) continue;
+        if (std::memcmp(data + pos + 28, kInfix, infixLen) != 0) continue;
+        std::string name(reinterpret_cast<const char *>(data + pos + 20), 8);
+        while (!name.empty() && name.back() == ' ') name.pop_back();
+        if (name == "MEMBER" || name == "MEMBV8") out.push_back(pos);
+    }
+    return out;
+}
+
+}  // namespace cxpt

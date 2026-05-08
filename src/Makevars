@@ -2,6 +2,8 @@ CXX_STD = CXX23
 
 # Headers use relative includes like "core/text.hpp" and "xpt/parser.hpp".
 PKG_CPPFLAGS = -I.
+PKG_CXXFLAGS = -pthread
+PKG_LIBS = -pthread
 
 # R only compiles top-level src/*.cpp by default; enumerate subdir sources.
 SOURCES = $(wildcard *.cpp) core/text.cpp xpt/parser.cpp xpt/writer.cpp

@@ -11,14 +11,15 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_read_xpt
-Rcpp::List rcpp_read_xpt(const std::string& path, bool convert_dates);
-RcppExport SEXP _kstools_rcpp_read_xpt(SEXP pathSEXP, SEXP convert_datesSEXP) {
+Rcpp::List rcpp_read_xpt(const std::string& path, bool convert_dates, Rcpp::Nullable<int> n_threads);
+RcppExport SEXP _kstools_rcpp_read_xpt(SEXP pathSEXP, SEXP convert_datesSEXP, SEXP n_threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type path(pathSEXP);
     Rcpp::traits::input_parameter< bool >::type convert_dates(convert_datesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_read_xpt(path, convert_dates));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<int> >::type n_threads(n_threadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_read_xpt(path, convert_dates, n_threads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -41,7 +42,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_kstools_rcpp_read_xpt", (DL_FUNC) &_kstools_rcpp_read_xpt, 2},
+    {"_kstools_rcpp_read_xpt", (DL_FUNC) &_kstools_rcpp_read_xpt, 3},
     {"_kstools_rcpp_write_xpt", (DL_FUNC) &_kstools_rcpp_write_xpt, 8},
     {NULL, NULL, 0}
 };

@@ -16,6 +16,9 @@
 #'   such columns are returned as numeric SAS day / second values.
 #' @param warn Logical. If `TRUE` (default), parser warnings are emitted via
 #'   [cli::cli_warn].
+#' @param n_threads Integer or `NULL`. Number of decoder threads to use.
+#'   `NULL` (default) selects `max(1, parallel::detectCores() - 1)`. Set to
+#'   `1L` for fully deterministic single-threaded decoding.
 #'
 #' @return A tibble for a single-member file, or a named list of tibbles for
 #'   a multi-member file.
@@ -23,15 +26,20 @@
 #' @seealso [ks_write_xpt()], [ks_xpt_labels()], [ks_xpt_formats()],
 #'   [ks_set_labels()], [ks_set_formats()]
 #' @export
-ks_read_xpt <- function(file, convert_dates = TRUE, warn = TRUE) {
+ks_read_xpt <- function(file, convert_dates = TRUE, warn = TRUE, n_threads = NULL) {
   if (!is.character(file) || length(file) != 1L)
     cli::cli_abort("`file` must be a single string.")
   if (!file.exists(file))
     cli::cli_abort("File does not exist: {.path {file}}")
   if (!is.logical(convert_dates) || length(convert_dates) != 1L)
     cli::cli_abort("`convert_dates` must be a single logical value.")
+  if (!is.null(n_threads)) {
+    if (!is.numeric(n_threads) || length(n_threads) != 1L || n_threads < 1)
+      cli::cli_abort("`n_threads` must be a single positive integer or NULL.")
+    n_threads <- as.integer(n_threads)
+  }
 
-  res <- .rcpp_read_xpt(path.expand(file), isTRUE(convert_dates))
+  res <- .rcpp_read_xpt(path.expand(file), isTRUE(convert_dates), n_threads)
 
   if (warn && length(res$warnings) > 0L) {
     for (w in res$warnings) {
