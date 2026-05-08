@@ -13,6 +13,10 @@ kstools.Rcheck/
 ..Rcheck/
 *.tar.gz
 
+# Compiled objects and shared libraries
+*.o
+*.so
+
 # OS / editor
 .DS_Store
 ._*
