@@ -17,6 +17,10 @@ kstools.Rcheck/
 *.o
 *.so
 
+# clangd build artifacts
+src/.cache/
+src/compile_commands.json
+
 # OS / editor
 .DS_Store
 ._*

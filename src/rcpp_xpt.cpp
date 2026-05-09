@@ -21,7 +21,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <stdexcept>
+#include <exception>
 #include <string>
 #include <thread>
 #include <utility>
@@ -116,7 +116,7 @@ SEXP buildColumns(const cxpt::MappedFile &mf,
     std::vector<std::size_t> numIdx;
     numIdx.reserve(ncol);
     for (std::size_t i = 0; i < ncol; ++i) {
-        names[i] = schema.variables[i].name;
+        names[static_cast<R_xlen_t>(i)] = schema.variables[i].name;
         if (!schema.variables[i].isString) numIdx.push_back(i);
     }
 
@@ -125,7 +125,7 @@ SEXP buildColumns(const cxpt::MappedFile &mf,
     for (std::size_t i : numIdx) {
         SEXP s = PROTECT(Rf_allocVector(REALSXP, static_cast<R_xlen_t>(nrow)));
         numericColSexps[i] = s;
-        cols[i] = s;
+        cols[static_cast<R_xlen_t>(i)] = s;
         UNPROTECT(1);  // protected by the List `cols`
     }
 
@@ -232,16 +232,16 @@ SEXP buildColumns(const cxpt::MappedFile &mf,
             // Trim trailing 0x20 spaces.
             std::size_t len = width;
             while (len > 0 && cell[len - 1] == ' ') --len;
-            SET_STRING_ELT(s, r, Rf_mkCharLenCE(cell, static_cast<int>(len), CE_NATIVE));
+            SET_STRING_ELT(s, static_cast<R_xlen_t>(r), Rf_mkCharLenCE(cell, static_cast<int>(len), CE_NATIVE));
         }
-        cols[i] = s;
+        cols[static_cast<R_xlen_t>(i)] = s;
         UNPROTECT(1);
     }
 
     // ---- Apply attributes + date conversion ----
     for (std::size_t i = 0; i < ncol; ++i) {
         const auto &var = schema.variables[i];
-        SEXP col = cols[i];
+        SEXP col = cols[static_cast<R_xlen_t>(i)];
 
         if (var.isString) {
             if (!var.label.empty())   Rf_setAttrib(col, Rf_install("label"), Rf_mkString(var.label.c_str()));
@@ -294,7 +294,7 @@ SEXP buildColumns(const cxpt::MappedFile &mf,
         for (std::size_t k = 0; k < numIdx.size(); ++k) {
             if (tagBuffers[k].empty()) continue;
             const std::size_t colIdx = numIdx[k];
-            SEXP col = cols[colIdx];
+            SEXP col = cols[static_cast<R_xlen_t>(colIdx)];
             CharacterVector tags(static_cast<R_xlen_t>(nrow));
             for (R_xlen_t r = 0; r < static_cast<R_xlen_t>(nrow); ++r) tags[r] = "";
             for (const auto &te : tagBuffers[k]) {
@@ -417,11 +417,11 @@ Rcpp::List rcpp_read_xpt(const std::string &path,
         }
         for (const auto &w : schema.warnings) warnings.push_back(w);
 
-        memberNames[k] = schema.tableName.empty()
+        memberNames[static_cast<R_xlen_t>(k)] = schema.tableName.empty()
                               ? std::string("MEMBER_") + std::to_string(k + 1)
                               : schema.tableName;
         SEXP df = PROTECT(buildColumns(mf, schema.dataOffset, schema, convert_dates, nThreads));
-        members[k] = df;
+        members[static_cast<R_xlen_t>(k)] = df;
         UNPROTECT(1);
     }
     members.attr("names") = memberNames;
@@ -445,7 +445,7 @@ void rcpp_write_xpt(Rcpp::List df,
     if (version != 5 && version != 8) stop("version must be 5 or 8");
 
     CharacterVector colNames = df.names();
-    const std::size_t ncol = df.size();
+    const std::size_t ncol = static_cast<std::size_t>(df.size());
     if (colNames.size() != static_cast<R_xlen_t>(ncol)) stop("data must have column names");
 
     R_xlen_t nrow = 0;
@@ -454,7 +454,7 @@ void rcpp_write_xpt(Rcpp::List df,
         nrow = Rf_xlength(first);
     }
     for (std::size_t i = 0; i < ncol; ++i) {
-        SEXP col = df[i];
+        SEXP col = df[static_cast<R_xlen_t>(i)];
         if (Rf_xlength(col) != nrow) stop("all columns must have the same length");
     }
 
@@ -468,8 +468,8 @@ void rcpp_write_xpt(Rcpp::List df,
 
     schema.variables.reserve(ncol);
     for (std::size_t i = 0; i < ncol; ++i) {
-        std::string nm = as<std::string>(colNames[i]);
-        SEXP col = df[i];
+        std::string nm = as<std::string>(colNames[static_cast<R_xlen_t>(i)]);
+        SEXP col = df[static_cast<R_xlen_t>(i)];
         cxpt::XptVariable v;
         v.index = i;
         v.varNumber = static_cast<std::uint16_t>(i + 1);
@@ -541,7 +541,7 @@ void rcpp_write_xpt(Rcpp::List df,
     std::vector<bool> isDate(ncol, false);
     std::vector<bool> isDateTime(ncol, false);
     for (std::size_t i = 0; i < ncol; ++i) {
-        colSexps[i] = df[i];
+        colSexps[i] = df[static_cast<R_xlen_t>(i)];
         if (schema.variables[i].isString) {
             colTypes[i] = (TYPEOF(colSexps[i]) == STRSXP) ? 2 : 3;
         } else {

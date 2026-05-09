@@ -1,3 +1,11 @@
+# kstools 0.5.1
+
+## Bug fixes
+
+- `rcpp_xpt.cpp`: replaced `<stdexcept>` with `<exception>` (correct header for `std::exception`).
+
+---
+
 # kstools 0.5.0
 
 ## Performance

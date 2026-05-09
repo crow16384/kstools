@@ -11,6 +11,7 @@
 #include <string>
 
 #include <fcntl.h>
+#include <sys/fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>

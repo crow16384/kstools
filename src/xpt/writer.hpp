@@ -4,9 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
-#include <functional>
 #include <limits>
-#include <stdexcept>
 #include <string>
 #include <vector>
 

@@ -4,7 +4,7 @@
 [![Docs and Site](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml/badge.svg)](https://github.com/crow16384/kstools/actions/workflows/docs-site.yml)
 [![pkgdown site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
 <!-- version-badge:start -->
-[![Version](https://img.shields.io/badge/version-0.5.0-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.5.1-blue)](https://github.com/crow16384/kstools/releases/latest)
 <!-- version-badge:end -->
 
 Clinical and data science utilities for R.
