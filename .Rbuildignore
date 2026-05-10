@@ -9,3 +9,6 @@
 ^\.\.Rcheck$
 ^\.positai$
 ^\.claude$
+^src/.*\.o$
+^src/.*\.so$
+^src/.*\.dylib$
