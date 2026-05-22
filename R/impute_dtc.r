@@ -49,14 +49,20 @@
 #'     return \code{dt = NA} and \code{imputation_flag = NA}.}
 #' }
 #'
-#' ## Date-only strings with \code{direction = "end"} (Case D)
+#' ## Date-only strings with a directional imputation (Cases D and E)
 #'
 #' A date-only string such as \code{"2020-04-06"} contains no time
-#' separator and is otherwise complete.  Under \code{direction = "end"}
-#' the missing time is imputed as \code{23:59:00} and the flag is set to
-#' \code{"H"}.  Under \code{direction = "start"} the time defaults to
-#' \code{00:00:00} with flag \code{NA} (no imputation — midnight is the
-#' natural start-of-day value).
+#' separator and is otherwise complete.  Because the time was not recorded,
+#' it is always considered imputed when \code{direction != "no"}:
+#'
+#' \describe{
+#'   \item{\strong{Case D} (\code{direction = "end"})}{Time is imputed as
+#'     \code{23:59:00}.  Flag: \code{"H"}.}
+#'   \item{\strong{Case E} (\code{direction = "start"})}{Time is imputed as
+#'     \code{00:00:00}.  Flag: \code{"H"}.}
+#' }
+#'
+#' A reference-date match (Case C) overrides both Case D and Case E.
 #'
 #' ## Reference-guided imputation
 #'
@@ -79,7 +85,7 @@
 #'   \item{\strong{Case C} — date complete, time absent, full date matches ref}{
 #'     A date-only string whose year, month, \emph{and} day all equal the
 #'     reference has its time filled from \code{ref}.  This takes priority
-#'     over the Case D end-of-day fallback.
+#'     over the Case D / Case E directional time fallback.
 #'     Flag: \code{"H"}.}
 #'   \item{\strong{Fallback}}{
 #'     If none of Cases A–C applies — because \code{ref} is \code{NULL},
@@ -150,7 +156,7 @@
 #' # Date-only + end → end-of-day 23:59, flag "H" (Case D)
 #' ks_impute_dtc("2020-03-15", "end")
 #'
-#' # Date-only + start → midnight 00:00, no imputation
+#' # Date-only + start → midnight 00:00, flag "H" (Case E)
 #' ks_impute_dtc("2020-03-15", "start")
 #'
 #' # --- direction = "end" ------------------------------------------------------
@@ -238,13 +244,13 @@ ks_impute_dtc <- function(x, direction = "no", tz = "UTC", ref = NULL) {
 
   ## ---- Step 3: Imputation flag ---------------------------------------------
   flag <- dplyr::case_when(
-    is.na(yr) | direction == "no"             ~ NA_character_,
-    success & (has_time | direction != "end") ~ NA_character_,
-    success & !has_time & direction == "end" ~ "H",
-    is.na(mo)                                ~ "M",
-    is.na(dy)                                ~ "D",
-    is.na(hr) & has_time                     ~ "H",
-    TRUE                                     ~ "S"
+    is.na(yr) | direction == "no"  ~ NA_character_,
+    success & has_time             ~ NA_character_,
+    success & !has_time            ~ "H",
+    is.na(mo)                      ~ "M",
+    is.na(dy)                      ~ "D",
+    is.na(hr) & has_time           ~ "H",
+    TRUE                           ~ "S"
   )
 
   ## ---- Step 4: Reference extraction ----------------------------------------

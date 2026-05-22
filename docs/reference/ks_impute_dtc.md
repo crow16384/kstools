@@ -105,13 +105,21 @@ imputed:
   No imputation is performed. Incomplete strings return `dt = NA` and
   `imputation_flag = NA`.
 
-\## Date-only strings with `direction = "end"` (Case D)
+\## Date-only strings with a directional imputation (Cases D and E)
 
 A date-only string such as `"2020-04-06"` contains no time separator and
-is otherwise complete. Under `direction = "end"` the missing time is
-imputed as `23:59:00` and the flag is set to `"H"`. Under
-`direction = "start"` the time defaults to `00:00:00` with flag `NA` (no
-imputation — midnight is the natural start-of-day value).
+is otherwise complete. Because the time was not recorded, it is always
+considered imputed when `direction != "no"`:
+
+- **Case D** (`direction = "end"`):
+
+  Time is imputed as `23:59:00`. Flag: `"H"`.
+
+- **Case E** (`direction = "start"`):
+
+  Time is imputed as `00:00:00`. Flag: `"H"`.
+
+A reference-date match (Case C) overrides both Case D and Case E.
 
 \## Reference-guided imputation
 
@@ -136,7 +144,7 @@ Cases are evaluated in priority order:
 
   A date-only string whose year, month, *and* day all equal the
   reference has its time filled from `ref`. This takes priority over the
-  Case D end-of-day fallback. Flag: `"H"`.
+  Case D / Case E directional time fallback. Flag: `"H"`.
 
 - **Fallback**:
 
@@ -195,12 +203,12 @@ ks_impute_dtc("2020-03-15", "end")
 #>   <dttm>              <chr>          
 #> 1 2020-03-15 23:59:00 H              
 
-# Date-only + start → midnight 00:00, no imputation
+# Date-only + start → midnight 00:00, flag "H" (Case E)
 ks_impute_dtc("2020-03-15", "start")
 #> # A tibble: 1 × 2
 #>   dt                  imputation_flag
 #>   <dttm>              <chr>          
-#> 1 2020-03-15 00:00:00 NA             
+#> 1 2020-03-15 00:00:00 H              
 
 # --- direction = "end" ------------------------------------------------------
 # End of February in a leap year → 2020-02-29 23:59:00, flag "D"

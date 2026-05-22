@@ -136,13 +136,20 @@ was imputed:</p>
     return <code>dt = NA</code> and <code>imputation_flag = NA</code>.</p></dd>
 
 
-</dl><p>## Date-only strings with <code>direction = "end"</code> (Case D)</p>
+</dl><p>## Date-only strings with a directional imputation (Cases D and E)</p>
 <p>A date-only string such as <code>"2020-04-06"</code> contains no time
-separator and is otherwise complete.  Under <code>direction = "end"</code>
-the missing time is imputed as <code>23:59:00</code> and the flag is set to
-<code>"H"</code>.  Under <code>direction = "start"</code> the time defaults to
-<code>00:00:00</code> with flag <code>NA</code> (no imputation — midnight is the
-natural start-of-day value).</p>
+separator and is otherwise complete.  Because the time was not recorded,
+it is always considered imputed when <code>direction != "no"</code>:</p>
+<dl><dt><strong>Case D</strong> (<code>direction = "end"</code>)</dt>
+<dd><p>Time is imputed as
+    <code>23:59:00</code>.  Flag: <code>"H"</code>.</p></dd>
+
+  <dt><strong>Case E</strong> (<code>direction = "start"</code>)</dt>
+<dd><p>Time is imputed as
+    <code>00:00:00</code>.  Flag: <code>"H"</code>.</p></dd>
+
+
+</dl><p>A reference-date match (Case C) overrides both Case D and Case E.</p>
 <p>## Reference-guided imputation</p>
 <p>When <code>ref</code> is provided and <code>direction != "no"</code>, the function
 first checks whether the parsed year (and optionally month and day)
@@ -163,7 +170,7 @@ fallback.  Cases are evaluated in priority order:</p>
   <dt><strong>Case C</strong> — date complete, time absent, full date matches ref</dt>
 <dd><p>A date-only string whose year, month, <em>and</em> day all equal the
     reference has its time filled from <code>ref</code>.  This takes priority
-    over the Case D end-of-day fallback.
+    over the Case D / Case E directional time fallback.
     Flag: <code>"H"</code>.</p></dd>
 
   <dt><strong>Fallback</strong></dt>
@@ -223,12 +230,12 @@ before its components are extracted.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2020-03-15 <span style="color: #949494;">23:59:00</span> H              </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Date-only + start → midnight 00:00, no imputation</span></span></span>
+<span class="r-in"><span><span class="co"># Date-only + start → midnight 00:00, flag "H" (Case E)</span></span></span>
 <span class="r-in"><span><span class="fu">ks_impute_dtc</span><span class="op">(</span><span class="st">"2020-03-15"</span>, <span class="st">"start"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dt                  imputation_flag</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2020-03-15 <span style="color: #949494;">00:00:00</span> <span style="color: #BB0000;">NA</span>             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2020-03-15 <span style="color: #949494;">00:00:00</span> H              </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- direction = "end" ------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># End of February in a leap year → 2020-02-29 23:59:00, flag "D"</span></span></span>

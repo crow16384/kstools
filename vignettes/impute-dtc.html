@@ -501,16 +501,37 @@ strings under <code>direction = &quot;end&quot;</code> (Case D).</p>
 <strong>leap years are handled correctly</strong> (e.g. February 2020 →
 day 29).</p>
 </div>
-<div id="step-5-case-d-date-only-strings-under-direction-end" class="section level3">
-<h3>Step 5 — Case D: date-only strings under
-<code>direction = &quot;end&quot;</code></h3>
-<p>A date-only string such as <code>&quot;2020-04-06&quot;</code> is complete (no
-time separator), but under <code>direction = &quot;end&quot;</code> the missing
-time is imputed as <code>23:59:00</code> with
-<code>imputation_flag = &quot;H&quot;</code>. Under
-<code>direction = &quot;start&quot;</code> the time defaults to
-<code>00:00:00</code> with <code>imputation_flag = NA</code> — midnight
-is the natural start-of-day value, so no flag is raised.</p>
+<div id="step-5-date-only-strings-with-a-directional-imputation-cases-d-and-e" class="section level3">
+<h3>Step 5 — Date-only strings with a directional imputation (Cases D
+and E)</h3>
+<p>A date-only string such as <code>&quot;2020-04-06&quot;</code> contains no time
+separator and is otherwise complete. Because the time was not recorded,
+it is always considered imputed when <code>direction != &quot;no&quot;</code>:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>Direction</th>
+<th>Time imputed</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>D</strong></td>
+<td><code>&quot;end&quot;</code></td>
+<td><code>23:59:00</code></td>
+<td><code>&quot;H&quot;</code></td>
+</tr>
+<tr class="even">
+<td><strong>E</strong></td>
+<td><code>&quot;start&quot;</code></td>
+<td><code>00:00:00</code></td>
+<td><code>&quot;H&quot;</code></td>
+</tr>
+</tbody>
+</table>
+<p>A reference-date match (Case C) overrides both Case D and Case E.</p>
 </div>
 <div id="step-6-reference-guided-imputation" class="section level3">
 <h3>Step 6 — Reference-guided imputation</h3>
@@ -586,7 +607,7 @@ evaluated in order:</p>
 <h3><code>direction = &quot;start&quot;</code> — earliest plausible values</h3>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">ks_impute_dtc</span>(<span class="fu">c</span>(<span class="st">&quot;2020&quot;</span>,           <span class="co"># year only</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                <span class="st">&quot;2020-03&quot;</span>,        <span class="co"># year-month</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                <span class="st">&quot;2020-03-15&quot;</span>,     <span class="co"># date-only</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                <span class="st">&quot;2020-03-15&quot;</span>,     <span class="co"># date-only  → 00:00 / H (Case E)</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                <span class="st">&quot;2020-03-15T10&quot;</span>), <span class="co"># partial datetime</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>              <span class="at">direction =</span> <span class="st">&quot;start&quot;</span>)</span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 2</span></span>
@@ -594,7 +615,7 @@ evaluated in order:</p>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;chr&gt;          </span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; 1 2020-01-01 00:00:00 M              </span></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 2 2020-03-01 00:00:00 D              </span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 3 2020-03-15 00:00:00 &lt;NA&gt;           </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 3 2020-03-15 00:00:00 H              </span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; 4 2020-03-15 10:00:00 S</span></span></code></pre></div>
 </div>
 <div id="direction-end-latest-plausible-values" class="section level3">
@@ -611,7 +632,6 @@ evaluated in order:</p>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 2 2020-03-31 23:59:00 D              </span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 3 2020-03-15 23:59:00 H              </span></span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; 4 2020-03-15 10:59:00 S</span></span></code></pre></div>
-<hr />
 </div>
 </div>
 <div id="leap-year-end-of-month" class="section level2">

@@ -72,13 +72,18 @@ The flag records the most significant component that was imputed:
 For `"end"` the last day of month is computed per-year, so **leap years
 are handled correctly** (e.g. February 2020 → day 29).
 
-### Step 5 — Case D: date-only strings under `direction = "end"`
+### Step 5 — Date-only strings with a directional imputation (Cases D and E)
 
-A date-only string such as `"2020-04-06"` is complete (no time
-separator), but under `direction = "end"` the missing time is imputed as
-`23:59:00` with `imputation_flag = "H"`. Under `direction = "start"` the
-time defaults to `00:00:00` with `imputation_flag = NA` — midnight is
-the natural start-of-day value, so no flag is raised.
+A date-only string such as `"2020-04-06"` contains no time separator and
+is otherwise complete. Because the time was not recorded, it is always
+considered imputed when `direction != "no"`:
+
+| Case  | Direction | Time imputed | Flag  |
+|-------|-----------|--------------|-------|
+| **D** | `"end"`   | `23:59:00`   | `"H"` |
+| **E** | `"start"` | `00:00:00`   | `"H"` |
+
+A reference-date match (Case C) overrides both Case D and Case E.
 
 ### Step 6 — Reference-guided imputation
 
@@ -124,7 +129,7 @@ ks_impute_dtc(c("2020-03-15T10:30:00",  # complete → NA flag
 
 ks_impute_dtc(c("2020",           # year only
                 "2020-03",        # year-month
-                "2020-03-15",     # date-only
+                "2020-03-15",     # date-only  → 00:00 / H (Case E)
                 "2020-03-15T10"), # partial datetime
               direction = "start")
 #> # A tibble: 4 × 2
@@ -132,7 +137,7 @@ ks_impute_dtc(c("2020",           # year only
 #>   <dttm>              <chr>          
 #> 1 2020-01-01 00:00:00 M              
 #> 2 2020-03-01 00:00:00 D              
-#> 3 2020-03-15 00:00:00 NA             
+#> 3 2020-03-15 00:00:00 H              
 #> 4 2020-03-15 10:00:00 S
 ```
 
@@ -153,8 +158,6 @@ ks_impute_dtc(c("2020",           # year only → 2020-12-31 23:59
 #> 3 2020-03-15 23:59:00 H              
 #> 4 2020-03-15 10:59:00 S
 ```
-
-------------------------------------------------------------------------
 
 ## Leap-Year End-of-Month
 

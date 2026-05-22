@@ -227,16 +227,35 @@ strings under <code>direction = "end"</code> (Case D).</p>
 day 29).</p>
 </div>
 <div class="section level3">
-<h3 id="step-5-case-d-date-only-strings-under-direction-end">Step 5 — Case D: date-only strings under
-<code>direction = "end"</code><a class="anchor" aria-label="anchor" href="#step-5-case-d-date-only-strings-under-direction-end"></a>
+<h3 id="step-5-date-only-strings-with-a-directional-imputation-cases-d-and-e">Step 5 — Date-only strings with a directional imputation (Cases D
+and E)<a class="anchor" aria-label="anchor" href="#step-5-date-only-strings-with-a-directional-imputation-cases-d-and-e"></a>
 </h3>
-<p>A date-only string such as <code>"2020-04-06"</code> is complete (no
-time separator), but under <code>direction = "end"</code> the missing
-time is imputed as <code>23:59:00</code> with
-<code>imputation_flag = "H"</code>. Under
-<code>direction = "start"</code> the time defaults to
-<code>00:00:00</code> with <code>imputation_flag = NA</code> — midnight
-is the natural start-of-day value, so no flag is raised.</p>
+<p>A date-only string such as <code>"2020-04-06"</code> contains no time
+separator and is otherwise complete. Because the time was not recorded,
+it is always considered imputed when <code>direction != "no"</code>:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Case</th>
+<th>Direction</th>
+<th>Time imputed</th>
+<th>Flag</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>D</strong></td>
+<td><code>"end"</code></td>
+<td><code>23:59:00</code></td>
+<td><code>"H"</code></td>
+</tr>
+<tr class="even">
+<td><strong>E</strong></td>
+<td><code>"start"</code></td>
+<td><code>00:00:00</code></td>
+<td><code>"H"</code></td>
+</tr>
+</tbody>
+</table>
+<p>A reference-date match (Case C) overrides both Case D and Case E.</p>
 </div>
 <div class="section level3">
 <h3 id="step-6-reference-guided-imputation">Step 6 — Reference-guided imputation<a class="anchor" aria-label="anchor" href="#step-6-reference-guided-imputation"></a>
@@ -318,7 +337,7 @@ evaluated in order:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ks_impute_dtc.html">ks_impute_dtc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020"</span>,           <span class="co"># year only</span></span>
 <span>                <span class="st">"2020-03"</span>,        <span class="co"># year-month</span></span>
-<span>                <span class="st">"2020-03-15"</span>,     <span class="co"># date-only</span></span>
+<span>                <span class="st">"2020-03-15"</span>,     <span class="co"># date-only  → 00:00 / H (Case E)</span></span>
 <span>                <span class="st">"2020-03-15T10"</span><span class="op">)</span>, <span class="co"># partial datetime</span></span>
 <span>              direction <span class="op">=</span> <span class="st">"start"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
@@ -326,7 +345,7 @@ evaluated in order:</p>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2020-01-01 <span style="color: #949494;">00:00:00</span> M              </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2020-03-01 <span style="color: #949494;">00:00:00</span> D              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2020-03-15 <span style="color: #949494;">00:00:00</span> <span style="color: #BB0000;">NA</span>             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2020-03-15 <span style="color: #949494;">00:00:00</span> H              </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2020-03-15 <span style="color: #949494;">10:00:00</span> S</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -346,7 +365,6 @@ evaluated in order:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2020-03-31 <span style="color: #949494;">23:59:00</span> D              </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2020-03-15 <span style="color: #949494;">23:59:00</span> H              </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2020-03-15 <span style="color: #949494;">10:59:00</span> S</span></span></code></pre></div>
-<hr>
 </div>
 </div>
 <div class="section level2">
