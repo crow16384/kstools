@@ -63,7 +63,10 @@ ks_impute_dtc("2020", "start")
 # Year-month → first day of month, flag "D"
 ks_impute_dtc("2020-03", "start")
 
-# Date-only → midnight, flag "H"
+# Date-only + end → end-of-day 23:59, flag "H" (Case D)
+ks_impute_dtc("2020-03-15", "end")
+
+# Date-only + start → midnight 00:00, no imputation
 ks_impute_dtc("2020-03-15", "start")
 
 # --- direction = "end" ------------------------------------------------------
@@ -79,8 +82,8 @@ ref <- as.POSIXct("2020-03-15 10:30:00", tz = "UTC")
 # Case A — day missing, year+month match ref → take day/time from ref
 ks_impute_dtc("2020-03", "start", ref = ref)
 
-# Case C — date complete but time missing, date matches ref → take time from ref
-ks_impute_dtc("2020-03-15", "start", ref = ref)
+# Case C overrides D — date matches ref → take time from ref, not 23:59
+ks_impute_dtc("2020-03-15", "end", ref = ref)
 
 # ref year/month mismatch → directional fallback used instead
 ks_impute_dtc("2020-04", "start", ref = ref)

@@ -1,3 +1,14 @@
+# kstools 0.5.3
+
+## Bug fixes / behaviour change
+
+- `ks_impute_dtc()`: date-only strings (`"YYYY-MM-DD"`) with
+  `direction = "end"` now produce `23:59:00` with `imputation_flag = "H"`
+  instead of `00:00:00 / NA`.  A ref-date match (Case C) still takes
+  priority over this end-of-day fallback (Case D).
+
+---
+
 # kstools 0.5.2
 
 ## New features

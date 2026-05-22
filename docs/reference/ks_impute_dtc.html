@@ -11,7 +11,7 @@ tibble with the resulting POSIXct and an imputation flag."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,7 +140,14 @@ the directional fallback.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2020-03-01 <span style="color: #949494;">00:00:00</span> D              </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Date-only → midnight, flag "H"</span></span></span>
+<span class="r-in"><span><span class="co"># Date-only + end → end-of-day 23:59, flag "H" (Case D)</span></span></span>
+<span class="r-in"><span><span class="fu">ks_impute_dtc</span><span class="op">(</span><span class="st">"2020-03-15"</span>, <span class="st">"end"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dt                  imputation_flag</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2020-03-15 <span style="color: #949494;">23:59:00</span> H              </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Date-only + start → midnight 00:00, no imputation</span></span></span>
 <span class="r-in"><span><span class="fu">ks_impute_dtc</span><span class="op">(</span><span class="st">"2020-03-15"</span>, <span class="st">"start"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dt                  imputation_flag</span>
@@ -172,8 +179,8 @@ the directional fallback.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2020-03-15 <span style="color: #949494;">10:30:00</span> D              </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Case C — date complete but time missing, date matches ref → take time from ref</span></span></span>
-<span class="r-in"><span><span class="fu">ks_impute_dtc</span><span class="op">(</span><span class="st">"2020-03-15"</span>, <span class="st">"start"</span>, ref <span class="op">=</span> <span class="va">ref</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Case C overrides D — date matches ref → take time from ref, not 23:59</span></span></span>
+<span class="r-in"><span><span class="fu">ks_impute_dtc</span><span class="op">(</span><span class="st">"2020-03-15"</span>, <span class="st">"end"</span>, ref <span class="op">=</span> <span class="va">ref</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dt                  imputation_flag</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>

@@ -60,7 +60,10 @@
 #' # Year-month → first day of month, flag "D"
 #' ks_impute_dtc("2020-03", "start")
 #'
-#' # Date-only → midnight, flag "H"
+#' # Date-only + end → end-of-day 23:59, flag "H" (Case D)
+#' ks_impute_dtc("2020-03-15", "end")
+#'
+#' # Date-only + start → midnight 00:00, no imputation
 #' ks_impute_dtc("2020-03-15", "start")
 #'
 #' # --- direction = "end" ------------------------------------------------------
@@ -76,8 +79,8 @@
 #' # Case A — day missing, year+month match ref → take day/time from ref
 #' ks_impute_dtc("2020-03", "start", ref = ref)
 #'
-#' # Case C — date complete but time missing, date matches ref → take time from ref
-#' ks_impute_dtc("2020-03-15", "start", ref = ref)
+#' # Case C overrides D — date matches ref → take time from ref, not 23:59
+#' ks_impute_dtc("2020-03-15", "end", ref = ref)
 #'
 #' # ref year/month mismatch → directional fallback used instead
 #' ks_impute_dtc("2020-04", "start", ref = ref)
@@ -148,11 +151,13 @@ ks_impute_dtc <- function(x, direction = "no", tz = "UTC", ref = NULL) {
 
   ## ---- Step 3: Imputation flag ---------------------------------------------
   flag <- dplyr::case_when(
-    is.na(yr) | direction == "no" | success ~ NA_character_,
-    is.na(mo)            ~ "M",
-    is.na(dy)            ~ "D",
-    is.na(hr) & has_time ~ "H",
-    TRUE                 ~ "S"
+    is.na(yr) | direction == "no"             ~ NA_character_,
+    success & (has_time | direction != "end") ~ NA_character_,
+    success & !has_time & direction == "end" ~ "H",
+    is.na(mo)                                ~ "M",
+    is.na(dy)                                ~ "D",
+    is.na(hr) & has_time                     ~ "H",
+    TRUE                                     ~ "S"
   )
 
   ## ---- Step 4: Reference extraction ----------------------------------------
@@ -252,6 +257,21 @@ ks_impute_dtc <- function(x, direction = "no", tz = "UTC", ref = NULL) {
   }
 
   flag[needs & !can_build] <- NA_character_
+
+  ## Case D: date-only success rows with direction = "end" and no ref match
+  ## → end-of-day 23:59; flag already set to "H" in Step 3
+  caseD <- ok & !has_time & direction == "end"
+  if (any(caseD)) {
+    dt[caseD] <- lubridate::make_datetime(
+      year  = yr[caseD],
+      month = mo[caseD],
+      day   = dy[caseD],
+      hour  = 23L,
+      min   = 59L,
+      sec   = 0L,
+      tz    = tz
+    )
+  }
 
   ## Case C: date-only success rows whose full date matches the reference
   ## → take hour and minute from reference; flag = "H"

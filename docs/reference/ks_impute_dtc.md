@@ -96,7 +96,14 @@ ks_impute_dtc("2020-03", "start")
 #>   <dttm>              <chr>          
 #> 1 2020-03-01 00:00:00 D              
 
-# Date-only → midnight, flag "H"
+# Date-only + end → end-of-day 23:59, flag "H" (Case D)
+ks_impute_dtc("2020-03-15", "end")
+#> # A tibble: 1 × 2
+#>   dt                  imputation_flag
+#>   <dttm>              <chr>          
+#> 1 2020-03-15 23:59:00 H              
+
+# Date-only + start → midnight 00:00, no imputation
 ks_impute_dtc("2020-03-15", "start")
 #> # A tibble: 1 × 2
 #>   dt                  imputation_flag
@@ -128,8 +135,8 @@ ks_impute_dtc("2020-03", "start", ref = ref)
 #>   <dttm>              <chr>          
 #> 1 2020-03-15 10:30:00 D              
 
-# Case C — date complete but time missing, date matches ref → take time from ref
-ks_impute_dtc("2020-03-15", "start", ref = ref)
+# Case C overrides D — date matches ref → take time from ref, not 23:59
+ks_impute_dtc("2020-03-15", "end", ref = ref)
 #> # A tibble: 1 × 2
 #>   dt                  imputation_flag
 #>   <dttm>              <chr>          
