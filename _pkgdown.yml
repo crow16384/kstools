@@ -31,6 +31,8 @@ navbar:
           href: articles/getting-started.html
         - text: Clinical Workflows
           href: articles/clinical-workflows.html
+        - text: Imputing Incomplete Dates
+          href: articles/impute-dtc.html
     news:
       text: Changelog
       href: news/index.html
@@ -120,3 +122,4 @@ articles:
     contents:
       - getting-started
       - clinical-workflows
+      - impute-dtc

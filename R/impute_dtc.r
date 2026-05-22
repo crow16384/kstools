@@ -4,6 +4,93 @@
 #' missing components according to the chosen direction, returning a
 #' \code{tibble} with the resulting \code{POSIXct} and an imputation flag.
 #'
+#' @details
+#' ## Parsing
+#'
+#' Each element of \code{x} is matched against a regular expression that
+#' captures year, month, day, hour, minute, and second independently.
+#' The date-time separator may be \code{T} or a single space.  Trailing
+#' timezone designators (\code{Z}, \code{+HH:MM}, \code{-HHMM}) are
+#' silently stripped; all output is placed in the timezone given by
+#' \code{tz}.  Elements that do not match the pattern produce
+#' \code{dt = NA} and \code{imputation_flag = NA}.
+#'
+#' ## Completeness and imputation flags
+#'
+#' A string is considered \emph{complete} when year, month, and day are all
+#' present, and — if a time separator (\code{T} or space) is present —
+#' hour and minute are also present.  Complete strings are assembled
+#' directly without imputation (flag \code{NA}), \emph{except} for
+#' date-only strings under \code{direction = "end"} (Case D, see below).
+#'
+#' The \code{imputation_flag} records the most significant component that
+#' was imputed:
+#'
+#' \tabular{ll}{
+#'   \strong{Flag} \tab \strong{Meaning} \cr
+#'   \code{"M"}    \tab Month was imputed (year was the only component present). \cr
+#'   \code{"D"}    \tab Day was imputed (year and month were present). \cr
+#'   \code{"H"}    \tab Hour (and minute) were imputed. \cr
+#'   \code{"S"}    \tab Minute was imputed (hour was already present). \cr
+#'   \code{NA}     \tab No imputation was performed. \cr
+#' }
+#'
+#' ## Direction
+#'
+#' \describe{
+#'   \item{\code{"start"}}{Each missing component is filled with the
+#'     \emph{earliest} plausible value: month \eqn{\to} 1, day \eqn{\to} 1,
+#'     hour \eqn{\to} 0, minute \eqn{\to} 0.}
+#'   \item{\code{"end"}}{Each missing component is filled with the
+#'     \emph{latest} plausible value: month \eqn{\to} 12, day \eqn{\to} last
+#'     day of that month (correctly handling leap years), hour \eqn{\to} 23,
+#'     minute \eqn{\to} 59.}
+#'   \item{\code{"no"}}{No imputation is performed.  Incomplete strings
+#'     return \code{dt = NA} and \code{imputation_flag = NA}.}
+#' }
+#'
+#' ## Date-only strings with \code{direction = "end"} (Case D)
+#'
+#' A date-only string such as \code{"2020-04-06"} contains no time
+#' separator and is otherwise complete.  Under \code{direction = "end"}
+#' the missing time is imputed as \code{23:59:00} and the flag is set to
+#' \code{"H"}.  Under \code{direction = "start"} the time defaults to
+#' \code{00:00:00} with flag \code{NA} (no imputation — midnight is the
+#' natural start-of-day value).
+#'
+#' ## Reference-guided imputation
+#'
+#' When \code{ref} is provided and \code{direction != "no"}, the function
+#' first checks whether the parsed year (and optionally month and day)
+#' match the corresponding reference value before applying the directional
+#' fallback.  Cases are evaluated in priority order:
+#'
+#' \describe{
+#'   \item{\strong{Case A} — day missing, year + month match ref}{
+#'     When the day (and time) are absent but year and month equal the
+#'     reference, day, hour, and minute are taken from \code{ref}.
+#'     Directional start/end values are \emph{not} used.
+#'     Typical flag: \code{"D"}.}
+#'   \item{\strong{Case B} — month missing, year matches ref}{
+#'     When month (and therefore day and time) are absent but the year
+#'     equals the reference year, month, day, hour, and minute are all
+#'     taken from \code{ref}.
+#'     Typical flag: \code{"M"}.}
+#'   \item{\strong{Case C} — date complete, time absent, full date matches ref}{
+#'     A date-only string whose year, month, \emph{and} day all equal the
+#'     reference has its time filled from \code{ref}.  This takes priority
+#'     over the Case D end-of-day fallback.
+#'     Flag: \code{"H"}.}
+#'   \item{\strong{Fallback}}{
+#'     If none of Cases A–C applies — because \code{ref} is \code{NULL},
+#'     the year does not match, or the month does not match — the
+#'     directional start/end values are used as described above.}
+#' }
+#'
+#' \code{ref} is recycled to \code{length(x)} via \code{rep_len()}.
+#' A \code{Date} ref is coerced to \code{POSIXct} in timezone \code{tz}
+#' before its components are extracted.
+#'
 #' @name ks_impute_dtc
 #'
 #' @param x Character vector of ISO 8601 truncated date/datetime strings.

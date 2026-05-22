@@ -56,6 +56,98 @@ one row per element of `x` and two columns:
   (month), `"D"` (day), `"H"` (hour), `"S"` (minute). `NA` when no
   imputation was performed.
 
+## Details
+
+\## Parsing
+
+Each element of `x` is matched against a regular expression that
+captures year, month, day, hour, minute, and second independently. The
+date-time separator may be `T` or a single space. Trailing timezone
+designators (`Z`, `+HH:MM`, `-HHMM`) are silently stripped; all output
+is placed in the timezone given by `tz`. Elements that do not match the
+pattern produce `dt = NA` and `imputation_flag = NA`.
+
+\## Completeness and imputation flags
+
+A string is considered *complete* when year, month, and day are all
+present, and — if a time separator (`T` or space) is present — hour and
+minute are also present. Complete strings are assembled directly without
+imputation (flag `NA`), *except* for date-only strings under
+`direction = "end"` (Case D, see below).
+
+The `imputation_flag` records the most significant component that was
+imputed:
+
+|          |                                                          |
+|----------|----------------------------------------------------------|
+| **Flag** | **Meaning**                                              |
+| `"M"`    | Month was imputed (year was the only component present). |
+| `"D"`    | Day was imputed (year and month were present).           |
+| `"H"`    | Hour (and minute) were imputed.                          |
+| `"S"`    | Minute was imputed (hour was already present).           |
+| `NA`     | No imputation was performed.                             |
+
+\## Direction
+
+- `"start"`:
+
+  Each missing component is filled with the *earliest* plausible value:
+  month \\\to\\ 1, day \\\to\\ 1, hour \\\to\\ 0, minute \\\to\\ 0.
+
+- `"end"`:
+
+  Each missing component is filled with the *latest* plausible value:
+  month \\\to\\ 12, day \\\to\\ last day of that month (correctly
+  handling leap years), hour \\\to\\ 23, minute \\\to\\ 59.
+
+- `"no"`:
+
+  No imputation is performed. Incomplete strings return `dt = NA` and
+  `imputation_flag = NA`.
+
+\## Date-only strings with `direction = "end"` (Case D)
+
+A date-only string such as `"2020-04-06"` contains no time separator and
+is otherwise complete. Under `direction = "end"` the missing time is
+imputed as `23:59:00` and the flag is set to `"H"`. Under
+`direction = "start"` the time defaults to `00:00:00` with flag `NA` (no
+imputation — midnight is the natural start-of-day value).
+
+\## Reference-guided imputation
+
+When `ref` is provided and `direction != "no"`, the function first
+checks whether the parsed year (and optionally month and day) match the
+corresponding reference value before applying the directional fallback.
+Cases are evaluated in priority order:
+
+- **Case A** — day missing, year + month match ref:
+
+  When the day (and time) are absent but year and month equal the
+  reference, day, hour, and minute are taken from `ref`. Directional
+  start/end values are *not* used. Typical flag: `"D"`.
+
+- **Case B** — month missing, year matches ref:
+
+  When month (and therefore day and time) are absent but the year equals
+  the reference year, month, day, hour, and minute are all taken from
+  `ref`. Typical flag: `"M"`.
+
+- **Case C** — date complete, time absent, full date matches ref:
+
+  A date-only string whose year, month, *and* day all equal the
+  reference has its time filled from `ref`. This takes priority over the
+  Case D end-of-day fallback. Flag: `"H"`.
+
+- **Fallback**:
+
+  If none of Cases A–C applies — because `ref` is `NULL`, the year does
+  not match, or the month does not match — the directional start/end
+  values are used as described above.
+
+`ref` is recycled to `length(x)` via
+[`rep_len()`](https://rdrr.io/r/base/rep.html). A `Date` ref is coerced
+to `POSIXct` in timezone `tz` before its components are extracted.
+
 ## Examples
 
 ``` r
