@@ -1,3 +1,16 @@
+# kstools 0.5.2
+
+## New features
+
+- `ks_impute_dtc()`: new function that parses truncated ISO 8601 date/datetime
+  strings and imputes missing components.  Accepts `direction = "start"`,
+  `"end"`, or `"no"` and an optional `ref` reference date/datetime vector for
+  same-period guided imputation (Cases A / B / C).  Returns a
+  `tibble(dt = POSIXct, imputation_flag = chr)` for direct use with
+  `dplyr::bind_cols()`.
+
+---
+
 # kstools 0.5.1
 
 ## Bug fixes

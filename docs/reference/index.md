@@ -53,6 +53,8 @@ SDTM helpers and supplemental-domain workflows.
 
 - [`ks_dtc2dtn()`](https://crow16384.github.io/kstools/reference/ks_dtc2dtn.md)
   : Convert DTC (date-time character) to Date
+- [`ks_impute_dtc()`](https://crow16384.github.io/kstools/reference/ks_impute_dtc.md)
+  : Impute incomplete ISO 8601 date/datetime strings
 - [`ks_supp_consistency_check()`](https://crow16384.github.io/kstools/reference/ks_supp_consistency_check.md)
   : Check SDTM supplemental dataset structure
 - [`ks_supp_merge()`](https://crow16384.github.io/kstools/reference/ks_supp_merge.md)

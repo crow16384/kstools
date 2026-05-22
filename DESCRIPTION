@@ -1,7 +1,7 @@
 Package: kstools
 Type: Package
 Title: Clinical and Data Science Utilities
-Version: 0.5.1
+Version: 0.5.2
 Authors@R: c(
     person(
       "Vladimir", "Larchenko",
@@ -29,6 +29,7 @@ Imports:
     cli,
     dplyr,
     ksformat,
+    lubridate,
     MASS,
     methods,
     nlme,
@@ -55,4 +56,4 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0

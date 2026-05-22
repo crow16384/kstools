@@ -1,5 +1,46 @@
 # Changelog
 
+## kstools 0.5.2
+
+### New features
+
+- [`ks_impute_dtc()`](https://crow16384.github.io/kstools/reference/ks_impute_dtc.md):
+  new function that parses truncated ISO 8601 date/datetime strings and
+  imputes missing components. Accepts `direction = "start"`, `"end"`, or
+  `"no"` and an optional `ref` reference date/datetime vector for
+  same-period guided imputation (Cases A / B / C). Returns a
+  `tibble(dt = POSIXct, imputation_flag = chr)` for direct use with
+  [`dplyr::bind_cols()`](https://dplyr.tidyverse.org/reference/bind_cols.html).
+
+------------------------------------------------------------------------
+
+## kstools 0.5.1
+
+### Bug fixes
+
+- `rcpp_xpt.cpp`: replaced `<stdexcept>` with `<exception>` (correct
+  header for `std::exception`).
+
+------------------------------------------------------------------------
+
+## kstools 0.5.0
+
+### Performance
+
+- [`ks_read_xpt()`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md)
+  /
+  [`ks_write_xpt()`](https://crow16384.github.io/kstools/reference/ks_write_xpt.md):
+  completely rewritten C++ engine. Uses POSIX `mmap` for zero-copy file
+  access, streaming columnar decode directly into pre-allocated R
+  vectors, and a multi-threaded worker pool for numeric columns
+  (`n_threads` argument, defaults to `hw - 1`). A 5 GB XPT file now
+  reads in ~4 s at ~1.3 GB/s with parser scratch well below 4 MB
+  (previously \> 100 GB RSS). Writer uses a 64 KB output buffer with no
+  in-memory row materialisation. Multi-member files are handled via
+  in-place mmap offsets (no temp files).
+
+------------------------------------------------------------------------
+
 ## kstools 0.4.1
 
 ### New features

@@ -63,4 +63,6 @@ Useful links:
 
 Authors:
 
+- Vladimir Larchenko <vladimir.larchenko@keystatsolutions.com>
+
 - Igor Aleschenkov <igor.aleschenkov@keystatsolutions.com>

@@ -29,6 +29,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Vladimir Larchenko \email{vladimir.larchenko@keystatsolutions.com}
   \item Igor Aleschenkov \email{igor.aleschenkov@keystatsolutions.com}
 }
 

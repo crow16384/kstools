@@ -4,7 +4,7 @@
 \alias{ks_read_xpt}
 \title{Read a SAS XPORT (.xpt) file}
 \usage{
-ks_read_xpt(file, convert_dates = TRUE, warn = TRUE)
+ks_read_xpt(file, convert_dates = TRUE, warn = TRUE, n_threads = NULL)
 }
 \arguments{
 \item{file}{Path to a SAS XPORT file.}
@@ -15,6 +15,10 @@ such columns are returned as numeric SAS day / second values.}
 
 \item{warn}{Logical. If `TRUE` (default), parser warnings are emitted via
 [cli::cli_warn].}
+
+\item{n_threads}{Integer or `NULL`. Number of decoder threads to use.
+`NULL` (default) selects `max(1, parallel::detectCores() - 1)`. Set to
+`1L` for fully deterministic single-threaded decoding.}
 }
 \value{
 A tibble for a single-member file, or a named list of tibbles for

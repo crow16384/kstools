@@ -8,7 +8,7 @@ are returned as a named list of tibbles, one per dataset.
 ## Usage
 
 ``` r
-ks_read_xpt(file, convert_dates = TRUE, warn = TRUE)
+ks_read_xpt(file, convert_dates = TRUE, warn = TRUE, n_threads = NULL)
 ```
 
 ## Arguments
@@ -27,6 +27,12 @@ ks_read_xpt(file, convert_dates = TRUE, warn = TRUE)
 
   Logical. If \`TRUE\` (default), parser warnings are emitted via
   \[cli::cli_warn\].
+
+- n_threads:
+
+  Integer or \`NULL\`. Number of decoder threads to use. \`NULL\`
+  (default) selects \`max(1, parallel::detectCores() - 1)\`. Set to
+  \`1L\` for fully deterministic single-threaded decoding.
 
 ## Value
 
