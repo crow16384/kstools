@@ -54,8 +54,11 @@ ks_get_numdec <- function(data, var, by) {
         NA_integer_
       )
     ) |>
-    dplyr::summarise(NUMDEC = max(.data[["NUMDEC"]], na.rm = TRUE),
-                     .groups = "drop") |>
+    dplyr::summarise(
+      NUMDEC = if (all(is.na(.data[["NUMDEC"]]))) NA_integer_
+               else as.integer(max(.data[["NUMDEC"]], na.rm = TRUE)),
+      .groups = "drop"
+    ) |>
     dplyr::select(dplyr::all_of(c(by, "NUMDEC")))
 
   dplyr::left_join(data, ndec, by = by)

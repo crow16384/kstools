@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,37 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.5" id="kstools-055">kstools 0.5.5<a class="anchor" aria-label="anchor" href="#kstools-055"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-5-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-5-5"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_cv.html">ks_cv()</a></code>: returns <code>NA_real_</code> instead of <code>Inf</code>/<code>NaN</code> when the mean of <code>x</code> is zero or <code>NA</code>.</li>
+<li>
+<code><a href="../reference/ks_z_score.html">ks_z_score()</a></code>: returns an all-<code>NA</code> vector instead of <code>NaN</code> when the standard deviation of <code>x</code> is zero (constant input).</li>
+<li>
+<code><a href="../reference/ks_n_pct.html">ks_n_pct()</a></code> (numeric and data.frame methods): cells whose denominator (<code>totals</code>) is zero or <code>NA</code> are now replaced with <code>na.rep</code> rather than silently producing <code>"Inf%"</code> in the formatted string.</li>
+<li>
+<code><a href="../reference/ks_get_numdec.html">ks_get_numdec()</a></code>: groups where every value of <code>var</code> is <code>NA</code> now yield <code>NA_integer_</code> instead of <code>-Inf</code> (double), preserving the integer column type of <code>NUMDEC</code>.</li>
+<li>
+<code><a href="../reference/ks_batch_load.html">ks_batch_load()</a></code> (type <code>"xpt"</code>): now calls <code><a href="../reference/ks_read_xpt.html">ks_read_xpt()</a></code> instead of <code><a href="https://haven.tidyverse.org/reference/read_xpt.html" class="external-link">haven::read_xpt()</a></code>, restoring date conversion and SAS-attribute handling that were bypassed in the previous implementation.</li>
+<li>
+<code><a href="../reference/ks_williams.html">ks_williams()</a></code>: the treatment-name whitespace check used a double-escaped regex (<code>"\\\\s"</code>) that matched a literal <code>\s</code> instead of actual whitespace. Fixed to <code>"\\s"</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-0-5-5">Performance<a class="anchor" aria-label="anchor" href="#performance-0-5-5"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_newcombe_hs.html">ks_newcombe_hs()</a></code> and <code><a href="../reference/ks_eairdiff_mn.html">ks_eairdiff_mn()</a></code>: replaced <code><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize()</a></code> wrappers with <code><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply()</a></code> + <code>do.call(rbind, ...)</code>, giving a material speedup on long input vectors.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.4" id="kstools-054">kstools 0.5.4<a class="anchor" aria-label="anchor" href="#kstools-054"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes--behaviour-change-0-5-4">Bug fixes / behaviour change<a class="anchor" aria-label="anchor" href="#bug-fixes--behaviour-change-0-5-4"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_impute_dtc.html">ks_impute_dtc()</a></code>: date-only strings (<code>"YYYY-MM-DD"</code>) with <code>direction = "start"</code> now produce <code>00:00:00</code> with <code>imputation_flag = "H"</code> instead of <code>00:00:00 / NA</code>. Consistent with the <code>direction = "end"</code> (Case D) behaviour added in v0.5.3. A ref-date match (Case C) still takes priority over this start-of-day fallback (Case E).</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.3" id="kstools-053">kstools 0.5.3<a class="anchor" aria-label="anchor" href="#kstools-053"></a></h2>
 <div class="section level3">

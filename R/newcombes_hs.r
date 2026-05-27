@@ -86,7 +86,8 @@ ks_newcombe_hs <- function(x1, n1, x2, n2, alpha = 0.05) {
     c(delta = unname(d), lcl = unname(lcl), ucl = unname(ucl))
   }
 
-  Vectorize(ci_one)(x1, n1, x2, n2) |> t()
+  do.call(rbind, mapply(ci_one, x1, n1, x2, n2,
+                        SIMPLIFY = FALSE, USE.NAMES = FALSE))
 }
 
 

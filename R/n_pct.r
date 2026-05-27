@@ -81,11 +81,13 @@ ks_n_pct <- function(n, totals, na.rep = NA_character_) UseMethod("ks_n_pct")
 ks_n_pct.numeric <- function(n, totals, na.rep = NA_character_) {
   if (!is.numeric(totals))
     cli::cli_abort("{.arg totals} must be numeric.")
-  if (any(totals == 0, na.rm = TRUE))
-    cli::cli_warn("{.arg totals} contains zero value(s); percentage will be {.val Inf}.")
+  bad_tot <- is.na(totals) | totals == 0
+  if (any(bad_tot, na.rm = TRUE))
+    cli::cli_warn("{.arg totals} contains zero or {.val NA} value(s); affected entries set to {.arg na.rep}.")
 
   out         <- sprintf("%d (%5.1f%%)", as.integer(n), n * 100 / totals)
-  out[is.na(n)] <- if (is.na(na.rep)) NA_character_ else na.rep
+  rep_val     <- if (is.na(na.rep)) NA_character_ else na.rep
+  out[is.na(n) | bad_tot] <- rep_val
   out
 }
 
@@ -101,9 +103,11 @@ ks_n_pct.data.frame <- function(n, totals, na.rep = NA_character_) {
   if (length(missing_cols) > 0L)
     cli::cli_abort("Column{?s} not found in {.arg n}: {.val {missing_cols}}.")
 
-  if (any(totals == 0, na.rm = TRUE))
-    cli::cli_warn("{.arg totals} contains zero value(s); percentage will be {.val Inf}.")
+  bad_tot <- is.na(totals) | totals == 0
+  if (any(bad_tot, na.rm = TRUE))
+    cli::cli_warn("{.arg totals} contains zero or {.val NA} value(s); affected columns set to {.arg na.rep}.")
 
+  rep_val <- if (is.na(na.rep)) NA_character_ else na.rep
   for (col in names(totals)) {
     vals   <- n[[col]]
     na_idx <- is.na(vals)
@@ -111,9 +115,13 @@ ks_n_pct.data.frame <- function(n, totals, na.rep = NA_character_) {
     vals_fmt        <- as.integer(vals)
     vals_fmt[na_idx] <- 0L
 
-    fmt            <- sprintf("%d (%5.1f%%)", vals_fmt, vals_fmt * 100 / totals[[col]])
-    fmt[na_idx]    <- if (is.na(na.rep)) NA_character_ else na.rep
-    n[[col]]       <- fmt
+    if (isTRUE(bad_tot[[col]])) {
+      fmt <- rep(rep_val, length(vals))
+    } else {
+      fmt         <- sprintf("%d (%5.1f%%)", vals_fmt, vals_fmt * 100 / totals[[col]])
+      fmt[na_idx] <- rep_val
+    }
+    n[[col]]    <- fmt
   }
   n
 }

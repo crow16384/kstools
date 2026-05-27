@@ -85,11 +85,8 @@ ks_batch_load <- function(data,
       openxlsx2::read_xlsx(path)
     },
     xpt = function(path) {
-      if (!requireNamespace("haven", quietly = TRUE)) {
-        cli::cli_abort("Package {.pkg haven} is required for xpt loading.")
-      }
       withCallingHandlers(
-        haven::read_xpt(path),
+        ks_read_xpt(path),
         warning = function(w) {
           if (grepl("trailing byte", conditionMessage(w), fixed = TRUE))
             invokeRestart("muffleWarning")

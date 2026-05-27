@@ -39,7 +39,7 @@ ks_williams <- function(tmts_num,
 
   if (!is.character(tmt_names) || length(tmt_names) != tmts_num)
     cli::cli_abort("{.arg tmt_names} must be a character vector of length {.val tmts_num}.")
-  if (anyNA(tmt_names) || any(trimws(tmt_names) == "") || any(grepl("\\\\s", tmt_names))) {
+  if (anyNA(tmt_names) || any(trimws(tmt_names) == "") || any(grepl("\\s", tmt_names))) {
     cli::cli_abort("Each treatment name must be one non-empty word (no spaces).")
   }
   if (anyDuplicated(tmt_names))

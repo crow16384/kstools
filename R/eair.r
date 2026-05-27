@@ -85,7 +85,8 @@ ks_eairdiff_mn <- function(n1, n2, T1, T2, alpha = 0.05) {
     c(delta = n1 / T1 - n2 / T2, lcl = ci[1L], ucl = ci[2L])
   }
 
-  Vectorize(ci_one)(n1, n2, T1, T2) |> t()
+  do.call(rbind, mapply(ci_one, n1, n2, T1, T2,
+                        SIMPLIFY = FALSE, USE.NAMES = FALSE))
 }
 
 

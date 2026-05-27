@@ -1,3 +1,32 @@
+# kstools 0.5.5
+
+## Bug fixes
+
+- `ks_cv()`: returns `NA_real_` instead of `Inf`/`NaN` when the mean of `x`
+  is zero or `NA`.
+- `ks_z_score()`: returns an all-`NA` vector instead of `NaN` when the
+  standard deviation of `x` is zero (constant input).
+- `ks_n_pct()` (numeric and data.frame methods): cells whose denominator
+  (`totals`) is zero or `NA` are now replaced with `na.rep` rather than
+  silently producing `"Inf%"` in the formatted string.
+- `ks_get_numdec()`: groups where every value of `var` is `NA` now yield
+  `NA_integer_` instead of `-Inf` (double), preserving the integer column
+  type of `NUMDEC`.
+- `ks_batch_load()` (type `"xpt"`): now calls `ks_read_xpt()` instead of
+  `haven::read_xpt()`, restoring date conversion and SAS-attribute handling
+  that were bypassed in the previous implementation.
+- `ks_williams()`: the treatment-name whitespace check used a
+  double-escaped regex (`"\\\\s"`) that matched a literal `\s` instead of
+  actual whitespace. Fixed to `"\\s"`.
+
+## Performance
+
+- `ks_newcombe_hs()` and `ks_eairdiff_mn()`: replaced `Vectorize()` wrappers
+  with `mapply()` + `do.call(rbind, ...)`, giving a material speedup on
+  long input vectors.
+
+---
+
 # kstools 0.5.4
 
 ## Bug fixes / behaviour change

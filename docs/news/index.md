@@ -1,5 +1,60 @@
 # Changelog
 
+## kstools 0.5.5
+
+### Bug fixes
+
+- [`ks_cv()`](https://crow16384.github.io/kstools/reference/ks_cv.md):
+  returns `NA_real_` instead of `Inf`/`NaN` when the mean of `x` is zero
+  or `NA`.
+- [`ks_z_score()`](https://crow16384.github.io/kstools/reference/ks_z_score.md):
+  returns an all-`NA` vector instead of `NaN` when the standard
+  deviation of `x` is zero (constant input).
+- [`ks_n_pct()`](https://crow16384.github.io/kstools/reference/ks_n_pct.md)
+  (numeric and data.frame methods): cells whose denominator (`totals`)
+  is zero or `NA` are now replaced with `na.rep` rather than silently
+  producing `"Inf%"` in the formatted string.
+- [`ks_get_numdec()`](https://crow16384.github.io/kstools/reference/ks_get_numdec.md):
+  groups where every value of `var` is `NA` now yield `NA_integer_`
+  instead of `-Inf` (double), preserving the integer column type of
+  `NUMDEC`.
+- [`ks_batch_load()`](https://crow16384.github.io/kstools/reference/ks_batch_load.md)
+  (type `"xpt"`): now calls
+  [`ks_read_xpt()`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md)
+  instead of
+  [`haven::read_xpt()`](https://haven.tidyverse.org/reference/read_xpt.html),
+  restoring date conversion and SAS-attribute handling that were
+  bypassed in the previous implementation.
+- [`ks_williams()`](https://crow16384.github.io/kstools/reference/ks_williams.md):
+  the treatment-name whitespace check used a double-escaped regex
+  (`"\\\\s"`) that matched a literal `\s` instead of actual whitespace.
+  Fixed to `"\\s"`.
+
+### Performance
+
+- [`ks_newcombe_hs()`](https://crow16384.github.io/kstools/reference/ks_newcombe_hs.md)
+  and
+  [`ks_eairdiff_mn()`](https://crow16384.github.io/kstools/reference/ks_eairdiff_mn.md):
+  replaced [`Vectorize()`](https://rdrr.io/r/base/Vectorize.html)
+  wrappers with [`mapply()`](https://rdrr.io/r/base/mapply.html) +
+  `do.call(rbind, ...)`, giving a material speedup on long input
+  vectors.
+
+------------------------------------------------------------------------
+
+## kstools 0.5.4
+
+### Bug fixes / behaviour change
+
+- [`ks_impute_dtc()`](https://crow16384.github.io/kstools/reference/ks_impute_dtc.md):
+  date-only strings (`"YYYY-MM-DD"`) with `direction = "start"` now
+  produce `00:00:00` with `imputation_flag = "H"` instead of
+  `00:00:00 / NA`. Consistent with the `direction = "end"` (Case D)
+  behaviour added in v0.5.3. A ref-date match (Case C) still takes
+  priority over this start-of-day fallback (Case E).
+
+------------------------------------------------------------------------
+
 ## kstools 0.5.3
 
 ### Bug fixes / behaviour change

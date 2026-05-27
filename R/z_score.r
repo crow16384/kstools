@@ -16,5 +16,7 @@
 #' @name ks_z_score
 #' @export
 ks_z_score <- function(x, na.rm = TRUE) {
-  (x - mean(x, na.rm = na.rm)) / sd(x, na.rm = na.rm)
+  s <- sd(x, na.rm = na.rm)
+  if (is.na(s) || s == 0) return(rep(NA_real_, length(x)))
+  (x - mean(x, na.rm = na.rm)) / s
 }
