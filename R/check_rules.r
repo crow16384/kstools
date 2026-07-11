@@ -40,33 +40,53 @@ ks_check_rules <- function(data, rules, mode = c("first", "all")) {
   mode <- match.arg(mode)
   n <- nrow(data)
 
-  if (mode == "first") {
-    result_msgs <- rep(NA_character_, n)
-    pending <- rep(TRUE, n)
+  if (length(rules) == 0L) {
+    data$check_msgs <- rep(list("OK"), n)
+    return(data)
+  }
 
-    for (i in seq_along(rules)) {
-      if (!any(pending)) break
-      rule <- rules[[i]]
-      hit <- rlang::eval_tidy(rlang::f_rhs(rule$expr), data = data[pending, , drop = FALSE])
-      hit <- replace(hit, is.na(hit), FALSE)
-      failed <- which(pending)[hit]
-      result_msgs[failed] <- rule$msg
-      pending[failed] <- FALSE
+  rule_exprs <- lapply(rules, function(rule) rlang::f_rhs(rule$expr))
+  rule_msgs <- vapply(
+    rules,
+    function(rule) as.character(rule$msg)[1],
+    character(1),
+    USE.NAMES = FALSE
+  )
+
+  if (mode == "first") {
+    result_msgs <- rep("OK", n)
+    pending_idx <- seq_len(n)
+
+    for (i in seq_along(rule_exprs)) {
+      if (!length(pending_idx)) break
+
+      hit <- rlang::eval_tidy(
+        rule_exprs[[i]],
+        data = data[pending_idx, , drop = FALSE]
+      )
+      hit <- !is.na(hit) & hit
+      if (!any(hit)) next
+
+      failed_idx <- pending_idx[hit]
+      result_msgs[failed_idx] <- rule_msgs[[i]]
+      pending_idx <- pending_idx[!hit]
     }
 
-    result_msgs[is.na(result_msgs)] <- "OK"
     data$check_msgs <- as.list(result_msgs)
+    return(data)
 
   } else {
     result_msgs <- vector("list", n)
 
-    for (i in seq_along(rules)) {
-      rule <- rules[[i]]
-      hit <- rlang::eval_tidy(rlang::f_rhs(rule$expr), data = data)
-      hit <- replace(hit, is.na(hit), FALSE)
+    for (i in seq_along(rule_exprs)) {
+      hit <- rlang::eval_tidy(rule_exprs[[i]], data = data)
+      hit <- !is.na(hit) & hit
       failed <- which(hit)
+      if (!length(failed)) next
+
+      msg <- rule_msgs[[i]]
       for (j in failed) {
-        result_msgs[[j]] <- c(result_msgs[[j]], rule$msg)
+        result_msgs[[j]] <- c(result_msgs[[j]], msg)
       }
     }
 
