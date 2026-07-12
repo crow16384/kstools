@@ -194,29 +194,120 @@ mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0) {
 }
 
 
+#' @rdname ks_mianalyze
+#' @export
+summary.ks_mianalyze <- function(object, ...) {
+  variance_tbl <- data.frame(
+    Between = object$Vb,
+    Within  = object$Vw,
+    Total   = object$Vt,
+    DF      = object$df,
+    check.names = FALSE
+  )
+
+  diagnostics_tbl <- data.frame(
+    `Relative Increase in Variance` = object$r,
+    `Fraction Missing Information`  = object$lambda,
+    `Relative Efficiency`           = object$re,
+    check.names = FALSE
+  )
+
+  estimates_tbl <- data.frame(
+    Estimate = object$Estimate,
+    `Std Error` = object$StdErr,
+    LCL = object$lcl,
+    UCL = object$ucl,
+    DF = object$df,
+    check.names = FALSE
+  )
+
+  tests_tbl <- data.frame(
+    Minimum = object$minim,
+    Maximum = object$maxim,
+    Theta0  = object$theta0,
+    Statistic = object$t,
+    PValue = object$pval,
+    check.names = FALSE
+  )
+
+  structure(
+    list(
+      variance = variance_tbl,
+      diagnostics = diagnostics_tbl,
+      estimates = estimates_tbl,
+      tests = tests_tbl,
+      m = object$m,
+      alpha = object$alpha,
+      edf = object$edf
+    ),
+    class = "summary.ks_mianalyze"
+  )
+}
+
+
 #' @export
 print.ks_mianalyze <- function(x, ...) {
-  adj <- if (is.finite(x$edf)) " (Barnard-Rubin adjusted)" else ""
-  cat(sprintf("\n\n***Variance information (%d Imputations)***\n", x$m))
+  s <- summary(x)
+  adj <- if (is.finite(s$edf)) " (Barnard-Rubin adjusted)" else ""
+  
+  cat(sprintf("\n\n***Variance information (%d Imputations)***\n", s$m))
   cat("Between\t\tWithin\t\tTotal\t\tDF", adj, "\n", sep = "")
   cat("-------\t\t------\t\t-----\t\t--\n")
-  cat(sprintf("%.6f\t%.6f\t%.6f\t%.1f\n\n", x$Vb, x$Vw, x$Vt, x$df))
+  cat(sprintf("%.6f\t%.6f\t%.6f\t%.1f\n\n", 
+      s$variance$Between, s$variance$Within, s$variance$Total, s$variance$DF))
 
   cat("Relative\tFraction\n")
   cat("Increase\tMissing\t\tRelative\n")
   cat("in Variance\tInformation\tEfficiency\n")
   cat("-----------\t-----------\t----------\n")
-  cat(sprintf("%.6f\t%.6f\t%.6f\n", x$r, x$lambda, x$re))
+  cat(sprintf("%.6f\t%.6f\t%.6f\n", 
+      s$diagnostics$`Relative Increase in Variance`,
+      s$diagnostics$`Fraction Missing Information`,
+      s$diagnostics$`Relative Efficiency`))
 
-  cat(sprintf("\n***Parameter estimates (%d Imputations)***\n", x$m))
-  cat(sprintf("Estimate\tStd Error\t%.2f%% Confidence Limits\tDF\n", 100 * (1 - x$alpha)))
+  cat(sprintf("\n***Parameter estimates (%d Imputations)***\n", s$m))
+  cat(sprintf("Estimate\tStd Error\t%.2f%% Confidence Limits\tDF\n", 100 * (1 - s$alpha)))
   cat("--------\t---------\t------------------------\t--\n")
-  cat(sprintf("%.6f\t%.6f\t%.6f\t%.6f\t%.1f\n", x$Estimate, x$StdErr, x$lcl, x$ucl, x$df))
+  cat(sprintf("%.6f\t%.6f\t%.6f\t%.6f\t%.1f\n", 
+      s$estimates$Estimate, s$estimates$`Std Error`,
+      s$estimates$LCL, s$estimates$UCL, s$estimates$DF))
 
   cat("\n\t\t\t\t\t\tt for H0\n")
   cat("Minimum\t\tMaximum\t\tTheta0\t\tParameter=Theta0\tPr>|t|\n")
   cat("-------\t\t-------\t\t------\t\t----------------\t------\n")
-  cat(sprintf("%.6f\t%.6f\t%.2f\t\t%.4f\t\t\t%.4f\n", x$minim, x$maxim, x$theta0, x$t, x$pval))
+  cat(sprintf("%.6f\t%.6f\t%.2f\t\t%.4f\t\t\t%.4f\n", 
+      s$tests$Minimum, s$tests$Maximum, s$tests$Theta0,
+      s$tests$Statistic, s$tests$PValue))
 
   invisible(x)
+}
+
+
+#' @rdname ks_mianalyze
+#' @importFrom knitr knit_print kable
+#' @exportS3Method knitr::knit_print
+knit_print.ks_mianalyze <- function(x, ...) {
+  s <- summary(x)
+  
+  out <- c(
+    sprintf("## Variance Information (%d Imputations)\n", s$m),
+    knitr::kable(s$variance, digits = 6),
+    
+    "\n\n",
+    
+    "## Missing Data Diagnostics\n",
+    knitr::kable(s$diagnostics, digits = 6),
+    
+    "\n\n",
+    
+    sprintf("## Parameter Estimates (%d Imputations)\n", s$m),
+    knitr::kable(s$estimates, digits = 6),
+    
+    "\n\n",
+    
+    "## Hypothesis Test\n",
+    knitr::kable(s$tests, digits = 6)
+  )
+
+  knitr::asis_output(paste(out, collapse = "\n"))
 }

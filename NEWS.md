@@ -1,3 +1,15 @@
+# kstools 0.5.6
+
+## New features
+
+- `ks_mianalyze()`: added `summary.ks_mianalyze()` method that returns
+  structured data frames (`variance`, `diagnostics`, `estimates`, `tests`)
+  for programmatic access to results.
+- `ks_mianalyze()`: added `knit_print.ks_mianalyze()` method for proper
+  rendering in R Markdown and Quarto documents using `knitr::kable()`.
+- `ks_mianalyze()`: refactored `print.ks_mianalyze()` to use `summary()`
+  internally, eliminating code duplication and following R best practices.
+
 # kstools 0.5.5
 
 ## Bug fixes

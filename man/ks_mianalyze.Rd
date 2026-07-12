@@ -3,11 +3,17 @@
 \name{ks_mianalyze}
 \alias{ks_mianalyze}
 \alias{mianalyze}
+\alias{summary.ks_mianalyze}
+\alias{knit_print.ks_mianalyze}
 \title{Analogue of SAS PROC MIANALYZE (Rubin pooling)}
 \usage{
 ks_mianalyze(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0)
 
 mianalyze(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0)
+
+\method{summary}{ks_mianalyze}(object, ...)
+
+\method{knit_print}{ks_mianalyze}(x, ...)
 }
 \arguments{
 \item{est}{Numeric vector of point estimates from each imputation.}

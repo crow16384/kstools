@@ -368,7 +368,7 @@ Rcpp::List rcpp_read_xpt(const std::string &path,
     }
     if (mf.size() < 240) stop("File too small to be a valid XPORT: %s", path);
 
-    SEXP nThreadsSEXP = n_threads.isNotNull() ? SEXP(IntegerVector(n_threads)) : R_NilValue;
+    SEXP nThreadsSEXP = n_threads.isNotNull() ? Rcpp::wrap(Rcpp::as<int>(n_threads)) : R_NilValue;
     unsigned nThreads = resolveThreadCount(nThreadsSEXP);
 
     const std::uint8_t *data = mf.data();

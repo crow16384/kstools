@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,18 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.6" id="kstools-056">kstools 0.5.6<a class="anchor" aria-label="anchor" href="#kstools-056"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-5-6">New features<a class="anchor" aria-label="anchor" href="#new-features-0-5-6"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code>: added <code><a href="../reference/ks_mianalyze.html">summary.ks_mianalyze()</a></code> method that returns structured data frames (<code>variance</code>, <code>diagnostics</code>, <code>estimates</code>, <code>tests</code>) for programmatic access to results.</li>
+<li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code>: added <code><a href="../reference/ks_mianalyze.html">knit_print.ks_mianalyze()</a></code> method for proper rendering in R Markdown and Quarto documents using <code><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">knitr::kable()</a></code>.</li>
+<li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code>: refactored <code>print.ks_mianalyze()</code> to use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> internally, eliminating code duplication and following R best practices.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.5" id="kstools-055">kstools 0.5.5<a class="anchor" aria-label="anchor" href="#kstools-055"></a></h2>
 <div class="section level3">
@@ -304,7 +316,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
