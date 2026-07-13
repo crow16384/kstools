@@ -1,5 +1,33 @@
 # Changelog
 
+## kstools 0.5.7
+
+### Breaking changes
+
+- Removed functions: `ks_check_rules()`, `ks_collapse_check_msgs()`,
+  `ks_compare_check_state()`, `ks_save2xlsx_by()`.
+- Updated vignettes and documentation to remove references to deleted
+  functions.
+
+## kstools 0.5.6
+
+### New features
+
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  added
+  [`summary.ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  method that returns structured data frames (`variance`, `diagnostics`,
+  `estimates`, `tests`) for programmatic access to results.
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  added
+  [`knit_print.ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  method for proper rendering in R Markdown and Quarto documents using
+  [`knitr::kable()`](https://rdrr.io/pkg/knitr/man/kable.html).
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  refactored `print.ks_mianalyze()` to use
+  [`summary()`](https://rdrr.io/r/base/summary.html) internally,
+  eliminating code duplication and following R best practices.
+
 ## kstools 0.5.5
 
 ### Bug fixes
@@ -243,9 +271,8 @@
 
 ### Bug fixes
 
-- [`ks_collapse_check_msgs()`](https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.md):
-  removed unqualified `%>%` dependency so function and vignettes run
-  without attaching dplyr.
+- `ks_collapse_check_msgs()`: removed unqualified `%>%` dependency so
+  function and vignettes run without attaching dplyr.
 
 ------------------------------------------------------------------------
 
@@ -253,9 +280,8 @@
 
 ### Performance
 
-- [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md):
-  replaced O(N) per-row `wb_add_fill()` loops with Excel Conditional
-  Formatting rules (`wb_add_dxfs_style()` +
+- `ks_save2xlsx_by()`: replaced O(N) per-row `wb_add_fill()` loops with
+  Excel Conditional Formatting rules (`wb_add_dxfs_style()` +
   `wb_add_conditional_formatting()`). Fill calls now scale O(1) per
   colour key per sheet regardless of row count — e.g. 3,000
   `wb_add_fill()` calls for a 1,000-row / 3-colour sheet become 3 CF
@@ -282,18 +308,17 @@
   `character(0)` — [`length()`](https://rdrr.io/r/base/length.html)
   guard now precedes [`grepl()`](https://rdrr.io/r/base/grep.html) to
   avoid a zero-length condition in `if()`.
-- [`ks_compare_check_state()`](https://crow16384.github.io/kstools/reference/ks_compare_check_state.md):
-  removed unused internal `..row_id..` column that was allocated and
-  immediately deleted on every call.
+- `ks_compare_check_state()`: removed unused internal `..row_id..`
+  column that was allocated and immediately deleted on every call.
 - [`ks_median_ci()`](https://crow16384.github.io/kstools/reference/ks_median_ci.md)
   (`boot` method): guard against `NULL` `$bca` component — `boot.ci()`
   omits BCa for very small samples; bounds now fall back to `NA_real_`
   instead of silently dropping vector elements.
-- [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md):
-  removed dead `as_table` parameter (implementation was already removed
-  in 0.3.3); narrowed status-column fill to the status column only (was
-  incorrectly colouring the entire row); added freeze-pane on the header
-  row; added thin cell borders on all data cells.
+- `ks_save2xlsx_by()`: removed dead `as_table` parameter (implementation
+  was already removed in 0.3.3); narrowed status-column fill to the
+  status column only (was incorrectly colouring the entire row); added
+  freeze-pane on the header row; added thin cell borders on all data
+  cells.
 
 ### Minor improvements
 
@@ -318,12 +343,9 @@
 
 ### New features
 
-- Added validation workflow helpers:
-  [`ks_check_rules()`](https://crow16384.github.io/kstools/reference/ks_check_rules.md),
-  [`ks_collapse_check_msgs()`](https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.md),
-  [`ks_compare_check_state()`](https://crow16384.github.io/kstools/reference/ks_compare_check_state.md),
-  and
-  [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md).
+- Added validation workflow helpers: `ks_check_rules()`,
+  `ks_collapse_check_msgs()`, `ks_compare_check_state()`, and
+  `ks_save2xlsx_by()`.
 - Added label and coding helpers:
   [`ks_get_labels()`](https://crow16384.github.io/kstools/reference/ks_get_labels.md)
   and

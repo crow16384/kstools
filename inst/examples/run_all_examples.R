@@ -42,7 +42,6 @@ run_all_examples <- function(continue_on_error = TRUE, verbose = TRUE) {
     "ks_xpt_content.R",
     "ks_read_single_xpt.R",
     "ks_batch_load_from_single_xpt.R",
-    "ks_save2xlsx_by.R",
 
     ## SDTM/clinical helpers
     "ks_dtc2dtn.R",
@@ -51,11 +50,6 @@ run_all_examples <- function(continue_on_error = TRUE, verbose = TRUE) {
     "ks_desc_coded.R",
     "ks_get_labels.R",
     "ks_get_numdec.R",
-
-    ## Validation/state tracking helpers
-    "ks_check_rules.R",
-    "ks_collapse_check_msgs.R",
-    "ks_compare_check_state.R",
 
     ## General utilities
     "ks_sum_na.R",

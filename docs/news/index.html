@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,14 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.7" id="kstools-057">kstools 0.5.7<a class="anchor" aria-label="anchor" href="#kstools-057"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-5-7">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-5-7"></a></h3>
+<ul><li>Removed functions: <code>ks_check_rules()</code>, <code>ks_collapse_check_msgs()</code>, <code>ks_compare_check_state()</code>, <code>ks_save2xlsx_by()</code>.</li>
+<li>Updated vignettes and documentation to remove references to deleted functions.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.6" id="kstools-056">kstools 0.5.6<a class="anchor" aria-label="anchor" href="#kstools-056"></a></h2>
 <div class="section level3">
@@ -195,7 +203,7 @@
 <div class="section level3">
 <h3 id="bug-fixes-0-3-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-6"></a></h3>
 <ul><li>
-<code><a href="../reference/ks_collapse_check_msgs.html">ks_collapse_check_msgs()</a></code>: removed unqualified <code>%&gt;%</code> dependency so function and vignettes run without attaching dplyr.</li>
+<code>ks_collapse_check_msgs()</code>: removed unqualified <code>%&gt;%</code> dependency so function and vignettes run without attaching dplyr.</li>
 </ul><hr></div>
 </div>
     <div class="section level2">
@@ -203,7 +211,7 @@
 <div class="section level3">
 <h3 id="performance-0-3-5">Performance<a class="anchor" aria-label="anchor" href="#performance-0-3-5"></a></h3>
 <ul><li>
-<code><a href="../reference/ks_save2xlsx_by.html">ks_save2xlsx_by()</a></code>: replaced O(N) per-row <code>wb_add_fill()</code> loops with Excel Conditional Formatting rules (<code>wb_add_dxfs_style()</code> + <code>wb_add_conditional_formatting()</code>). Fill calls now scale O(1) per colour key per sheet regardless of row count — e.g. 3,000 <code>wb_add_fill()</code> calls for a 1,000-row / 3-colour sheet become 3 CF rules.</li>
+<code>ks_save2xlsx_by()</code>: replaced O(N) per-row <code>wb_add_fill()</code> loops with Excel Conditional Formatting rules (<code>wb_add_dxfs_style()</code> + <code>wb_add_conditional_formatting()</code>). Fill calls now scale O(1) per colour key per sheet regardless of row count — e.g. 3,000 <code>wb_add_fill()</code> calls for a 1,000-row / 3-colour sheet become 3 CF rules.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-3-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-5"></a></h3>
@@ -220,11 +228,11 @@
 <li>
 <code><a href="../reference/read.csv3.html">read.csv3()</a></code>: fixed potential crash on end-of-file when <code><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines()</a></code> returns <code>character(0)</code> — <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> guard now precedes <code><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl()</a></code> to avoid a zero-length condition in <code>if()</code>.</li>
 <li>
-<code><a href="../reference/ks_compare_check_state.html">ks_compare_check_state()</a></code>: removed unused internal <code>..row_id..</code> column that was allocated and immediately deleted on every call.</li>
+<code>ks_compare_check_state()</code>: removed unused internal <code>..row_id..</code> column that was allocated and immediately deleted on every call.</li>
 <li>
 <code><a href="../reference/ks_median_ci.html">ks_median_ci()</a></code> (<code>boot</code> method): guard against <code>NULL</code> <code>$bca</code> component — <code>boot.ci()</code> omits BCa for very small samples; bounds now fall back to <code>NA_real_</code> instead of silently dropping vector elements.</li>
 <li>
-<code><a href="../reference/ks_save2xlsx_by.html">ks_save2xlsx_by()</a></code>: removed dead <code>as_table</code> parameter (implementation was already removed in 0.3.3); narrowed status-column fill to the status column only (was incorrectly colouring the entire row); added freeze-pane on the header row; added thin cell borders on all data cells.</li>
+<code>ks_save2xlsx_by()</code>: removed dead <code>as_table</code> parameter (implementation was already removed in 0.3.3); narrowed status-column fill to the status column only (was incorrectly colouring the entire row); added freeze-pane on the header row; added thin cell borders on all data cells.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-improvements-0-3-4">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-3-4"></a></h3>
@@ -245,7 +253,7 @@
 <h2 class="pkg-version" data-toc-text="0.3.2" id="kstools-032">kstools 0.3.2<a class="anchor" aria-label="anchor" href="#kstools-032"></a></h2>
 <div class="section level3">
 <h3 id="new-features-0-3-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-2"></a></h3>
-<ul><li>Added validation workflow helpers: <code><a href="../reference/ks_check_rules.html">ks_check_rules()</a></code>, <code><a href="../reference/ks_collapse_check_msgs.html">ks_collapse_check_msgs()</a></code>, <code><a href="../reference/ks_compare_check_state.html">ks_compare_check_state()</a></code>, and <code><a href="../reference/ks_save2xlsx_by.html">ks_save2xlsx_by()</a></code>.</li>
+<ul><li>Added validation workflow helpers: <code>ks_check_rules()</code>, <code>ks_collapse_check_msgs()</code>, <code>ks_compare_check_state()</code>, and <code>ks_save2xlsx_by()</code>.</li>
 <li>Added label and coding helpers: <code><a href="../reference/ks_get_labels.html">ks_get_labels()</a></code> and <code><a href="../reference/ks_code_to_fmt.html">ks_code_to_fmt()</a></code>.</li>
 </ul></div>
 <div class="section level3">

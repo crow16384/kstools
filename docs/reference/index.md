@@ -31,6 +31,8 @@ Confidence intervals, pooled estimates, and model-comparison helpers.
 
 - [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
   [`mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  [`summary(`*`<ks_mianalyze>`*`)`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  [`knit_print(`*`<ks_mianalyze>`*`)`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
   : Analogue of SAS PROC MIANALYZE (Rubin pooling)
 - [`ks_roc()`](https://crow16384.github.io/kstools/reference/ks_roc.md)
   : Compare correlated ROC curve areas (AUC) via Mann-Whitney contrasts
@@ -91,9 +93,6 @@ File readers, batch loaders, and report writers.
 - [`ks_batch_load_from_single_xpt()`](https://crow16384.github.io/kstools/reference/ks_batch_load_from_single_xpt.md)
   : Load or save all datasets from a multi-member SAS XPORT v8/v9 file
 
-- [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md)
-  : Save a data frame to an XLSX workbook split by a grouping column
-
 ## SAS XPORT Read / Write
 
 Read and write SAS XPORT (XPT) V5/V8 files with label and format
@@ -131,11 +130,5 @@ support.
   : Get the filename of the currently executing R script
 - [`ks_code_to_fmt()`](https://crow16384.github.io/kstools/reference/ks_code_to_fmt.md)
   : Build a named format vector from a coded column
-- [`ks_compare_check_state()`](https://crow16384.github.io/kstools/reference/ks_compare_check_state.md)
-  : Compare validation check state between two runs
-- [`ks_check_rules()`](https://crow16384.github.io/kstools/reference/ks_check_rules.md)
-  : Apply a list of validation rules to a data frame
-- [`ks_collapse_check_msgs()`](https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.md)
-  : Collapse list-column of check messages to a character column
 - [`ks_williams()`](https://crow16384.github.io/kstools/reference/ks_williams.md)
   : Build a randomized Williams cross-over design and schedule

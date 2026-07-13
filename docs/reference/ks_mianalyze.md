@@ -11,6 +11,12 @@ according to Rubin's rules. Degrees of freedom follow the Barnard-Rubin
 ks_mianalyze(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0)
 
 mianalyze(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0)
+
+# S3 method for class 'ks_mianalyze'
+summary(object, ...)
+
+# S3 method for class 'ks_mianalyze'
+knit_print(x, ...)
 ```
 
 ## Arguments

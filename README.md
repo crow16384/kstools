@@ -3,7 +3,7 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![pkgdown site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
 <!-- version-badge:start -->
-[![Version](https://img.shields.io/badge/version-0.5.6-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.5.7-blue)](https://github.com/crow16384/kstools/releases/latest)
 <!-- version-badge:end -->
 
 Clinical and data science utilities for R.
@@ -53,12 +53,11 @@ remotes::install_github("crow16384/kstools")
 
 - `ks_get_data()` and `read.csv3()`
 - `ks_batch_load()` and `ks_batch_load_xlsx()`
-- `ks_save2xlsx_by()` split-by-sheet XLSX export with conditional formatting
 
 ### Utility Functions
 
 - `ks_swap_cols()`, `ks_del_tmp()`, `ks_aligndec()`, `ks_sum_na()`, `%+na%`
-- `ks_swoe()`, `ks_simulate_ar1()`, `ks_current_filename()`, `ks_code_to_fmt()`, `ks_get_labels()`, `ks_compare_check_state()`, `ks_check_rules()`, `ks_collapse_check_msgs()`
+- `ks_swoe()`, `ks_simulate_ar1()`, `ks_current_filename()`, `ks_code_to_fmt()`, `ks_get_labels()`
 - `ks_williams()` randomized Williams design and schedule generation
 
 ## Examples

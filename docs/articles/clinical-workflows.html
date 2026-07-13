@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,60 +67,12 @@
     
 <p>This vignette shows practical combinations of <code>kstools</code>
 functions for common clinical programming tasks.</p>
-<div class="section level2">
-<h2 id="data-quality-checks-and-tracking">1. Data Quality Checks and Tracking<a class="anchor" aria-label="anchor" href="#data-quality-checks-and-tracking"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://crow16384.github.io/kstools/">kstools</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  USUBJID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"01-%03d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>,</span>
-<span>  AGE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">34</span>, <span class="fl">52</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">40</span>, <span class="fl">29</span>, <span class="fl">70</span><span class="op">)</span>,</span>
-<span>  SEX <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="cn">NA</span>, <span class="st">"F"</span>, <span class="st">"X"</span><span class="op">)</span>,</span>
-<span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">rules</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>expr <span class="op">=</span> <span class="op">~</span> <span class="va">AGE</span> <span class="op">&lt;</span> <span class="fl">0</span>, msg <span class="op">=</span> <span class="st">"AGE must be non-negative"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>expr <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, msg <span class="op">=</span> <span class="st">"SEX missing"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>expr <span class="op">=</span> <span class="op">~</span> <span class="op">!</span><span class="op">(</span><span class="va">SEX</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, msg <span class="op">=</span> <span class="st">"SEX invalid"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">checked</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_check_rules.html">ks_check_rules</a></span><span class="op">(</span><span class="va">adsl</span>, <span class="va">rules</span>, mode <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
-<span><span class="va">checked</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_collapse_check_msgs.html">ks_collapse_check_msgs</a></span><span class="op">(</span><span class="va">checked</span>, col <span class="op">=</span> <span class="va">check_msgs</span><span class="op">)</span></span>
-<span><span class="va">checked</span></span>
-<span><span class="co">#&gt;   USUBJID AGE  SEX               check_msgs</span></span>
-<span><span class="co">#&gt; 1  01-001  34    M                       OK</span></span>
-<span><span class="co">#&gt; 2  01-002  52    F                       OK</span></span>
-<span><span class="co">#&gt; 3  01-003  -1    M AGE must be non-negative</span></span>
-<span><span class="co">#&gt; 4  01-004  40 &lt;NA&gt;              SEX missing</span></span>
-<span><span class="co">#&gt; 5  01-005  29    F                       OK</span></span>
-<span><span class="co">#&gt; 6  01-006  70    X              SEX invalid</span></span></code></pre></div>
-<p>Track deltas against a prior snapshot:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">previous</span> <span class="op">&lt;-</span> <span class="va">checked</span></span>
-<span><span class="va">current</span> <span class="op">&lt;-</span> <span class="va">checked</span></span>
-<span><span class="va">current</span><span class="op">$</span><span class="va">AGE</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">45</span></span>
-<span><span class="va">current</span><span class="op">$</span><span class="va">check_msgs</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"OK"</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/ks_compare_check_state.html">ks_compare_check_state</a></span><span class="op">(</span></span>
-<span>  current <span class="op">=</span> <span class="va">current</span>,</span>
-<span>  previous <span class="op">=</span> <span class="va">previous</span>,</span>
-<span>  key_cols <span class="op">=</span> <span class="st">"USUBJID"</span>,</span>
-<span>  compare_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AGE"</span>, <span class="st">"check_msgs"</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;   USUBJID  status</span></span>
-<span><span class="co">#&gt; 1  01-001        </span></span>
-<span><span class="co">#&gt; 2  01-002 changed</span></span>
-<span><span class="co">#&gt; 3  01-003        </span></span>
-<span><span class="co">#&gt; 4  01-004        </span></span>
-<span><span class="co">#&gt; 5  01-005        </span></span>
-<span><span class="co">#&gt; 6  01-006</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://crow16384.github.io/kstools/">kstools</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="incidence-rate-and-proportion-comparisons">2. Incidence Rate and Proportion Comparisons<a class="anchor" aria-label="anchor" href="#incidence-rate-and-proportion-comparisons"></a>
+<h2 id="incidence-rate-and-proportion-comparisons">1. Incidence Rate and Proportion Comparisons<a class="anchor" aria-label="anchor" href="#incidence-rate-and-proportion-comparisons"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ks_eairdiff_mn.html">ks_eairdiff_mn</a></span><span class="op">(</span>n1 <span class="op">=</span> <span class="fl">10</span>, n2 <span class="op">=</span> <span class="fl">5</span>, T1 <span class="op">=</span> <span class="fl">100</span>, T2 <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      delta         lcl     ucl</span></span>
 <span><span class="co">#&gt; [1,]  0.05 -0.02953395 0.13963</span></span>
@@ -132,7 +84,7 @@ functions for common clinical programming tasks.</p>
 <span><span class="co">#&gt;            delta        lcl       ucl</span></span>
 <span><span class="co">#&gt; [1,] -0.06547619 -0.2308967 0.1039632</span></span></code></pre></div>
 <p>Stratified alternatives:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ks_eairdiff_strata_mn.html">ks_eairdiff_strata_mn</a></span><span class="op">(</span></span>
 <span>  n1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">5</span><span class="op">)</span>, n2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  T1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">80</span><span class="op">)</span>, T2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">70</span><span class="op">)</span></span>
@@ -148,9 +100,9 @@ functions for common clinical programming tasks.</p>
 <span><span class="co">#&gt; -0.01882756 -0.15251739  0.11513790</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="randomization-design">3. Randomization Design<a class="anchor" aria-label="anchor" href="#randomization-design"></a>
+<h2 id="randomization-design">2. Randomization Design<a class="anchor" aria-label="anchor" href="#randomization-design"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_williams.html">ks_williams</a></span><span class="op">(</span></span>
 <span>  tmts_num <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  tmt_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Drug1A"</span>, <span class="st">"Drug2B"</span>, <span class="st">"ActCtrl"</span>, <span class="st">"Placebo"</span><span class="op">)</span>,</span>
@@ -174,22 +126,9 @@ functions for common clinical programming tasks.</p>
 <span><span class="co">#&gt; 6      6 Drug2B--Drug1A--ActCtrl--Placebo</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="consolidated-export-to-xlsx">4. Consolidated Export to XLSX<a class="anchor" aria-label="anchor" href="#consolidated-export-to-xlsx"></a>
+<h2 id="data-loaders">3. Data Loaders<a class="anchor" aria-label="anchor" href="#data-loaders"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># requires openxlsx2</span></span>
-<span><span class="fu"><a href="../reference/ks_save2xlsx_by.html">ks_save2xlsx_by</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">checked</span>,</span>
-<span>  file <span class="op">=</span> <span class="st">"checks.xlsx"</span>,</span>
-<span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"missing"</span> <span class="op">=</span> <span class="st">"#FFF2CC"</span>, <span class="st">"invalid"</span> <span class="op">=</span> <span class="st">"#F8CBAD"</span>, <span class="st">"OK"</span> <span class="op">=</span> <span class="st">"#E2F0D9"</span><span class="op">)</span>,</span>
-<span>  split_col <span class="op">=</span> <span class="va">type</span>,</span>
-<span>  msg_col <span class="op">=</span> <span class="va">check_msgs</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="data-loaders">5. Data Loaders<a class="anchor" aria-label="anchor" href="#data-loaders"></a>
-</h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># one-shot load of multiple domains from RDS directory (returns a named list)</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ks_get_data.html">ks_get_data</a></span><span class="op">(</span><span class="va">dm</span>, <span class="va">ae</span>, <span class="va">adlb</span>, path <span class="op">=</span> <span class="st">"data/rds"</span><span class="op">)</span></span>
 <span><span class="va">dm</span>  <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">dm</span></span>
@@ -214,7 +153,7 @@ reporting pipelines.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

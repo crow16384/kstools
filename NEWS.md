@@ -1,3 +1,10 @@
+# kstools 0.5.7
+
+## Breaking changes
+
+- Removed functions: `ks_check_rules()`, `ks_collapse_check_msgs()`, `ks_compare_check_state()`, `ks_save2xlsx_by()`.
+- Updated vignettes and documentation to remove references to deleted functions.
+
 # kstools 0.5.6
 
 ## New features

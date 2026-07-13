@@ -47,29 +47,31 @@ est <- c(0.345, 0.303, 0.298, 0.378)
 err <- c(0.056, 0.101, 0.099, 0.034)
 
 mianalyze(est, err)
-#> 
-#> 
-#> ***Variance information (4 Imputations)***
-#> Between      Within      Total       DF
-#> -------      ------      -----       --
-#> 0.001426 0.006074    0.007856    58.3
-#> 
-#> Relative Fraction
-#> Increase Missing     Relative
-#> in Variance  Information Efficiency
-#> -----------  ----------- ----------
-#> 0.293488 0.252131    0.940705
-#> 
-#> ***Parameter estimates (4 Imputations)***
-#> Estimate Std Error   95.00% Confidence Limits    DF
-#> -------- ---------   ------------------------    --
-#> 0.331000 0.088634    0.153597    0.508403    58.3
-#> 
-#>                      t for H0
-#> Minimum      Maximum     Theta0      Parameter=Theta0    Pr>|t|
-#> -------      -------     ------      ----------------    ------
-#> 0.298000 0.378000    0.00        3.7345          0.0004
 ```
+
+## Variance Information (4 Imputations)
+
+|  Between |   Within |    Total |      DF |
+|---------:|---------:|---------:|--------:|
+| 0.001426 | 0.006074 | 0.007856 | 58.2727 |
+
+## Missing Data Diagnostics
+
+| Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
+|---:|---:|---:|
+| 0.293488 | 0.252131 | 0.940705 |
+
+## Parameter Estimates (4 Imputations)
+
+| Estimate | Std Error |      LCL |      UCL |      DF |
+|---------:|----------:|---------:|---------:|--------:|
+|    0.331 |  0.088634 | 0.153597 | 0.508403 | 58.2727 |
+
+## Hypothesis Test
+
+| Minimum | Maximum | Theta0 | Statistic |  PValue |
+|--------:|--------:|-------:|----------:|--------:|
+|   0.298 |   0.378 |      0 |  3.734455 | 0.00043 |
 
 ## Compare ROC Areas
 

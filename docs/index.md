@@ -4,7 +4,7 @@
 GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![pkgdown
 site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
-[![Version](https://img.shields.io/badge/version-0.5.5-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.5.6-blue)](https://github.com/crow16384/kstools/releases/latest)
 
 Clinical and data science utilities for R.
 
@@ -92,8 +92,6 @@ remotes::install_github("crow16384/kstools")
 - [`ks_batch_load()`](https://crow16384.github.io/kstools/reference/ks_batch_load.md)
   and
   [`ks_batch_load_xlsx()`](https://crow16384.github.io/kstools/reference/ks_batch_load_xlsx.md)
-- [`ks_save2xlsx_by()`](https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.md)
-  split-by-sheet XLSX export with conditional formatting
 
 ### Utility Functions
 
@@ -106,10 +104,7 @@ remotes::install_github("crow16384/kstools")
   [`ks_simulate_ar1()`](https://crow16384.github.io/kstools/reference/ks_simulate_ar1.md),
   [`ks_current_filename()`](https://crow16384.github.io/kstools/reference/ks_current_filename.md),
   [`ks_code_to_fmt()`](https://crow16384.github.io/kstools/reference/ks_code_to_fmt.md),
-  [`ks_get_labels()`](https://crow16384.github.io/kstools/reference/ks_get_labels.md),
-  [`ks_compare_check_state()`](https://crow16384.github.io/kstools/reference/ks_compare_check_state.md),
-  [`ks_check_rules()`](https://crow16384.github.io/kstools/reference/ks_check_rules.md),
-  [`ks_collapse_check_msgs()`](https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.md)
+  [`ks_get_labels()`](https://crow16384.github.io/kstools/reference/ks_get_labels.md)
 - [`ks_williams()`](https://crow16384.github.io/kstools/reference/ks_williams.md)
   randomized Williams design and schedule generation
 
