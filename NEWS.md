@@ -5,6 +5,15 @@
 - Removed functions: `ks_check_rules()`, `ks_collapse_check_msgs()`, `ks_compare_check_state()`, `ks_save2xlsx_by()`.
 - Updated vignettes and documentation to remove references to deleted functions.
 
+## Documentation
+
+- Added vignette `mianalyze`: Rubin's rules, Barnard-Rubin `edf`, and
+  numerical comparison with SAS `PROC MIANALYZE` (SAS/STAT 12.3 Examples
+  58.1 / 58.3 and Table 58.2).
+- Added SAS-aligned unit tests in `tests/testthat/test-ks_mianalyze-sas.R`.
+- Expanded `inst/examples` for `ks_mianalyze()` / `mianalyze()` with SAS
+  Example 58.1 inputs.
+
 # kstools 0.5.6
 
 ## New features

@@ -1,0 +1,5 @@
+/.quarto/
+**/*.quarto_ipynb
+mianalyze.html
+mianalyze_files/
+*.knit.md

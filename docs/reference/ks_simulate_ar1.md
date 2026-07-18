@@ -101,7 +101,7 @@ dt <- ks_simulate_ar1(
 )
 head(dt)
 #> Grouped Data: y ~ obs | id
-#> <environment: 0xc769223c0>
+#> <environment: 0x8d3b70008>
 #>   id obs        y
 #> 1  1   1 5.193845
 #> 2  1   2 3.111578

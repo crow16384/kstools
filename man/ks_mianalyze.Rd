@@ -93,4 +93,11 @@ Barnard, J. and Rubin, D. B. (1999). Small-sample degrees of freedom with
 
 Rubin, D. B. (1987). \emph{Multiple Imputation for Nonresponse in Surveys}.
   Wiley.
+
+SAS Institute Inc. (2013). \emph{SAS/STAT 12.3 User's Guide}. Chapter 58,
+  The MIANALYZE Procedure.
+}
+\seealso{
+\code{vignette("mianalyze", package = "kstools")} for worked examples and
+SAS comparisons.
 }

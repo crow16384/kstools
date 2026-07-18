@@ -20,6 +20,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/mianalyze.html">Multiple Imputation Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/clinical-workflows.html">Clinical Workflows</a></li>
     <li><a class="dropdown-item" href="../articles/impute-dtc.html">Imputing Incomplete Dates</a></li>
   </ul></li>
@@ -43,6 +44,12 @@
 <h3 id="breaking-changes-0-5-7">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-5-7"></a></h3>
 <ul><li>Removed functions: <code>ks_check_rules()</code>, <code>ks_collapse_check_msgs()</code>, <code>ks_compare_check_state()</code>, <code>ks_save2xlsx_by()</code>.</li>
 <li>Updated vignettes and documentation to remove references to deleted functions.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-5-7">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-5-7"></a></h3>
+<ul><li>Added vignette <code>mianalyze</code>: Rubin’s rules, Barnard-Rubin <code>edf</code>, and numerical comparison with SAS <code>PROC MIANALYZE</code> (SAS/STAT 12.3 Examples 58.1 / 58.3 and Table 58.2).</li>
+<li>Added SAS-aligned unit tests in <code>tests/testthat/test-ks_mianalyze-sas.R</code>.</li>
+<li>Expanded <code>inst/examples</code> for <code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code> / <code><a href="../reference/ks_mianalyze.html">mianalyze()</a></code> with SAS Example 58.1 inputs.</li>
 </ul></div>
 </div>
     <div class="section level2">

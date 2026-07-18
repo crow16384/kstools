@@ -9,6 +9,19 @@
 - Updated vignettes and documentation to remove references to deleted
   functions.
 
+### Documentation
+
+- Added vignette `mianalyze`: Rubin’s rules, Barnard-Rubin `edf`, and
+  numerical comparison with SAS `PROC MIANALYZE` (SAS/STAT 12.3 Examples
+  58.1 / 58.3 and Table 58.2).
+- Added SAS-aligned unit tests in
+  `tests/testthat/test-ks_mianalyze-sas.R`.
+- Expanded `inst/examples` for
+  [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  /
+  [`mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
+  with SAS Example 58.1 inputs.
+
 ## kstools 0.5.6
 
 ### New features

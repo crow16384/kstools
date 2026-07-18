@@ -145,6 +145,14 @@ with multiple imputation. *Biometrika*, 86, 948–955.
 Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
 Wiley.
 
+SAS Institute Inc. (2013). *SAS/STAT 12.3 User's Guide*. Chapter 58, The
+MIANALYZE Procedure.
+
+## See also
+
+[`vignette("mianalyze", package = "kstools")`](https://crow16384.github.io/kstools/articles/mianalyze.md)
+for worked examples and SAS comparisons.
+
 ## Examples
 
 ``` r

@@ -30,3 +30,5 @@ src/compile_commands.json
 .serena/logs/
 .serena/project.local.yml
 .positai
+/doc/
+/Meta/

@@ -4,7 +4,7 @@
 GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![pkgdown
 site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
-[![Version](https://img.shields.io/badge/version-0.5.6-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.5.7-blue)](https://github.com/crow16384/kstools/releases/latest)
 
 Clinical and data science utilities for R.
 
@@ -54,7 +54,8 @@ remotes::install_github("crow16384/kstools")
 - [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
   /
   [`mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)
-  Rubin pooling across multiple imputations (SAS MIANALYZE analogue)
+  Rubin pooling across multiple imputations (SAS MIANALYZE analogue; see
+  [`vignette("mianalyze")`](https://crow16384.github.io/kstools/articles/mianalyze.md))
 - [`ks_roc()`](https://crow16384.github.io/kstools/reference/ks_roc.md)
   correlated ROC AUC comparison using Mann-Whitney components and
   contrast tests

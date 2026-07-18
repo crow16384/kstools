@@ -5,6 +5,7 @@
 <url><loc>https://crow16384.github.io/kstools/articles/getting-started.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/articles/impute-dtc.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/articles/index.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/articles/mianalyze.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/authors.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/index.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/news/index.html</loc></url>
@@ -14,10 +15,7 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_batch_load.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_batch_load_from_single_xpt.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_batch_load_xlsx.html</loc></url>
-<url><loc>https://crow16384.github.io/kstools/reference/ks_check_rules.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_code_to_fmt.html</loc></url>
-<url><loc>https://crow16384.github.io/kstools/reference/ks_collapse_check_msgs.html</loc></url>
-<url><loc>https://crow16384.github.io/kstools/reference/ks_compare_check_state.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_current_filename.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_cv.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_del_tmp.html</loc></url>
@@ -41,7 +39,6 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_q3.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_read_xpt.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_roc.html</loc></url>
-<url><loc>https://crow16384.github.io/kstools/reference/ks_save2xlsx_by.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_set_formats.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_set_labels.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_simulate_ar1.html</loc></url>

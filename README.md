@@ -36,7 +36,7 @@ remotes::install_github("crow16384/kstools")
 
 ### Inference and Comparative Methods
 
-- `ks_mianalyze()` / `mianalyze()` Rubin pooling across multiple imputations (SAS MIANALYZE analogue)
+- `ks_mianalyze()` / `mianalyze()` Rubin pooling across multiple imputations (SAS MIANALYZE analogue; see `vignette("mianalyze")`)
 - `ks_roc()` correlated ROC AUC comparison using Mann-Whitney components and contrast tests
 - `ks_eairdiff_mn()` / `ks_eairdiff_strata_mn()` incidence-rate difference CIs
 - `ks_newcombe_hs()` / `ks_newcombe_hs_strata()` difference-in-proportion CIs

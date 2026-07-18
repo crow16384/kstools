@@ -62,6 +62,13 @@
 #' Rubin, D. B. (1987). \emph{Multiple Imputation for Nonresponse in Surveys}.
 #'   Wiley.
 #'
+#' SAS Institute Inc. (2013). \emph{SAS/STAT 12.3 User's Guide}. Chapter 58,
+#'   The MIANALYZE Procedure.
+#'
+#' @seealso
+#' \code{vignette("mianalyze", package = "kstools")} for worked examples and
+#' SAS comparisons.
+#'
 #' @examples
 #' est <- c(0.345, 0.303, 0.298, 0.378)
 #' err <- c(0.056, 0.101, 0.099, 0.034)

@@ -378,29 +378,98 @@ data-loading tools.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.345</span>, <span class="fl">0.303</span>, <span class="fl">0.298</span>, <span class="fl">0.378</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>err <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.056</span>, <span class="fl">0.101</span>, <span class="fl">0.099</span>, <span class="fl">0.034</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">mianalyze</span>(est, err)</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; ***Variance information (4 Imputations)***</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; Between      Within      Total       DF</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; -------      ------      -----       --</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 0.001426 0.006074    0.007856    58.3</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; Relative Fraction</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; Increase Missing     Relative</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; in Variance  Information Efficiency</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; -----------  ----------- ----------</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; 0.293488 0.252131    0.940705</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; ***Parameter estimates (4 Imputations)***</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; Estimate Std Error   95.00% Confidence Limits    DF</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; -------- ---------   ------------------------    --</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 0.331000 0.088634    0.153597    0.508403    58.3</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt;                      t for H0</span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; Minimum      Maximum     Theta0      Parameter=Theta0    Pr&gt;|t|</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; -------      -------     ------      ----------------    ------</span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; 0.298000 0.378000    0.00        3.7345          0.0004</span></span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">mianalyze</span>(est, err)</span></code></pre></div>
+</div>
+<div id="variance-information-4-imputations" class="section level2">
+<h2>Variance Information (4 Imputations)</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Between</th>
+<th align="right">Within</th>
+<th align="right">Total</th>
+<th align="right">DF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.001426</td>
+<td align="right">0.006074</td>
+<td align="right">0.007856</td>
+<td align="right">58.2727</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="missing-data-diagnostics" class="section level2">
+<h2>Missing Data Diagnostics</h2>
+<table>
+<colgroup>
+<col width="37%" />
+<col width="36%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">Relative Increase in Variance</th>
+<th align="right">Fraction Missing Information</th>
+<th align="right">Relative Efficiency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.293488</td>
+<td align="right">0.252131</td>
+<td align="right">0.940705</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="parameter-estimates-4-imputations" class="section level2">
+<h2>Parameter Estimates (4 Imputations)</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Estimate</th>
+<th align="right">Std Error</th>
+<th align="right">LCL</th>
+<th align="right">UCL</th>
+<th align="right">DF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.331</td>
+<td align="right">0.088634</td>
+<td align="right">0.153597</td>
+<td align="right">0.508403</td>
+<td align="right">58.2727</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="hypothesis-test" class="section level2">
+<h2>Hypothesis Test</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Minimum</th>
+<th align="right">Maximum</th>
+<th align="right">Theta0</th>
+<th align="right">Statistic</th>
+<th align="right">PValue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.298</td>
+<td align="right">0.378</td>
+<td align="right">0</td>
+<td align="right">3.734455</td>
+<td align="right">0.00043</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="compare-roc-areas" class="section level2">
 <h2>Compare ROC Areas</h2>
@@ -455,6 +524,9 @@ data-loading tools.</p>
 <div id="next-steps" class="section level2">
 <h2>Next Steps</h2>
 <ul>
+<li>See the <code>mianalyze</code> vignette for Rubin’s rules,
+Barnard-Rubin <code>edf</code>, and SAS <code>PROC MIANALYZE</code>
+comparisons.</li>
 <li>See the <code>clinical-workflows</code> vignette for end-to-end
 examples.</li>
 <li>Explore <code>inst/examples</code> for runnable scripts by

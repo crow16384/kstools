@@ -12,3 +12,8 @@
 ^src/.*\.o$
 ^src/.*\.so$
 ^src/.*\.dylib$
+^vignettes/.*\.html$
+^vignettes/.*_files$
+^vignettes/.*\.knit\.md$
+^doc$
+^Meta$

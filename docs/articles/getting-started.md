@@ -131,5 +131,7 @@ ks_supp_merge(dm, suppdm)
 
 ## Next Steps
 
+- See the `mianalyze` vignette for Rubin’s rules, Barnard-Rubin `edf`,
+  and SAS `PROC MIANALYZE` comparisons.
 - See the `clinical-workflows` vignette for end-to-end examples.
 - Explore `inst/examples` for runnable scripts by function.

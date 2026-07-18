@@ -29,6 +29,8 @@ navbar:
       menu:
         - text: Getting Started
           href: articles/getting-started.html
+        - text: Multiple Imputation Analysis
+          href: articles/mianalyze.html
         - text: Clinical Workflows
           href: articles/clinical-workflows.html
         - text: Imputing Incomplete Dates
@@ -117,5 +119,6 @@ articles:
     navbar: ~
     contents:
       - getting-started
+      - mianalyze
       - clinical-workflows
       - impute-dtc
