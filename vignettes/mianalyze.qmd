@@ -1,28 +1,13 @@
 ---
 title: "Multiple Imputation Analysis with `mianalyze()`"
 subtitle: "Rubin's Rules and Barnard-Rubin Degrees of Freedom"
-author: "Vladimir Larchenko"
-date: "2026-07-18"
-number-sections: false
-format:
-  html:
-    toc: true
-    toc-depth: 3
-    code-fold: false
-    html-math-method: mathjax
-execute:
-  warning: false
-  message: false
-editor:
-  markdown:
-    wrap: 72
 vignette: >
   %\VignetteIndexEntry{Multiple Imputation Analysis with mianalyze()}
-  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{quarto::html}
 ---
 
-![](mianalyze0.png)
+![](mianalyze0.png){fig-align="center" width="800"}
 
 ```{r}
 #| label: setup
@@ -61,10 +46,10 @@ interface.
 
 The typical workflow is:
 
-1. Create $m$ imputed datasets.
-2. Perform the same analysis on each dataset.
-3. Extract parameter estimates and standard errors.
-4. Pool the results using Rubin's rules.
+1.  Create $m$ imputed datasets.
+2.  Perform the same analysis on each dataset.
+3.  Extract parameter estimates and standard errors.
+4.  Pool the results using Rubin's rules.
 
 Conceptually:
 
@@ -148,12 +133,12 @@ When $v_m$ is treated as infinite (large-sample case), this simplifies
 to $\hat\lambda = r/(r+1)$. The quantity is often interpreted as the
 proportion of uncertainty attributable to missingness.
 
-| $\lambda$ | Interpretation |
-|-----------|----------------|
-| $< 0.05$ | Negligible missing information |
-| $0.05$–$0.20$ | Mild impact |
-| $0.20$–$0.50$ | Moderate impact |
-| $> 0.50$ | Severe impact |
+| $\lambda$     | Interpretation                 |
+|---------------|--------------------------------|
+| $< 0.05$      | Negligible missing information |
+| $0.05$–$0.20$ | Mild impact                    |
+| $0.20$–$0.50$ | Moderate impact                |
+| $> 0.50$      | Severe impact                  |
 
 # Relative Efficiency
 
@@ -193,8 +178,8 @@ The adjusted degrees of freedom are
 
 $$v_m^* = \left(\frac{1}{v_m} + \frac{1}{\hat{v}_{obs}}\right)^{-1}$$
 
-This is the method used by SAS `PROC MIANALYZE` when `EDF=` is specified,
-and by `mianalyze(edf = ...)`.
+This is the method used by SAS `PROC MIANALYZE` when `EDF=` is
+specified, and by `mianalyze(edf = ...)`.
 
 # Basic Example
 
@@ -297,7 +282,7 @@ Guide (Chapter *The MIANALYZE Procedure*).
 ## Option mapping
 
 | SAS `PROC MIANALYZE` | `mianalyze()` |
-|----------------------|---------------|
+|----|----|
 | Estimates + standard errors (e.g. `STDERR` / `PARMS`) | `est`, `err` |
 | `ALPHA=` | `alpha` (default `0.05`) |
 | `THETA0=` | `theta0` (default `0`) |
@@ -305,9 +290,9 @@ Guide (Chapter *The MIANALYZE Procedure*).
 | — | `v0` (deprecated alias for `edf`) |
 
 Note: SAS documents a default of `EDF=1` with *no* adjustment when
-`EDF=` is omitted. In **kstools**, omitting `edf` (or using
-`edf = Inf`) likewise uses Rubin's large-sample $v_m$ without
-Barnard-Rubin adjustment.
+`EDF=` is omitted. In **kstools**, omitting `edf` (or using `edf = Inf`)
+likewise uses Rubin's large-sample $v_m$ without Barnard-Rubin
+adjustment.
 
 ## Scope
 
@@ -321,7 +306,8 @@ Not implemented (multivariate SAS features):
 
 - Wald multivariate tests (`MULT` / `MULTIVARIATE`);
 - `TEST` linear hypotheses;
-- pooling from full covariance matrices alone (without per-parameter SEs).
+- pooling from full covariance matrices alone (without per-parameter
+  SEs).
 
 ## SAS Example 58.1 (means and standard errors, `EDF=30`)
 
@@ -389,7 +375,7 @@ knitr::kable(
 
 SAS:
 
-```sas
+``` sas
 proc mianalyze data=outuni edf=30;
   modeleffects Oxygen;
   stderr SOxygen;
@@ -435,32 +421,32 @@ mianalyze(est, err)
 
 ## Variance Components
 
-| Component | Meaning |
-|-----------|---------|
+| Component    | Meaning                              |
+|--------------|--------------------------------------|
 | $V_w$ (`Vw`) | Within-imputation variance $\bar{U}$ |
-| $V_b$ (`Vb`) | Between-imputation variance $B$ |
-| $V_t$ (`Vt`) | Total variance $T$ |
+| $V_b$ (`Vb`) | Between-imputation variance $B$      |
+| $V_t$ (`Vt`) | Total variance $T$                   |
 
 Large $V_b$ relative to $V_w$ indicates substantial missing-data
 uncertainty.
 
 ## Missing Information
 
-| Metric | Meaning |
-|--------|---------|
-| $r$ | Relative increase in variance |
+| Metric    | Meaning                         |
+|-----------|---------------------------------|
+| $r$       | Relative increase in variance   |
 | $\lambda$ | Fraction of missing information |
-| $RE$ | Relative efficiency |
+| $RE$      | Relative efficiency             |
 
 ## Inference
 
-| Statistic | Meaning |
-|-----------|---------|
-| Estimate | Pooled estimate $\bar{Q}$ |
-| StdErr | Pooled standard error $\sqrt{T}$ |
-| lcl / ucl | Confidence interval |
-| $t$ | Test statistic for $H_0{:}\,\theta=\theta_0$ |
-| pval | Two-sided $p$-value |
+| Statistic | Meaning                                      |
+|-----------|----------------------------------------------|
+| Estimate  | Pooled estimate $\bar{Q}$                    |
+| StdErr    | Pooled standard error $\sqrt{T}$             |
+| lcl / ucl | Confidence interval                          |
+| $t$       | Test statistic for $H_0{:}\,\theta=\theta_0$ |
+| pval      | Two-sided $p$-value                          |
 
 # Special Cases
 
@@ -485,8 +471,8 @@ additional uncertainty is attributed to missing data.
 # Summary
 
 - **`mianalyze()` / `ks_mianalyze()`** pool MI point estimates and
-  standard errors with Rubin's rules: $\bar{Q}$,
-  $T = \bar{U}+(1+1/m)B$, $t$-based intervals and tests.
+  standard errors with Rubin's rules: $\bar{Q}$, $T = \bar{U}+(1+1/m)B$,
+  $t$-based intervals and tests.
 - **Diagnostics** $r$, $\hat\lambda$, and $RE$ quantify the impact of
   missingness and the efficiency of finite $m$.
 - **`edf`** applies the Barnard-Rubin (1999) small-sample df adjustment,
