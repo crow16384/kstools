@@ -32,3 +32,4 @@ src/compile_commands.json
 .positai
 /doc/
 /Meta/
+tmp/
