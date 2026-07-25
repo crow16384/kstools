@@ -1,5 +1,19 @@
 # Changelog
 
+## kstools 0.5.8
+
+### Breaking changes
+
+- [`ks_swoe()`](https://crow16384.github.io/kstools/reference/ks_swoe.md):
+  vector API — call as `ks_swoe(x, y)` (e.g. inside
+  `dplyr::mutate(SEX_SWOE = ks_swoe(SEX, RESPONSE))`). The previous
+  data-frame + NSE / `quoted` interface is removed.
+
+### Documentation
+
+- Improved Mermaid diagram contrast in the `mianalyze` vignette for dark
+  RStudio themes.
+
 ## kstools 0.5.7
 
 ### Breaking changes

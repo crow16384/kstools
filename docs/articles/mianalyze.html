@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,12 +105,14 @@
 <p></p>
 <figure class=""><p></p>
 <div>
-<pre class="mermaid mermaid-js">flowchart TD
+<pre class="mermaid mermaid-js">%%{init: {"theme": "dark", "themeVariables": {"lineColor": "#94a3b8", "primaryTextColor": "#f8fafc"}}}%%
+flowchart TD
     A([Original Dataset])
     B([Multiple Imputation])
     D1[Imputed Dataset 1&lt;br/&gt;Q₁, U₁]
     D2[Imputed Dataset 2&lt;br/&gt;Q₂, U₂]
     D3[Imputed Dataset 3&lt;br/&gt;Q₃, U₃]
+    Ddots[...]
     Dm[Imputed Dataset m&lt;br/&gt;Qₘ, Uₘ]
     R{{Rubin's Rules&lt;br/&gt;Pool Estimates and Variances}}
     F([Pooled Estimate&lt;br/&gt;SE, CI, p-value])
@@ -119,24 +121,28 @@
     B --&gt; D1
     B --&gt; D2
     B --&gt; D3
+    B --&gt; Ddots
     B --&gt; Dm
     D1 --&gt; R
     D2 --&gt; R
     D3 --&gt; R
+    Ddots --&gt; R
     Dm --&gt; R
     R --&gt; F
 
-    classDef source fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#111;
-    classDef process fill:#fed7aa,stroke:#ea580c,stroke-width:2px,color:#111;
-    classDef imputed fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111;
-    classDef pooling fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#111;
-    classDef result fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#111;
+    classDef source fill:#1e40af,stroke:#93c5fd,stroke-width:2px,color:#f8fafc;
+    classDef process fill:#c2410c,stroke:#fdba74,stroke-width:2px,color:#f8fafc;
+    classDef imputed fill:#166534,stroke:#86efac,stroke-width:2px,color:#f8fafc;
+    classDef pooling fill:#6d28d9,stroke:#c4b5fd,stroke-width:2px,color:#f8fafc;
+    classDef result fill:#15803d,stroke:#86efac,stroke-width:3px,color:#f8fafc;
 
     class A source;
     class B process;
     class D1,D2,D3,Dm imputed;
     class R pooling;
     class F result;
+
+    linkStyle default stroke:#94a3b8,stroke-width:1.5px
 </pre>
 </div>
 <p></p></figure><p></p>

@@ -4,43 +4,35 @@
 \alias{ks_swoe}
 \title{Smoothed weight of evidence (SWOE) for categorical predictors}
 \usage{
-ks_swoe(data, par, resp, quoted = FALSE, prior.n = 24)
+ks_swoe(x, y, prior.n = 24)
 }
 \arguments{
-\item{data}{A \code{data.frame} (or \code{tibble}).}
+\item{x}{Categorical predictor (factor, character, or other grouping vector).}
 
-\item{par}{Name of the predictor column (factor or coercible to grouping
-variable).  With \code{quoted = FALSE}, pass the column name unquoted
-(\code{ks_swoe(dt, sex, yn)}).}
-
-\item{resp}{Name of the binary response column (0/1 or logical).  Unquoted
-unless \code{quoted = TRUE}.}
-
-\item{quoted}{If \code{FALSE} (default), \code{par} and \code{resp} are
-captured with \code{substitute} and converted to column names.  If
-\code{TRUE}, \code{par} and \code{resp} must be character strings.}
+\item{y}{Binary response (numeric 0/1 or logical), same length as \code{x}.}
 
 \item{prior.n}{Pseudo-count (prior strength) for the empirical-Bayes-style
 smoothing in the logit; the original implementation used \code{24}.}
 }
 \value{
-A numeric vector of length \code{nrow(data)} (unnamed), giving the
-  SWOE score for each row's level of \code{par}.
+A numeric vector of length \code{length(x)} (unnamed), giving the
+  SWOE score for each row's level of \code{x}.
 }
 \description{
 Encodes each level of a categorical variable with a smoothed log-odds of the
 response, relative to the overall response rate.  Useful as a numeric
-replacement for a factor when screening logistic-type models.
+replacement for a factor when screening logistic-type models. Designed for
+use inside \code{dplyr::mutate()}.
 }
 \details{
 Let \eqn{\rho} be the overall mean of the response and, for each level
-\eqn{k} of \code{par}, let \eqn{e_k} be the number of events (response = 1)
+\eqn{k} of \code{x}, let \eqn{e_k} be the number of events (response = 1)
 and \eqn{n_k} the number of non-missing responses.  The smoothed logit for
 level \eqn{k} is
 \deqn{\log \frac{e_k + \rho \cdot m}{n_k - e_k + (1-\rho)\cdot m}}
 with \eqn{m = }\code{prior.n}.  A global logit \eqn{\log(\rho/(1-\rho))} is
 appended internally for completeness; row values are taken by matching each
-row's \code{par} level to the named level logits.
+row's \code{x} level to the named level logits.
 
 If \eqn{\rho \in \{0,1\}}, the global logit is undefined; the function clamps
 \eqn{\rho} to \eqn{(\varepsilon, 1-\varepsilon)} for that term only, with a
@@ -52,8 +44,10 @@ dt <- data.frame(
   yn  = rbinom(50, 1, 0.3),
   sex = factor(rbinom(50, 1, 0.55), levels = c(0, 1), labels = c("F", "M"))
 )
-ks_swoe(dt, sex, yn)
-ks_swoe(dt, par = "sex", resp = "yn", quoted = TRUE)
+ks_swoe(dt$sex, dt$yn)
+if (requireNamespace("dplyr", quietly = TRUE)) {
+  dplyr::mutate(dt, sex_swoe = ks_swoe(sex, yn))
+}
 }
 \references{
 The construction follows common “weight of evidence” encodings with

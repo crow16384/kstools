@@ -55,12 +55,14 @@ Conceptually:
 
 ```{mermaid}
 %%| fig-width: 8
+%%{init: {"theme": "dark", "themeVariables": {"lineColor": "#94a3b8", "primaryTextColor": "#f8fafc"}}}%%
 flowchart TD
     A([Original Dataset])
     B([Multiple Imputation])
     D1[Imputed Dataset 1<br/>Q₁, U₁]
     D2[Imputed Dataset 2<br/>Q₂, U₂]
     D3[Imputed Dataset 3<br/>Q₃, U₃]
+    Ddots[...]
     Dm[Imputed Dataset m<br/>Qₘ, Uₘ]
     R{{Rubin's Rules<br/>Pool Estimates and Variances}}
     F([Pooled Estimate<br/>SE, CI, p-value])
@@ -69,24 +71,28 @@ flowchart TD
     B --> D1
     B --> D2
     B --> D3
+    B --> Ddots
     B --> Dm
     D1 --> R
     D2 --> R
     D3 --> R
+    Ddots --> R
     Dm --> R
     R --> F
     
-    classDef source fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#111;
-    classDef process fill:#fed7aa,stroke:#ea580c,stroke-width:2px,color:#111;
-    classDef imputed fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111;
-    classDef pooling fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#111;
-    classDef result fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#111;
+    classDef source fill:#1e40af,stroke:#93c5fd,stroke-width:2px,color:#f8fafc;
+    classDef process fill:#c2410c,stroke:#fdba74,stroke-width:2px,color:#f8fafc;
+    classDef imputed fill:#166534,stroke:#86efac,stroke-width:2px,color:#f8fafc;
+    classDef pooling fill:#6d28d9,stroke:#c4b5fd,stroke-width:2px,color:#f8fafc;
+    classDef result fill:#15803d,stroke:#86efac,stroke-width:3px,color:#f8fafc;
 
     class A source;
     class B process;
     class D1,D2,D3,Dm imputed;
     class R pooling;
     class F result;
+
+    linkStyle default stroke:#94a3b8,stroke-width:1.5px
 ```
 
 # Rubin's Rules
