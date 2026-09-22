@@ -297,22 +297,22 @@ knit_print.ks_mianalyze <- function(x, ...) {
   s <- summary(x)
   
   out <- c(
-    sprintf("## Variance Information (%d Imputations)\n", s$m),
+    sprintf("**Variance Information (%d Imputations)**\n\n", s$m),
     knitr::kable(s$variance, digits = 6),
     
     "\n\n",
     
-    "## Missing Data Diagnostics\n",
+    "**Missing Data Diagnostics**\n\n",
     knitr::kable(s$diagnostics, digits = 6),
     
     "\n\n",
     
-    sprintf("## Parameter Estimates (%d Imputations)\n", s$m),
+    sprintf("**Parameter Estimates (%d Imputations)**\n\n", s$m),
     knitr::kable(s$estimates, digits = 6),
     
     "\n\n",
     
-    "## Hypothesis Test\n",
+    "**Hypothesis Test**\n\n",
     knitr::kable(s$tests, digits = 6)
   )
 
