@@ -69,6 +69,11 @@ reference:
       - ks_newcombe_hs
       - ks_newcombe_hs_strata
       - ks_auc
+      - ks_boot_ci
+      - ks_hosmer_lemeshow
+      - ks_dunnett_crit
+      - ks_mv_normality
+      - ks_be_2x2
 
   - title: SDTM and Clinical Data Utilities
     desc: SDTM helpers and supplemental-domain workflows.
@@ -103,6 +108,8 @@ reference:
 
   - title: Miscellaneous Utilities
     contents:
+      - ks_compare_na
+      - ks_vswitch
       - ks_swap_cols
       - ks_del_tmp
       - ks_aligndec

@@ -12,12 +12,16 @@ export(ks_auc)
 export(ks_batch_load)
 export(ks_batch_load_from_single_xpt)
 export(ks_batch_load_xlsx)
+export(ks_be_2x2)
+export(ks_boot_ci)
 export(ks_code_to_fmt)
+export(ks_compare_na)
 export(ks_current_filename)
 export(ks_cv)
 export(ks_del_tmp)
 export(ks_desc_coded)
 export(ks_dtc2dtn)
+export(ks_dunnett_crit)
 export(ks_eairdiff_mn)
 export(ks_eairdiff_strata_mn)
 export(ks_extract_single_xpt)
@@ -25,9 +29,11 @@ export(ks_geom_mean)
 export(ks_get_data)
 export(ks_get_labels)
 export(ks_get_numdec)
+export(ks_hosmer_lemeshow)
 export(ks_impute_dtc)
 export(ks_median_ci)
 export(ks_mianalyze)
+export(ks_mv_normality)
 export(ks_n_pct)
 export(ks_newcombe_hs)
 export(ks_newcombe_hs_strata)
@@ -45,6 +51,7 @@ export(ks_supp_consistency_check)
 export(ks_supp_merge)
 export(ks_swap_cols)
 export(ks_swoe)
+export(ks_vswitch)
 export(ks_williams)
 export(ks_write_xpt)
 export(ks_xpt_content)
@@ -55,66 +62,89 @@ export(mianalyze)
 export(read.csv3)
 importFrom(MASS,mvrnorm)
 importFrom(Rcpp,sourceCpp)
-importFrom(boot,boot)
-importFrom(boot,boot.ci)
-importFrom(cli,cli_abort)
-importFrom(cli,cli_warn)
-importFrom(dplyr,across)
-importFrom(dplyr,all_of)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,distinct)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n)
-importFrom(dplyr,n_distinct)
-importFrom(dplyr,pull)
-importFrom(dplyr,select)
-importFrom(dplyr,summarise)
-importFrom(dplyr,ungroup)
-importFrom(knitr,kable)
-importFrom(knitr,knit_print)
-importFrom(lubridate,day)
-importFrom(lubridate,days_in_month)
-importFrom(lubridate,hour)
-importFrom(lubridate,make_datetime)
-importFrom(lubridate,minute)
-importFrom(lubridate,month)
-importFrom(lubridate,year)
+importFrom(boot,
+  boot,
+  boot.ci
+)
+importFrom(cli,
+  cli_abort,
+  cli_warn
+)
+importFrom(dplyr,
+  across,
+  all_of,
+  arrange,
+  bind_rows,
+  case_when,
+  distinct,
+  filter,
+  group_by,
+  left_join,
+  mutate,
+  n,
+  n_distinct,
+  pull,
+  select,
+  summarise,
+  ungroup
+)
+importFrom(knitr,
+  kable,
+  knit_print
+)
+importFrom(lubridate,
+  day,
+  days_in_month,
+  hour,
+  make_datetime,
+  minute,
+  month,
+  year
+)
 importFrom(methods,as)
 importFrom(purrr,map_chr)
-importFrom(rlang,":=")
-importFrom(rlang,.data)
-importFrom(rlang,as_name)
-importFrom(rlang,call_name)
-importFrom(rlang,enquo)
-importFrom(rlang,enquos)
-importFrom(rlang,ensyms)
-importFrom(rlang,expr)
-importFrom(rlang,is_symbol)
-importFrom(rlang,quo_get_expr)
+importFrom(rlang,
+  ":=",
+  .data,
+  as_name,
+  call_name,
+  enquo,
+  enquos,
+  ensyms,
+  expr,
+  is_symbol,
+  quo_get_expr
+)
 importFrom(rootSolve,uniroot.all)
-importFrom(stats,arima.sim)
-importFrom(stats,median)
-importFrom(stats,pchisq)
-importFrom(stats,pt)
-importFrom(stats,qchisq)
-importFrom(stats,qnorm)
-importFrom(stats,qt)
-importFrom(stats,quantile)
-importFrom(stats,runif)
-importFrom(stats,sd)
-importFrom(stats,shapiro.test)
-importFrom(stats,t.test)
-importFrom(stats,wilcox.test)
+importFrom(stats,
+  arima.sim,
+  as.formula,
+  median,
+  na.omit,
+  pchisq,
+  pnorm,
+  pt,
+  qchisq,
+  qnorm,
+  qt,
+  quantile,
+  runif,
+  sd,
+  shapiro.test,
+  t.test,
+  uniroot,
+  var,
+  wilcox.test
+)
 importFrom(tibble,tibble)
-importFrom(tidyr,pivot_wider)
-importFrom(tidyr,separate)
-importFrom(utils,getFromNamespace)
-importFrom(utils,globalVariables)
-importFrom(utils,read.csv)
-importFrom(utils,unzip)
+importFrom(tidyr,
+  pivot_wider,
+  separate
+)
+importFrom(utils,
+  getFromNamespace,
+  globalVariables,
+  read.csv,
+  unzip
+)
 useDynLib(kstools, .registration = TRUE)

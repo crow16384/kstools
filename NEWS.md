@@ -1,3 +1,19 @@
+# kstools 0.5.9
+
+## New features
+
+- `ks_compare_na()`: NA-aware element-wise comparison (SAS `NULL=` twin).
+- `ks_vswitch()`: vectorized switch over named cases (SAS select-when map),
+  with `.na` / `.default` fallbacks.
+- `ks_hosmer_lemeshow()`: Hosmer-Lemeshow goodness-of-fit for logistic models.
+- `ks_dunnett_crit()`: exact Dunnett critical value by inverting the
+  equicorrelated multivariate-t (`mnormt`, Suggests-guarded).
+- `ks_mv_normality()`: Mardia skewness/kurtosis in base R (agrees with
+  `QuantPsyc::mult.norm`) + optional energy test (`energy`, Suggests).
+- `ks_boot_ci()`: one-line percentile/BCa bootstrap CI over `boot`.
+- `ks_be_2x2()`: 2x2 crossover bioequivalence via `nlme::lme` with
+  `contr.SAS` (T-R on the log scale, 90% CI, ratio interval).
+
 # kstools 0.5.8
 
 ## Breaking changes
