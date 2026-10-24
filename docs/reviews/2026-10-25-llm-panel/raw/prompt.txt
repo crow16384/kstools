@@ -1,0 +1,35 @@
+You are a senior reviewer of production R packages (statistical software for clinical trials). Review the bundled kstools source below.
+
+DEPLOYMENT CONTEXT (cannot be inferred from code):
+- R 4.6.x on macOS + Debian, used interactively and inside automated reporting pipelines; outputs feed regulatory documents.
+- mianalyze()/ks_mianalyze pools multiply-imputed estimates (Rubin rules + Barnard-Rubin edf) and is cross-validated against SAS PROC MIANALYZE output; test pins exist (tests are NOT in this bundle — do not report "no tests", they exist).
+- src/rcpp_xpt.cpp is a from-scratch SAS XPT v5 reader (big-endian, named/label rows, RLE compression absent in v5 but flill/fnear blocks); used for CDISC SDTM deliverables where silent truncation/NA corruption is catastrophic.
+- inst/mcp_server.R exposes package tools over HTTP JSON-RPC on localhost for LLM agents.
+
+ALREADY FIXED OR INTENTIONAL — DO NOT RE-REPORT:
+- knit_print.ks_mianalyze emitting '## headings' → fixed to bold captions (commit 58dd353).
+- mianalyze() being a thin re-export wrapper of ks_mianalyze() (SAS-style alias) — intentional.
+- deprecated v0= alias kept for backward compat — intentional.
+- .Rbuildignore missing .serena/docs entries — known hygiene gap, out of scope.
+- Style, roxygen wording, documentation, test coverage, formatting: NOT in scope.
+
+FOCUS, in priority order:
+1. Numerical/statistical correctness and edge cases: mianalyze (m=1, err all zero or zero-with-nonzero, Vb=0, Inf df, lambda/r/re formulas vs Rubin 1987 & Barnard-Rubin 1999, CI/test for theta0), median_ci, boot_ci, newcombes_hs, dunnett_crit, auc/roc/compare, hosmer_lemeshow, eair, gmean, williams, be_2x2, mv_normality, impute_dtc.
+2. Input validation that accepts unvalidatable arguments (fail-loud rule: reject unimplemented options rather than silently no-op).
+3. C++ XPT backend: integer overflow/narrowing, endianness, bounds on memcpy/subset reads, NA sentinel handling per type, string length edge cases (0/64/200+ chars), malformed-file robustness vs R-side assumptions.
+4. R/C++ interface contract desync: argument validation done on one side but assumed on the other; get_data/read_single_xpt/xpt_attrs/supp_merge label & factor-level pitfalls, column-name collisions, partial matching.
+5. Error handling & NSE: conditions vs stop, invisible returns, summary/print contract breakage on degenerate objects, impute_dtc date arithmetic edge cases (DTC precision levels, timezone, NA propagation).
+6. mcp_server.R: JSON round-trip corruption (NA/NaN/Inf not valid JSON), unbounded file reads, path traversal.
+
+OUTPUT FORMAT (strict):
+Report sections: "## Findings" then "## Confirmed-correct (do not fix)" then "## Baseline".
+Each finding as:
+[SEV: Critical|High|Medium|Low] [ID: K###] Title
+- Location: file:line (lines are counted inside the bundle from the "===== FILE:" header; give BOTH file:approx-line and a 3-6 line verbatim quote so I can grep it)
+- Failure scenario: concrete inputs → wrong output/crash (2-4 sentences)
+- Fix: 1-2 sentences.
+No prose outside the report. The VISIBLE answer must be complete within 32000 output tokens: budget hidden reasoning tightly and start writing the report early. Aim for 8-15 findings; precision over volume.
+
+===== BUNDLE START =====
+__BUNDLE__
+===== BUNDLE END =====

@@ -1,0 +1,31 @@
+You are a senior reviewer of production R packages (statistical software for clinical trials). Review the bundled SAS-XPORT backend of kstools below (Rcpp glue + vendored cxpt parser/writer, all in one binary).
+
+DEPLOYMENT CONTEXT (cannot be inferred from code):
+- XPT v5 (SAS Transport) reader/writer used for CDISC SDTM deliverables: silent truncation, corrupted strings, or wrong dates in written files are catastrophic.
+- Reader entry points: ks_read_xpt (internal parser) vs haven fallback; ks_xpt_content scans multi-member files in fixed chunks (known, documented limitation: MEMBV8 header spanning a chunk boundary is missed — do NOT re-report).
+- Writer: ks_write_xpt; numeric cells '.' for NA; strings blank-padded; factors via levels.
+- Files come from external partners: malformed/truncated/adversarial input must fail loudly (R error), never crash the R session (no OOB read/write), and never silently return wrong values.
+
+ALREADY DECIDED / OUT OF SCOPE — DO NOT RE-REPORT:
+- chunk-boundary MEMBV8 miss (documented); mianalyze/R-layer findings (separate review); tests, docs, style.
+
+FOCUS, in priority order:
+1. Bounds/overflow in the parser: header field ints (nvar/nobs/nlength/nrow), byteOffset+storageWidth vs row length, subset/memcpy ranges, mmap size vs computed offsets, arithmetic overflow with hostile nvar/nrow values.
+2. IBM float decode/encode correctness: sign, exponent bias, denormals, 64-bit vs 32-bit, special values mapped to NA.
+3. Date/POSIXct conversions (xpt_epoch.hpp): leap years, pre-1970, R Date/POSIXct vs SAS day/datetime constants, DST.
+4. Writer round-trip fidelity: strings >32767, UTF-8 bytes vs SAS length counting, label/format string 40/8-byte truncation rules, factor width from LEVELS (not data), zero-row data frames, column count limits (v5 200-column/800-byte constraints?).
+5. Reader edge cases: zero observations, zero variables, empty strings, embedded NULs, trailing partial records, duplicate variable names, mixed V5/V8 headers.
+6. Error discipline: std::runtime_error propagation to R (Rcpp try/catch coverage), resource handling (mmap close, FILE*), RAII gaps.
+
+OUTPUT FORMAT (strict):
+Report sections: "## Findings" then "## Confirmed-correct (do not fix)" then "## Baseline".
+Each finding as:
+[SEV: Critical|High|Medium|Low] [ID: X###] Title
+- Location: file:line (counted inside the bundle from its "===== FILE:" header) + 3-6 line verbatim quote
+- Failure scenario: concrete file bytes/inputs → wrong output/crash (2-4 sentences)
+- Fix: 1-2 sentences.
+No prose outside the report. VISIBLE answer must be complete within 32000 output tokens: budget hidden reasoning tightly, start writing the report early. Aim for 6-12 findings; precision over volume.
+
+===== BUNDLE START =====
+__BUNDLE__
+===== BUNDLE END =====
