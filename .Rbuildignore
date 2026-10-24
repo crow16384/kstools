@@ -17,3 +17,12 @@
 ^vignettes/.*\.knit\.md$
 ^doc$
 ^Meta$
+^\.clangd$
+^\.serena$
+^\.vscode$
+^docs$
+^bench$
+^tmp$
+^src/compile_commands\.json$
+^src/\.cache$
+^vignettes/\.quarto$

@@ -60,6 +60,24 @@ and/or reproduced empirically before being accepted; model severities were re-ra
 
 Key panel lesson (matches prior rounds): both models produced the SAME two false positives aimed at code that was **not in the bundle** (vendored `src/xpt/` writer/parser) — bundling must include the actual implementation, or the split must follow architectural layers. Prompt caching: same-bundle retries were cheap; thinking-off fallback saved the flagship.
 
+## Fix status (2026-10-25, owner scope chosen: A2 NA-convert, A4 abort, A1 SAS-parity, A3, A5+A6, A7+A8, A9+A10)
+
+Implemented on top of this review (tests: `tests/testthat/test-llm-panel-round1.R`, NEWS 0.5.10):
+A2 (±Inf → SAS missing on write), A4 (v5/v8 name/label/width limits + case-insensitive
+collision aborts), A5 (AUC NA for <2 points), A6 (batch_load abort on try-error),
+A7 (roc numeric predictor validation), A8 (numeric storageWidth!=8 rejected),
+A9 (partial .xpt removed on write failure), A10 hygiene batch (NUL byte lengths,
+thread-error concat, n_pct integer consistency + warning, supp_merge duplicate/collision
+aborts).
+**A1 — CLOSED 2026-10-25 by live SAS probe** (owner ran `scripts/sas/mianalyze_zero_
+withinvar_probe.sas`; log + listing committed alongside). PROC MIANALYZE: zero within-
+imputation StdErr -> WARNING per imputation; W=0 -> DF, RIVar, FracMiss, RelEff, CI and
+t/p printed as "." - WITH OR WITHOUT EDF= (so the earlier "df = m - 1 is sound" note in
+the fix-plan was wrong for the no-EDF branch too). kstools mirrors: NA for all those
+fields, warning per zero SE, Estimate/SE/B/T/min/max kept; C5 anchor (EDF=120:
+DF=35.564, CI 0.151165-0.510835, t=3.73, p=0.0007) pinned in tests alongside the
+existing 130 SAS pins.
+
 ## Proposed fix order (owner scope pick required before any edits)
 
 1. **A2** writer ±Inf → abort (recommended; SAS has no Inf) — one-line guard in rcpp glue.

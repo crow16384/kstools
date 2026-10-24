@@ -33,3 +33,7 @@ src/compile_commands.json
 /doc/
 /Meta/
 tmp/
+
+# SAS run artifacts (logs/output kept local; only .sas scripts are tracked)
+scripts/sas/*.log
+scripts/sas/*.lst

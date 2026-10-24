@@ -166,8 +166,32 @@ ks_supp_merge <- function(primary, supp,
     cli::cli_abort("{.val {deparse(substitute(supp))}} is not a valid supplemental dataset.")
 
   svars <- c("STUDYID", "USUBJID", "IDVAR", "IDVARVAL", "QNAM", "QVAL")
-  if (chk["noid"])
+  if (chk[["noid"]])
     svars <- setdiff(svars, c("IDVAR", "IDVARVAL"))
+
+  ## SDTM: each (key, QNAM) combination must be unique. Duplicate records
+  ## make pivot_wider() silently build list-columns; abort with a pointer.
+  key_cols <- setdiff(svars, "QVAL")
+  keys     <- do.call(paste, c(supp[key_cols], list(sep = " | ")))
+  dup_i    <- which(duplicated(keys))
+  if (length(dup_i)) {
+    cli::cli_abort(c(
+      "SUPP dataset has duplicate QNAM records for the same key ({length(dup_i)} affected row(s); SDTM requires uniqueness):",
+      stats::setNames(utils::head(unique(keys[dup_i]), 5L), "*"),
+      "i" = "Deduplicate the SUPP dataset before merging."
+    ))
+  }
+
+  ## QNAM must not collide with existing primary-domain variable names:
+  ## left_join() would silently create .x/.y suffixed columns.
+  qnams    <- unique(supp[["QNAM"]])
+  collide  <- intersect(qnams, names(primary))
+  if (length(collide)) {
+    cli::cli_abort(c(
+      "QNAM value(s) {.val {collide}} collide with variables already present in the primary domain.",
+      "i" = "Rename the SUPP QNAM values before merging."
+    ))
+  }
 
   ## Transpose SUPP to wide format (one column per QNAM)
   supp_t <- supp |>

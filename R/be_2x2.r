@@ -80,7 +80,7 @@ ks_be_2x2 <- function(data, response, trt, test, reference,
   m <- nlme::lme(stats::as.formula(paste(yname, "~", seqc, "+", trtc, "+", perc)),
                  random = stats::as.formula(paste("~", seqc, "|", subc)),
                  data = d,
-                 contrasts = setNames(rep(list("contr.SAS"), 3L), c(trtc, seqc, perc)))
+                 contrasts = stats::setNames(rep(list("contr.SAS"), 3L), c(trtc, seqc, perc)))
   tt <- summary(m)$tTable
   coef_row <- paste0(trtc, test)
   if (!coef_row %in% rownames(tt))

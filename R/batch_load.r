@@ -112,6 +112,20 @@ ks_batch_load <- function(data,
   }
   names(res) <- nm
 
+  ## mclapply() returns try-error objects for failed reads; without this
+  ## sweep they are silently carried on (and saved/assigned by
+  ## save.path/keep) as if they were data.
+  bad <- vapply(res, inherits, logical(1L), "try-error")
+  if (any(bad)) {
+    msgs <- vapply(res[bad],
+                   function(e) conditionMessage(attr(e, "condition")),
+                   character(1))
+    cli::cli_abort(c(
+      "{sum(bad)} file{?s} failed to load:",
+      stats::setNames(paste0(files[bad], ": ", msgs), "*")
+    ))
+  }
+
   if (!is.null(save.path)) {
     dir.create(save.path, recursive = TRUE, showWarnings = FALSE)
     mapply(

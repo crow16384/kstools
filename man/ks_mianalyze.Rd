@@ -33,6 +33,12 @@ When finite, the Barnard-Rubin (1999) adjusted degrees of freedom
 
 \item{v0}{Deprecated alias for \code{edf}.  Kept for backward
 compatibility; ignored when \code{edf} is also supplied.}
+
+\item{object}{A \code{ks_mianalyze} object (\code{summary} method).}
+
+\item{...}{Additional arguments, currently ignored.}
+
+\item{x}{A \code{ks_mianalyze} object (\code{print} method).}
 }
 \value{
 An object of class \code{ks_mianalyze} with components:
@@ -77,6 +83,15 @@ inappropriate.  The Barnard-Rubin (1999) adjustment computes
 \eqn{v_m^* = (1/v_m + 1/\hat{v}_{obs})^{-1}} where
 \eqn{\hat{v}_{obs} = (1-\gamma) v_0 (v_0+1)/(v_0+3)} and
 \eqn{\gamma = (1+m^{-1})B/T}.
+
+When the within-imputation variance \eqn{\bar{U}} is exactly zero,
+\code{df}, \code{r}, \code{lambda}, \code{re}, the confidence limits and
+the \eqn{t}-test are reported as \code{NA} and a warning is issued.
+This mirrors \code{PROC MIANALYZE}, which warns per zero standard error
+and prints \code{"."} for those quantities, computing no inference in
+that case - with or without \code{EDF=} - even when the
+between-imputation variance is positive (live SAS probe,
+\code{scripts/sas/mianalyze_zero_withinvar_probe.sas}).
 }
 \examples{
 est <- c(0.345, 0.303, 0.298, 0.378)

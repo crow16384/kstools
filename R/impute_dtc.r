@@ -236,6 +236,30 @@ ks_impute_dtc <- function(x, direction = "no", tz = "UTC", ref = NULL) {
   hr <- .grp(4L)
   mn <- .grp(5L)
   sc <- .grp(6L)
+
+  ## ---- Step 1b: Calendar/clock range validation --------------------------
+  ## The regex accepts any two-digit component; ISO 8601 / SDTM requires
+  ## valid ranges (month 1-12, day within month incl. leap years, hour 0-23,
+  ## minute/second 0-59). An element with an out-of-range component is
+  ## malformed data, not a partial date: treat it exactly like a
+  ## non-matching element (dt = NA, flag = NA, never imputed) instead of
+  ## letting make_datetime() silently roll it over (2020-13-01 -> 2021-01-01).
+  leap <- !is.na(yr) & ((yr %% 4L == 0L & yr %% 100L != 0L) | yr %% 400L == 0L)
+  mlen <- c(31L, 28L, 31L, 30L, 31L, 30L, 31L, 31L, 30L, 31L, 30L, 31L)
+  dim_max <- rep(NA_integer_, n)
+  mo_ok   <- !is.na(mo) & mo >= 1L & mo <= 12L
+  dim_max[mo_ok] <- mlen[mo[mo_ok]]
+  dim_max[mo_ok & leap] <- ifelse(mo[mo_ok & leap] == 2L, 29L, dim_max[mo_ok & leap])
+  bad <- (!is.na(mo) & !mo_ok) |
+    (!is.na(dy) & (dy < 1L | (!is.na(dim_max) & dy > dim_max))) |
+    (!is.na(hr) & hr > 23L) |
+    (!is.na(mn) & mn > 59L) |
+    (!is.na(sc) & sc > 59L)
+  if (any(bad)) {
+    yr[bad] <- NA_integer_; mo[bad] <- NA_integer_; dy[bad] <- NA_integer_
+    hr[bad] <- NA_integer_; mn[bad] <- NA_integer_; sc[bad] <- NA_integer_
+  }
+
   sc[is.na(sc)] <- 0L
 
   ## ---- Step 2: Success check -----------------------------------------------

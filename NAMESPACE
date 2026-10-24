@@ -101,6 +101,7 @@ importFrom(lubridate,
   month,
   year
 )
+importFrom(magrittr,"%>%")
 importFrom(methods,as)
 importFrom(purrr,map_chr)
 importFrom(rlang,

@@ -50,6 +50,10 @@ ks_roc <- function(data,
     cli::cli_abort("All {.arg var} names must exist in {.arg data}.")
   if (!response %in% names(data))
     cli::cli_abort("{.arg response} must exist in {.arg data}.")
+  non_num <- var[!vapply(data[var], function(x) is.numeric(x) || is.logical(x), logical(1))]
+  if (length(non_num))
+    cli::cli_abort(
+      "{.arg var} predictor columns must be numeric: {.val {non_num}}.")
   if (length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1)
     cli::cli_abort("{.arg alpha} must be a single value in (0, 1).")
 

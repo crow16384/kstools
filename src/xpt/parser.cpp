@@ -427,6 +427,14 @@ bool parseSchema(const std::uint8_t *data,
               << "; treating non-2 as numeric";
             schema.warnings.push_back(w.str());
         }
+        if (!v.isString && v.storageWidth != 8) {
+            std::ostringstream e;
+            e << "numeric variable index " << (i + 1)
+              << " has storageWidth=" << v.storageWidth
+              << " (XPORT numeric variables must be exactly 8 bytes)";
+            error = e.str();
+            return false;
+        }
         schema.variables.push_back(std::move(v));
     }
 

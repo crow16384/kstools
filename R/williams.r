@@ -1,28 +1,28 @@
 #' Build a randomized Williams cross-over design and schedule
 #'
-#' R analogue of the SAS \\code{WILLIAMS} macro. The function constructs a
+#' R analogue of the SAS \code{WILLIAMS} macro. The function constructs a
 #' Williams design from a randomized cyclic Latin square and generates a
 #' block-randomized subject schedule.
 #'
 #' @param tmts_num Integer number of treatments.
 #' @param tmt_names Character vector of treatment labels (length must equal
-#'   \\code{tmts_num}).
+#'   \code{tmts_num}).
 #' @param sample_size Integer target number of subjects.
 #' @param out_rtf Optional output file path. If provided, a simple RTF report
 #'   with design and randomization schedule tables is written.
-#' @param seed_num Optional integer seed. If \\code{NULL}, current system time
+#' @param seed_num Optional integer seed. If \code{NULL}, current system time
 #'   is used.
 #'
 #' @return A list with:
-#' \\describe{
-#'   \\item{design}{Data frame of Williams sequences by period.}
-#'   \\item{schedule}{Data frame of randomized subject assignments.}
-#'   \\item{seed}{Seed used.}
-#'   \\item{seed_generated}{Logical; \\code{TRUE} when seed was auto-generated.}
-#'   \\item{n_sequences}{Number of unique sequences.}
-#'   \\item{block_num}{Number of full randomization blocks used.}
-#'   \\item{sample_size_warning}{Logical; \\code{TRUE} when
-#'     \\code{sample_size} is not a multiple of \\code{n_sequences}.}
+#' \describe{
+#'   \item{design}{Data frame of Williams sequences by period.}
+#'   \item{schedule}{Data frame of randomized subject assignments.}
+#'   \item{seed}{Seed used.}
+#'   \item{seed_generated}{Logical; \code{TRUE} when seed was auto-generated.}
+#'   \item{n_sequences}{Number of unique sequences.}
+#'   \item{block_num}{Number of full randomization blocks used.}
+#'   \item{sample_size_warning}{Logical; \code{TRUE} when
+#'     \code{sample_size} is not a multiple of \code{n_sequences}.}
 #' }
 #' @name ks_williams
 #' @importFrom cli cli_abort cli_warn

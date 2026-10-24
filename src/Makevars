@@ -6,5 +6,7 @@ PKG_CXXFLAGS = -pthread
 PKG_LIBS = -pthread
 
 # R only compiles top-level src/*.cpp by default; enumerate subdir sources.
-SOURCES = $(wildcard *.cpp) core/text.cpp xpt/parser.cpp xpt/writer.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
+# Explicit lists (no $(wildcard), no substitution references) keep the
+# Makefile POSIX-portable; R CMD check flags GNU extensions otherwise.
+SOURCES = RcppExports.cpp rcpp_xpt.cpp core/text.cpp xpt/parser.cpp xpt/writer.cpp
+OBJECTS = RcppExports.o rcpp_xpt.o core/text.o xpt/parser.o xpt/writer.o

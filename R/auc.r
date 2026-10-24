@@ -63,12 +63,16 @@ ks_auc <- function(data, by = NULL, val, time,
   ## ── Internal AUC helpers ──────────────────────────────────────────────
 
   trapez <- function(v, t) {
+    ## Insufficient data: fewer than 2 concurrent non-NA (v, t) points
+    ## would make sum(..., na.rm = TRUE) return a misleading 0.
+    if (sum(!is.na(v) & !is.na(t)) < 2L) return(NA_real_)
     v_next <- c(v[-1L], NA_real_)
     t_next <- c(t[-1L], NA_real_)
     sum((v + v_next) * (t_next - t) / 2, na.rm = TRUE)
   }
 
   log_trapez <- function(v, t) {
+    if (sum(!is.na(v) & !is.na(t)) < 2L) return(NA_real_)
     v_next <- c(v[-1L], NA_real_)
     t_next <- c(t[-1L], NA_real_)
     dt     <- t_next - t

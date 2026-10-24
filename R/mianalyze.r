@@ -55,6 +55,15 @@
 #' \eqn{\hat{v}_{obs} = (1-\gamma) v_0 (v_0+1)/(v_0+3)} and
 #' \eqn{\gamma = (1+m^{-1})B/T}.
 #'
+#' When the within-imputation variance \eqn{\bar{U}} is exactly zero,
+#' \code{df}, \code{r}, \code{lambda}, \code{re}, the confidence limits and
+#' the \eqn{t}-test are reported as \code{NA} and a warning is issued.
+#' This mirrors \code{PROC MIANALYZE}, which warns per zero standard error
+#' and prints \code{"."} for those quantities, computing no inference in
+#' that case - with or without \code{EDF=} - even when the
+#' between-imputation variance is positive (live SAS probe,
+#' \code{scripts/sas/mianalyze_zero_withinvar_probe.sas}).
+#'
 #' @references
 #' Barnard, J. and Rubin, D. B. (1999). Small-sample degrees of freedom with
 #'   multiple imputation. \emph{Biometrika}, 86, 948--955.
@@ -68,6 +77,10 @@
 #' @seealso
 #' \code{vignette("mianalyze", package = "kstools")} for worked examples and
 #' SAS comparisons.
+#'
+#' @param object A \code{ks_mianalyze} object (\code{summary} method).
+#' @param x A \code{ks_mianalyze} object (\code{print} method).
+#' @param ... Additional arguments, currently ignored.
 #'
 #' @examples
 #' est <- c(0.345, 0.303, 0.298, 0.378)
@@ -117,6 +130,21 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0) {
   # Total variance
   Vt <- Vw + Vb + Vb/m
 
+  # SAS PROC MIANALYZE warns for every imputation whose StdErr is zero
+  # (live probe, scripts/sas/mianalyze_zero_withinvar_probe.sas, 2026-10-25).
+  zero_se <- which(err == 0)
+  if (length(zero_se)) {
+    wmsg <- paste0("Within-imputation StdErr is zero for imputation(s) ",
+                   paste(zero_se, collapse = ", "), ".")
+    if (Vw == 0)
+      wmsg <- paste0(wmsg, " The within-imputation variance is 0: degrees of ",
+                     "freedom, MI diagnostics and inference are reported as ",
+                     "NA, mirroring SAS PROC MIANALYZE (which prints '.' and ",
+                     "computes neither, even when the between-imputation ",
+                     "variance is positive or EDF= is supplied).")
+    cli::cli_warn(wmsg)
+  }
+
   # Rubin's (1987) degrees of freedom
   if (Vb == 0 && Vw == 0) {
     r <- 0
@@ -145,19 +173,27 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0) {
   }
   # Pooled Std Error
   err_pool <- sqrt(Vt)
-  crit <- stats::qt(1 - alpha / 2, df = df)
+
+  # SAS-parity gate: PROC MIANALYZE reports DF, RIVar, FracMiss, RelEff,
+  # confidence limits and the t-test as missing (".") whenever the pooled
+  # within-imputation variance W is exactly zero - with or without EDF=.
+  # Mirror that instead of falling back to the degenerate df = m - 1.
+  infer_missing <- (Vw == 0)
+  if (infer_missing) {
+    df     <- NA_real_
+    r      <- NA_real_
+    lambda <- NA_real_
+  }
+
+  crit <- if (is.na(df)) NA_real_ else stats::qt(1 - alpha / 2, df = df)
   # Relative efficiency
-  re <- 1 / (1 + lambda / m)
+  re <- if (is.na(lambda)) NA_real_ else 1 / (1 + lambda / m)
   # Range
   minim <- min(est)
   maxim <- max(est)
 
   delta <- Q_bar - theta0
-  t_val <- if (err_pool == 0) {
-    if (delta == 0) NA_real_ else sign(delta) * Inf
-  } else {
-    delta / err_pool
-  }
+  t_val <- if (infer_missing || err_pool == 0) NA_real_ else delta / err_pool
 
   p <- if (is.na(t_val)) NA_real_ else 2 * stats::pt(abs(t_val), df = df, lower.tail = FALSE)
 

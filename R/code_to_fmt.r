@@ -22,6 +22,7 @@
 #'
 #' @name ks_code_to_fmt
 #' @importFrom dplyr select filter distinct
+#' @importFrom magrittr %>%
 #' @importFrom tidyr separate
 #' @importFrom rlang enquo
 #' @export
@@ -41,7 +42,7 @@ ks_code_to_fmt <- function(dt, col, name = NULL) {
     dplyr::select(col1, col2) %>%
     dplyr::distinct()
 
-  fmt <- with(vals, setNames(trimws(col1), trimws(col2)))
+  fmt <- with(vals, stats::setNames(trimws(col1), trimws(col2)))
 
   ksformat::fnew(fmt, type = 'numeric', name = name)
 }

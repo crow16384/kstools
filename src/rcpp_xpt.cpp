@@ -31,7 +31,7 @@
 #include "xpt/mmap_file.hpp"
 #include "xpt/parser.hpp"
 #include "xpt/writer.hpp"
-#include "xpt_epoch.hpp"
+#include "xpt_epoch.h"
 
 using namespace Rcpp;
 
@@ -188,9 +188,15 @@ SEXP buildColumns(const cxpt::MappedFile &mf,
         for (auto &th : workers) th.join();
 
         if (failed.load()) {
+            std::string combined;
             for (const auto &e : threadErrors) {
-                if (!e.empty()) Rcpp::stop("XPORT decode error: %s", e);
+                if (!e.empty()) {
+                    if (!combined.empty()) combined += " | ";
+                    combined += e;
+                }
             }
+            if (!combined.empty())
+                Rcpp::stop("XPORT decode error: %s", combined);
             Rcpp::stop("XPORT decode error");
         }
 
@@ -496,14 +502,15 @@ void rcpp_write_xpt(Rcpp::List df,
                 for (R_xlen_t r = 0; r < n; ++r) {
                     SEXP s = STRING_ELT(col, r);
                     if (s != NA_STRING) {
-                        std::size_t L = std::strlen(CHAR(s));
+                        std::size_t L = static_cast<std::size_t>(LENGTH(s)); // byte length, NUL-safe
                         if (L > w) w = static_cast<std::uint16_t>(std::min<std::size_t>(L, 32767));
                     }
                 }
             } else {
                 CharacterVector levels = Rf_getAttrib(col, R_LevelsSymbol);
                 for (R_xlen_t r = 0; r < levels.size(); ++r) {
-                    std::size_t L = std::strlen(CHAR(STRING_ELT(levels, r)));
+                    SEXP lv = STRING_ELT(levels, r);
+                    std::size_t L = static_cast<std::size_t>(LENGTH(lv)); // byte length, NUL-safe
                     if (L > w) w = static_cast<std::uint16_t>(std::min<std::size_t>(L, 32767));
                 }
             }
@@ -566,7 +573,7 @@ void rcpp_write_xpt(Rcpp::List df,
                 int tp = TYPEOF(col);
                 if (tp == REALSXP) {
                     d = REAL(col)[r];
-                    isNA = ISNA(d) || std::isnan(d);
+                    isNA = ISNA(d) || std::isnan(d) || std::isinf(d);
                 } else if (tp == INTSXP) {
                     int iv = INTEGER(col)[r];
                     if (iv == NA_INTEGER) isNA = true;
@@ -595,7 +602,7 @@ void rcpp_write_xpt(Rcpp::List df,
                     // Leave slot as spaces (already memset by writer).
                 } else {
                     const char *cstr = CHAR(s);
-                    std::size_t L = std::strlen(cstr);
+                    std::size_t L = static_cast<std::size_t>(LENGTH(s)); // byte length, NUL-safe
                     std::size_t n = std::min<std::size_t>(L, var.storageWidth);
                     std::memcpy(slot, cstr, n);
                     if (n < var.storageWidth) {
@@ -610,7 +617,7 @@ void rcpp_write_xpt(Rcpp::List df,
                     CharacterVector levels = Rf_getAttrib(colSexps[i], R_LevelsSymbol);
                     SEXP s = STRING_ELT(levels, idx - 1);
                     const char *cstr = CHAR(s);
-                    std::size_t L = std::strlen(cstr);
+                    std::size_t L = static_cast<std::size_t>(LENGTH(s)); // byte length, NUL-safe
                     std::size_t n = std::min<std::size_t>(L, var.storageWidth);
                     std::memcpy(slot, cstr, n);
                     if (n < var.storageWidth) {

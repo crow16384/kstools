@@ -120,13 +120,74 @@ ks_write_xpt <- function(data,
   # Coerce input to plain data.frame so Rcpp sees a List with column names
   data <- as.data.frame(data, stringsAsFactors = FALSE)
 
-  .rcpp_write_xpt(data,
-                  path.expand(file),
-                  as.integer(version),
-                  isTRUE(convert_dates),
-                  ds_name,
-                  ds_label,
-                  labels,
-                  formats)
+  ## ---- SAS XPORT interoperability limits (abort, not silent truncation) ----
+  ## Variable names: <= 8 bytes (v5) / <= 32 bytes (v8). C++ writer would
+  ## silently truncate (rcpp_xpt putFixedField), producing duplicate
+  ## variables in the output file — reject loudly instead.
+  max_name  <- if (version == 8) 32L else 8L
+  max_label <- if (version == 8) 256L else 40L
+  bad_name  <- nchar(names(data), type = "bytes") > max_name
+  if (any(bad_name))
+    cli::cli_abort(
+      c("Variable name(s) exceed the XPORT v{version} limit of {max_name} bytes:",
+        stats::setNames(paste0("\"", names(data)[bad_name], "\" (",
+                         nchar(names(data)[bad_name], type = "bytes"), " bytes)"), "*"),
+        "i" = "Rename before writing; SAS transport names must fit {max_name} bytes."))
+  lab_chr <- if (is.null(labels))
+    vapply(data, function(col) {
+      l <- attr(col, "label"); if (is.null(l)) "" else as.character(l)
+    }, character(1))
+  else labels[names(data)]
+  bad_lab <- !is.na(lab_chr) & nchar(lab_chr, type = "bytes") > max_label
+  if (any(bad_lab))
+    cli::cli_abort(
+      c("Column labels exceed the XPORT v{version} limit of {max_label} bytes:",
+        stats::setNames(paste0(names(data)[bad_lab], " (",
+                         nchar(lab_chr[bad_lab], type = "bytes"), " bytes)"), "*")))
+  dup_nm <- names(data)[stats::ave(seq_along(names(data)),
+                                   tolower(names(data)), FUN = length) > 1L]
+  if (length(dup_nm))
+    cli::cli_abort(
+      c("Variable names collide case-insensitively (SAS requirement): {.val {unique(tolower(dup_nm))}}.",
+        "i" = "Rename columns before writing."))
+  ## Character byte length: SAS XPORT engine (v5) refuses values/variables
+  ## longer than 200 bytes (SAS Tech Note 1528; xportr validates the same);
+  ## v8 hard field cap is 32767.
+  max_char <- if (version == 8) 32767L else 200L
+  char_len <- vapply(data, function(col) {
+      if (is.factor(col))
+        col <- as.character(levels(col))
+      if (is.character(col))
+        max(c(0L, nchar(col[!is.na(col)], type = "bytes")))
+      else 0L
+    }, numeric(1))
+  over <- char_len > max_char
+  if (any(over))
+    cli::cli_abort(
+      c("Columns with character data longer than {max_char} bytes are not transportable at version {version}:",
+        stats::setNames(paste0(names(data)[over], " (max ", format(char_len[over], scientific = FALSE),
+                         " bytes)"), "*"),
+        "i" = if (version == 5)
+                 "Use version = 8 (max 32767 bytes) or truncate the data explicitly."
+               else
+                 "Truncate the data explicitly before writing."))
+
+  dest <- path.expand(file)
+  tryCatch(
+    .rcpp_write_xpt(data,
+                    dest,
+                    as.integer(version),
+                    isTRUE(convert_dates),
+                    ds_name,
+                    ds_label,
+                    labels,
+                    formats),
+    error = function(e) {
+      ## A failed write leaves a truncated/partial transport file behind;
+      ## remove it so downstream steps cannot pick up a corrupt artifact.
+      unlink(dest)
+      stop(e)
+    }
+  )
   invisible(file)
 }

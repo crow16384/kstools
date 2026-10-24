@@ -81,11 +81,17 @@ ks_n_pct <- function(n, totals, na.rep = NA_character_) UseMethod("ks_n_pct")
 ks_n_pct.numeric <- function(n, totals, na.rep = NA_character_) {
   if (!is.numeric(totals))
     cli::cli_abort("{.arg totals} must be numeric.")
+  non_int <- !is.na(n) & n != round(n)
+  if (any(non_int))
+    cli::cli_warn(
+      "{.arg n} contains non-integer values; counts and percentages computed on truncated integers."
+    )
   bad_tot <- is.na(totals) | totals == 0
   if (any(bad_tot, na.rm = TRUE))
     cli::cli_warn("{.arg totals} contains zero or {.val NA} value(s); affected entries set to {.arg na.rep}.")
 
-  out         <- sprintf("%d (%5.1f%%)", as.integer(n), n * 100 / totals)
+  n_int       <- as.integer(n)
+  out         <- sprintf("%d (%5.1f%%)", n_int, n_int * 100 / totals)
   rep_val     <- if (is.na(na.rep)) NA_character_ else na.rep
   out[is.na(n) | bad_tot] <- rep_val
   out

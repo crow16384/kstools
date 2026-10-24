@@ -21,5 +21,7 @@ utils::globalVariables(c(
   ## ks_desc_coded intermediate dplyr mutate columns
   "ord0", "ord", "e",
   ## ks_summary intermediate dplyr mutate columns
-  "p.norm", "p.chg.w", "p.chg.t"
+  "p.norm", "p.chg.w", "p.chg.t",
+  ## ks_code_to_fmt tidyr::separate intermediate columns (NSE)
+  "col1", "col2"
 ))
