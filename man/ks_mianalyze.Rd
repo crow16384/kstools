@@ -90,8 +90,9 @@ the \eqn{t}-test are reported as \code{NA} and a warning is issued.
 This mirrors \code{PROC MIANALYZE}, which warns per zero standard error
 and prints \code{"."} for those quantities, computing no inference in
 that case - with or without \code{EDF=} - even when the
-between-imputation variance is positive (live SAS probe,
-\code{scripts/sas/mianalyze_zero_withinvar_probe.sas}).
+between-imputation variance is positive. Validated against a live SAS
+PROC MIANALYZE run; the probe tooling is deliberately kept outside the
+package.
 }
 \examples{
 est <- c(0.345, 0.303, 0.298, 0.378)

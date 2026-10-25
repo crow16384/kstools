@@ -34,6 +34,5 @@ src/compile_commands.json
 /Meta/
 tmp/
 
-# SAS run artifacts (logs/output kept local; only .sas scripts are tracked)
-scripts/sas/*.log
-scripts/sas/*.lst
+# SAS validation tooling lives outside the package (owner policy 2026-10-25)
+scripts/sas/

@@ -69,8 +69,9 @@ A7 (roc numeric predictor validation), A8 (numeric storageWidth!=8 rejected),
 A9 (partial .xpt removed on write failure), A10 hygiene batch (NUL byte lengths,
 thread-error concat, n_pct integer consistency + warning, supp_merge duplicate/collision
 aborts).
-**A1 — CLOSED 2026-10-25 by live SAS probe** (owner ran `scripts/sas/mianalyze_zero_
-withinvar_probe.sas`; log + listing committed alongside). PROC MIANALYZE: zero within-
+**A1 — CLOSED 2026-10-25 by a live SAS run** (owner ran a probe against SAS/STAT 15.3;
+probe script + outputs are kept OUTSIDE the package per owner policy 2026-10-25,
+`~/Develop/sas-validation/kstools`). PROC MIANALYZE: zero within-
 imputation StdErr -> WARNING per imputation; W=0 -> DF, RIVar, FracMiss, RelEff, CI and
 t/p printed as "." - WITH OR WITHOUT EDF= (so the earlier "df = m - 1 is sound" note in
 the fix-plan was wrong for the no-EDF branch too). kstools mirrors: NA for all those

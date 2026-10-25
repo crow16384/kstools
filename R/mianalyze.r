@@ -61,8 +61,9 @@
 #' This mirrors \code{PROC MIANALYZE}, which warns per zero standard error
 #' and prints \code{"."} for those quantities, computing no inference in
 #' that case - with or without \code{EDF=} - even when the
-#' between-imputation variance is positive (live SAS probe,
-#' \code{scripts/sas/mianalyze_zero_withinvar_probe.sas}).
+#' between-imputation variance is positive. Validated against a live SAS
+#' PROC MIANALYZE run; the probe tooling is deliberately kept outside the
+#' package.
 #'
 #' @references
 #' Barnard, J. and Rubin, D. B. (1999). Small-sample degrees of freedom with
@@ -131,7 +132,7 @@ ks_mianalyze <- function(est, err, alpha = 0.05, theta0 = 0, edf = Inf, v0) {
   Vt <- Vw + Vb + Vb/m
 
   # SAS PROC MIANALYZE warns for every imputation whose StdErr is zero
-  # (live probe, scripts/sas/mianalyze_zero_withinvar_probe.sas, 2026-10-25).
+  # (live SAS/STAT 15.3 validation, 2026-10-25; tooling kept off-package).
   zero_se <- which(err == 0)
   if (length(zero_se)) {
     wmsg <- paste0("Within-imputation StdErr is zero for imputation(s) ",
