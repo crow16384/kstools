@@ -51,11 +51,10 @@
 - XPT parallel decode errors now concatenate all worker messages instead
   of reporting only the first (round-1 A10).
 - [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
-  SAS PROC MIANALYZE parity for a zero within-imputation variance (live
-  probe, `scripts/sas/mianalyze_zero_withinvar_probe.sas`): a warning is
-  issued per zero standard error, and when the pooled within variance is
-  0 the degrees of freedom, MI diagnostics (r, FMI, RE), confidence
-  limits and t-test are `NA` - previously a degenerate finite
+  SAS PROC MIANALYZE parity for a zero within-imputation variance: a
+  warning is issued per zero standard error, and when the pooled within
+  variance is 0 the degrees of freedom, MI diagnostics (r, FMI, RE),
+  confidence limits and t-test are `NA` - previously a degenerate finite
   `df = m - 1` (and an `NA`-producing
   [`qt()`](https://rdrr.io/r/stats/TDist.html) call with `EDF=`) was
   reported. SAS prints “.” for these values with or without `EDF=`;

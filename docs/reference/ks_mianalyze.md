@@ -155,8 +155,9 @@ When the within-imputation variance \\(\bar{U}\\) is exactly zero, `df`,
 reported as `NA` and a warning is issued. This mirrors `PROC MIANALYZE`,
 which warns per zero standard error and prints `"."` for those
 quantities, computing no inference in that case - with or without
-`EDF=` - even when the between-imputation variance is positive (live SAS
-probe, `scripts/sas/mianalyze_zero_withinvar_probe.sas`).
+`EDF=` - even when the between-imputation variance is positive.
+Validated against a live SAS PROC MIANALYZE run; the probe tooling is
+deliberately kept outside the package.
 
 ## References
 

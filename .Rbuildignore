@@ -27,3 +27,4 @@
 ^src/\.cache$
 ^vignettes/\.quarto$
 ^scripts/sas$
+^design$
