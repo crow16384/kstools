@@ -17,9 +17,13 @@ kstools.Rcheck/
 *.o
 *.so
 
-# clangd build artifacts
+# clangd: build artifacts AND local config (never tracked; scrubbed from history 2026-10-25)
+.clangd
 src/.cache/
 src/compile_commands.json
+
+# RStudio: local project files (never tracked)
+*.Rproj
 
 # OS / editor
 .DS_Store
