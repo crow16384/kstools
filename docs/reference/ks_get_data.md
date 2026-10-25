@@ -96,11 +96,14 @@ controlled by the global option `kstools.get_data.case`:
 
 - `"lower"`:
 
-  require the all-lowercase name to exist; otherwise abort.
+  require a candidate whose file stem `file_path_sans_ext` equals the
+  domain in full lowercase (extension is always matched
+  case-insensitively); otherwise abort.
 
 - `"upper"`:
 
-  require the all-uppercase name to exist; otherwise abort.
+  require a candidate whose file stem equals the domain in full
+  uppercase (extension case-insensitive); otherwise abort.
 
 ## See also
 

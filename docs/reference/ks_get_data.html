@@ -13,7 +13,7 @@ lowercased domain names)."><meta property="og:image" content="https://crow16384.
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,12 +134,13 @@ strategy is controlled by the global option <code>kstools.get_data.case</code>:<
 <dd><p>pick the first match in alphabetical order.</p></dd>
 
   <dt><code>"lower"</code></dt>
-<dd><p>require the all-lowercase name to exist; otherwise
-    abort.</p></dd>
+<dd><p>require a candidate whose file stem
+    <code>file_path_sans_ext</code> equals the domain in full lowercase
+    (extension is always matched case-insensitively); otherwise abort.</p></dd>
 
   <dt><code>"upper"</code></dt>
-<dd><p>require the all-uppercase name to exist; otherwise
-    abort.</p></dd>
+<dd><p>require a candidate whose file stem equals the
+    domain in full uppercase (extension case-insensitive); otherwise abort.</p></dd>
 
 
 </dl></div>

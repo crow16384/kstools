@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,14 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.1" id="kstools-061">kstools 0.6.1<a class="anchor" aria-label="anchor" href="#kstools-061"></a></h2>
+<div class="section level3">
+<h3 id="bug-fix-0-6-1">Bug fix<a class="anchor" aria-label="anchor" href="#bug-fix-0-6-1"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_get_data.html">ks_get_data()</a></code>: the <code>kstools.get_data.case = "upper"</code> disambiguation strategy was broken on case-sensitive filesystems (Linux/macOS case-sensitive volumes). It reconstructed the target as <code>STEM.EXT</code> with the extension uppercased (<code>DM.RDS</code>), so a real <code>DM.rds</code> file was never matched and resolution aborted. The <code>lower</code> and <code>upper</code> strategies now compare the matched file’s STEM (<code>file_path_sans_ext</code>) against the domain in the requested case and treat the extension case-insensitively, consistent with the rest of the resolver. This only surfaced on case-sensitive systems because the unit test (which needs both <code>dm.rds</code> and <code>DM.rds</code> in one directory) self-skips on case-insensitive filesystems like APFS.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="kstools-060">kstools 0.6.0<a class="anchor" aria-label="anchor" href="#kstools-060"></a></h2>
 <div class="section level3">

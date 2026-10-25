@@ -1,5 +1,22 @@
 # Changelog
 
+## kstools 0.6.1
+
+### Bug fix
+
+- [`ks_get_data()`](https://crow16384.github.io/kstools/reference/ks_get_data.md):
+  the `kstools.get_data.case = "upper"` disambiguation strategy was
+  broken on case-sensitive filesystems (Linux/macOS case-sensitive
+  volumes). It reconstructed the target as `STEM.EXT` with the extension
+  uppercased (`DM.RDS`), so a real `DM.rds` file was never matched and
+  resolution aborted. The `lower` and `upper` strategies now compare the
+  matched file’s STEM (`file_path_sans_ext`) against the domain in the
+  requested case and treat the extension case-insensitively, consistent
+  with the rest of the resolver. This only surfaced on case-sensitive
+  systems because the unit test (which needs both `dm.rds` and `DM.rds`
+  in one directory) self-skips on case-insensitive filesystems like
+  APFS.
+
 ## kstools 0.6.0
 
 ### Bug fixes and behavior changes (LLM panel review round 1, docs/reviews/2026-10-25-llm-panel)
