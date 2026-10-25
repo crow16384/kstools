@@ -88,8 +88,7 @@ read.csv3 <- function(file, with_length = FALSE) {
     )),
     first = sort(cand)[1L],
     lower = {
-      low <- paste0(tolower(stem), ".", tolower(tools::file_ext(cand)))
-      hit <- cand[cand %in% low]
+      hit <- cand[tools::file_path_sans_ext(cand) == tolower(stem)]
       if (!length(hit))
         cli::cli_abort(c(
           "No all-lowercase file for domain {.val {stem}} in: {.path {path}}.",
@@ -98,8 +97,7 @@ read.csv3 <- function(file, with_length = FALSE) {
       hit[1L]
     },
     upper = {
-      up <- paste0(toupper(stem), ".", toupper(tools::file_ext(cand)))
-      hit <- cand[cand %in% up]
+      hit <- cand[tools::file_path_sans_ext(cand) == toupper(stem)]
       if (!length(hit))
         cli::cli_abort(c(
           "No all-uppercase file for domain {.val {stem}} in: {.path {path}}.",
@@ -162,10 +160,11 @@ read.csv3 <- function(file, with_length = FALSE) {
 #'   \item{\code{"error"}}{(default) abort with a message listing the
 #'     candidates.}
 #'   \item{\code{"first"}}{pick the first match in alphabetical order.}
-#'   \item{\code{"lower"}}{require the all-lowercase name to exist; otherwise
-#'     abort.}
-#'   \item{\code{"upper"}}{require the all-uppercase name to exist; otherwise
-#'     abort.}
+#'   \item{\code{"lower"}}{require a candidate whose file stem
+#'     \code{file_path_sans_ext} equals the domain in full lowercase
+#'     (extension is always matched case-insensitively); otherwise abort.}
+#'   \item{\code{"upper"}}{require a candidate whose file stem equals the
+#'     domain in full uppercase (extension case-insensitive); otherwise abort.}
 #' }
 #'
 #' @param ... Unquoted (or quoted) domain names, e.g. \code{dm, ae, lb}.

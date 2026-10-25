@@ -77,10 +77,11 @@ strategy is controlled by the global option \code{kstools.get_data.case}:
   \item{\code{"error"}}{(default) abort with a message listing the
     candidates.}
   \item{\code{"first"}}{pick the first match in alphabetical order.}
-  \item{\code{"lower"}}{require the all-lowercase name to exist; otherwise
-    abort.}
-  \item{\code{"upper"}}{require the all-uppercase name to exist; otherwise
-    abort.}
+  \item{\code{"lower"}}{require a candidate whose file stem
+    \code{file_path_sans_ext} equals the domain in full lowercase
+    (extension is always matched case-insensitively); otherwise abort.}
+  \item{\code{"upper"}}{require a candidate whose file stem equals the
+    domain in full uppercase (extension case-insensitive); otherwise abort.}
 }
 }
 \examples{
