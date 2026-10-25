@@ -35,20 +35,32 @@ knit_print(x, ...)
 
 - theta0:
 
-  Null value for hypothesis test \\H_0: \theta = \theta_0\\.
+  Null value for hypothesis test \\(H_0: \theta = \theta_0\\).
 
 - edf:
 
   Complete-data degrees of freedom (positive numeric scalar or `Inf`).
   Equivalent to the SAS `EDF=` option in `PROC MIANALYZE`. When finite,
-  the Barnard-Rubin (1999) adjusted degrees of freedom \\v_m^\*\\ are
-  used instead of the Rubin (1987) large-sample \\v_m\\. Default `Inf`
+  the Barnard-Rubin (1999) adjusted degrees of freedom \\(v_m^\*\\) are
+  used instead of the Rubin (1987) large-sample \\(v_m\\). Default `Inf`
   (no adjustment, Rubin large-sample df).
 
 - v0:
 
   Deprecated alias for `edf`. Kept for backward compatibility; ignored
   when `edf` is also supplied.
+
+- object:
+
+  A `ks_mianalyze` object (`summary` method).
+
+- ...:
+
+  Additional arguments, currently ignored.
+
+- x:
+
+  A `ks_mianalyze` object (`print` method).
 
 ## Value
 
@@ -116,7 +128,7 @@ An object of class `ks_mianalyze` with components:
 
 - t:
 
-  Test statistic for \\H_0\\.
+  Test statistic for \\(H_0\\).
 
 - pval:
 
@@ -124,18 +136,27 @@ An object of class `ks_mianalyze` with components:
 
 ## Details
 
-Let \\Q_i\\ and \\U_i\\ be estimate and variance from imputation \\i\\.
-The pooled estimate is \\\bar{Q} = m^{-1}\sum_i Q_i\\; within variance
-\\\bar{U} = m^{-1}\sum_i U_i\\; between variance \\B = (m-1)^{-1}\sum_i
-(Q_i-\bar{Q})^2\\; total variance \\T = \bar{U} + (1 + 1/m)B\\.
+Let \\(Q_i\\) and \\(U_i\\) be estimate and variance from imputation
+\\(i\\). The pooled estimate is \\(\bar{Q} = m^{-1}\sum_i Q_i\\); within
+variance \\(\bar{U} = m^{-1}\sum_i U_i\\); between variance \\(B =
+(m-1)^{-1}\sum_i (Q_i-\bar{Q})^2\\); total variance \\(T = \bar{U} +
+(1 + 1/m)B\\).
 
-Rubin's (1987) large-sample degrees of freedom are \\v_m = (m-1)(1 +
-\bar{U}/((1+m^{-1})B))^2\\. When the complete-data degrees of freedom
-\\v_0\\ are small and the fraction of missing information is modest,
-\\v_m\\ can greatly exceed \\v_0\\, which is inappropriate. The
-Barnard-Rubin (1999) adjustment computes \\v_m^\* = (1/v_m +
-1/\hat{v}\_{obs})^{-1}\\ where \\\hat{v}\_{obs} = (1-\gamma) v_0
-(v_0+1)/(v_0+3)\\ and \\\gamma = (1+m^{-1})B/T\\.
+Rubin's (1987) large-sample degrees of freedom are \\(v_m = (m-1)(1 +
+\bar{U}/((1+m^{-1})B))^2\\). When the complete-data degrees of freedom
+\\(v_0\\) are small and the fraction of missing information is modest,
+\\(v_m\\) can greatly exceed \\(v_0\\), which is inappropriate. The
+Barnard-Rubin (1999) adjustment computes \\(v_m^\* = (1/v_m +
+1/\hat{v}\_{obs})^{-1}\\) where \\(\hat{v}\_{obs} = (1-\gamma) v_0
+(v_0+1)/(v_0+3)\\) and \\(\gamma = (1+m^{-1})B/T\\).
+
+When the within-imputation variance \\(\bar{U}\\) is exactly zero, `df`,
+`r`, `lambda`, `re`, the confidence limits and the \\(t\\)-test are
+reported as `NA` and a warning is issued. This mirrors `PROC MIANALYZE`,
+which warns per zero standard error and prints `"."` for those
+quantities, computing no inference in that case - with or without
+`EDF=` - even when the between-imputation variance is positive (live SAS
+probe, `scripts/sas/mianalyze_zero_withinvar_probe.sas`).
 
 ## References
 

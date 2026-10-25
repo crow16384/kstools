@@ -2,8 +2,8 @@
 
 Reads a column that contains `"code=label"` entries, splits them on `=`,
 and passes the resulting lookup to
-[`ksformat::fnew()`](https://rdrr.io/pkg/ksformat/man/fnew.html) as a
-numeric format.
+[`ksformat::fnew()`](https://crow16384.github.io/ksformat/reference/fnew.html)
+as a numeric format.
 
 ## Usage
 
@@ -24,14 +24,14 @@ ks_code_to_fmt(dt, col, name = NULL)
 - name:
 
   Character scalar. Name to register the format under via
-  [`ksformat::fnew()`](https://rdrr.io/pkg/ksformat/man/fnew.html).
+  [`ksformat::fnew()`](https://crow16384.github.io/ksformat/reference/fnew.html).
   Defaults to `"<dt_name>_<col_name>_fmt"`.
 
 ## Value
 
 Invisibly returns the result of
-[`ksformat::fnew()`](https://rdrr.io/pkg/ksformat/man/fnew.html) (called
-for its side-effect of registering the format).
+[`ksformat::fnew()`](https://crow16384.github.io/ksformat/reference/fnew.html)
+(called for its side-effect of registering the format).
 
 ## Examples
 

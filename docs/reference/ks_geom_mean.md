@@ -1,8 +1,9 @@
 # Geometric mean and confidence interval
 
 Computes the geometric mean of a numeric vector and an approximate
-confidence interval based on the Student \\t\\-distribution on the **log
-scale** (assuming log-transformed values are approximately normal).
+confidence interval based on the Student \\(t\\)-distribution on the
+**log scale** (assuming log-transformed values are approximately
+normal).
 
 ## Usage
 
@@ -29,7 +30,7 @@ ks_geom_mean(x, na.rm = TRUE, zero.propagate = FALSE, alpha = 0.05)
 - alpha:
 
   Significance level for the two-sided CI (coverage nominal
-  \\1-\alpha\\). Must lie in \\(0, 1)\\.
+  \\(1-\alpha\\)). Must lie in \\((0, 1)\\).
 
 ## Value
 
@@ -41,34 +42,34 @@ A list with components:
 
 - `geom.sd`:
 
-  Geometric standard deviation, \\\exp(\mathrm{sd}(\log x))\\ on the
+  Geometric standard deviation, \\(\exp(\mathrm{sd}(\log x))\\) on the
   positive data used (same as common PK notation; `NA` if not defined).
 
 - `geom.mean.lcl`:
 
-  Lower limit of the \\100(1-\alpha)\\% CI.
+  Lower limit of the \\(100(1-\alpha)\\)% CI.
 
 - `geom.mean.ucl`:
 
-  Upper limit of the \\100(1-\alpha)\\% CI.
+  Upper limit of the \\(100(1-\alpha)\\)% CI.
 
 ## Details
 
-The geometric mean of positive values \\x_1,\ldots,x_k\\ is
-\\\exp(\frac{1}{k}\sum\_{i=1}^k \log x_i)\\.
+The geometric mean of positive values \\(x_1,\ldots,x_k\\) is
+\\(\exp(\frac{1}{k}\sum\_{i=1}^k \log x_i)\\).
 
-If `zero.propagate = FALSE`, only \\x_i \> 0\\ are used. If there are no
-positive values, the geometric mean is `0` (all zeros) or `NA` (empty or
-invalid input after removing `NA`s).
+If `zero.propagate = FALSE`, only \\(x_i \> 0\\) are used. If there are
+no positive values, the geometric mean is `0` (all zeros) or `NA` (empty
+or invalid input after removing `NA`s).
 
 Negative values are not allowed: the function returns `NaN` for
 `geom.mean` (and `CI` components) because the geometric mean is not
 defined in the reals.
 
-The confidence interval is \\\exp(\bar y \pm t\_{1-\alpha/2,\\df}\\
-s/\sqrt{n})\\ where \\y = \log x\\ for the positive observations used,
-\\s\\ is the sample SD of \\y\\, \\n\\ is their count, and \\df = n-1\\.
-For \\n \< 2\\ the limits are `NA`.
+The confidence interval is \\(\exp(\bar y \pm t\_{1-\alpha/2,\\,df}\\,
+s/\sqrt{n})\\) where \\(y = \log x\\) for the positive observations
+used, \\(s\\) is the sample SD of \\(y\\), \\(n\\) is their count, and
+\\(df = n-1\\). For \\(n \< 2\\) the limits are `NA`.
 
 ## References
 
@@ -86,15 +87,15 @@ Kirkwood, T. B. (1979). Geometric means and measures of dispersion.
 x <- abs(rnorm(100,10,5))
 ks_geom_mean(x)
 #> $geom.mean
-#> [1] 8.591955
+#> [1] 8.583378
 #> 
 #> $geom.sd
-#> [1] 2.198938
+#> [1] 2.171799
 #> 
 #> $geom.mean.lcl
-#> [1] 7.348344
+#> [1] 7.359121
 #> 
 #> $geom.mean.ucl
-#> [1] 10.04603
+#> [1] 10.0113
 #> 
 ```

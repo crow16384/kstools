@@ -32,8 +32,8 @@ ks_median_ci(
 
 - alpha:
 
-  Significance level; the interval has nominal coverage \\1 - \alpha\\.
-  Must be in \\(0, 1)\\.
+  Significance level; the interval has nominal coverage \\(1 -
+  \alpha\\). Must be in \\((0, 1)\\).
 
 - method:
 
@@ -88,14 +88,14 @@ elements depend on `method`:
 - `olive`:
 
   Implements David Olive's simple median CI (order statistics with a
-  \\t\\-based multiplier). Requires at least two non-missing
+  \\(t\\)-based multiplier). Requires at least two non-missing
   observations.
 
 - `z`:
 
   Approximate CI from the normal approximation to the binomial number of
   observations below the population median: bounds are the order
-  statistics with ranks \\n/2 \pm z\_{1-\alpha/2}\sqrt{n}/2\\ (rounded
+  statistics with ranks \\(n/2 \pm z\_{1-\alpha/2}\sqrt{n}/2\\) (rounded
   inward). The reported `Median` uses `quantile(..., type)`.
 
 ## References
@@ -117,7 +117,7 @@ Applications*. Cambridge University Press.
 x <- rnorm(100, 56, 2.5)
 ks_median_ci(x, method = "olive")
 #>    Median Olive.LCI Olive.UCI 
-#>  56.31887  55.69667  56.94107 
+#>  56.06176  55.40239  56.72113 
 
 vv <- c(8, 11, 12, 13, 15, 17, 19, 20, 21, 21, 22, 23, 25, 26, 28)
 ks_median_ci(vv, method = "boot", R = 1000, seed = 1L)

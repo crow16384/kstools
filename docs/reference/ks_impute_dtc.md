@@ -92,13 +92,14 @@ imputed:
 - `"start"`:
 
   Each missing component is filled with the *earliest* plausible value:
-  month \\\to\\ 1, day \\\to\\ 1, hour \\\to\\ 0, minute \\\to\\ 0.
+  month \\(\to\\) 1, day \\(\to\\) 1, hour \\(\to\\) 0, minute \\(\to\\)
+  0.
 
 - `"end"`:
 
   Each missing component is filled with the *latest* plausible value:
-  month \\\to\\ 12, day \\\to\\ last day of that month (correctly
-  handling leap years), hour \\\to\\ 23, minute \\\to\\ 59.
+  month \\(\to\\) 12, day \\(\to\\) last day of that month (correctly
+  handling leap years), hour \\(\to\\) 23, minute \\(\to\\) 59.
 
 - `"no"`:
 

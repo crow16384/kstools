@@ -33,10 +33,10 @@ A named numeric vector of length 3: `delta` (point estimate), `lcl`
 
 ## Details
 
-Each stratum \\j\\ contributes a weight \\W_j = (\tilde\lambda\_{1j} /
-(\tilde\lambda\_{2j} T\_{1j}) + 1/T\_{2j})^{-1}\\ and the combined score
-statistic is \\\sum_j W_j^2 V_j^{-1} \cdot (\sum_j W_j (r\_{1j} -
-r\_{2j} - \theta))^2\\.
+Each stratum \\(j\\) contributes a weight \\(W_j = (\tilde\lambda\_{1j}
+/ (\tilde\lambda\_{2j} T\_{1j}) + 1/T\_{2j})^{-1}\\) and the combined
+score statistic is \\(\sum_j W_j^2 V_j^{-1} \cdot (\sum_j W_j (r\_{1j} -
+r\_{2j} - \theta))^2\\).
 
 The point estimate `delta` is the unweighted arithmetic mean of the
 stratum-specific rate differences.

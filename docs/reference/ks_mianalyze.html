@@ -13,7 +13,7 @@ edf (equivalent to the SAS EDF= option)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,6 +98,18 @@ When finite, the Barnard-Rubin (1999) adjusted degrees of freedom
 <dd><p>Deprecated alias for <code>edf</code>.  Kept for backward
 compatibility; ignored when <code>edf</code> is also supplied.</p></dd>
 
+
+<dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
+<dd><p>A <code>ks_mianalyze</code> object (<code>summary</code> method).</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments, currently ignored.</p></dd>
+
+
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>A <code>ks_mianalyze</code> object (<code>print</code> method).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -169,6 +181,14 @@ inappropriate.  The Barnard-Rubin (1999) adjustment computes
 \(v_m^* = (1/v_m + 1/\hat{v}_{obs})^{-1}\) where
 \(\hat{v}_{obs} = (1-\gamma) v_0 (v_0+1)/(v_0+3)\) and
 \(\gamma = (1+m^{-1})B/T\).</p>
+<p>When the within-imputation variance \(\bar{U}\) is exactly zero,
+<code>df</code>, <code>r</code>, <code>lambda</code>, <code>re</code>, the confidence limits and
+the \(t\)-test are reported as <code>NA</code> and a warning is issued.
+This mirrors <code>PROC MIANALYZE</code>, which warns per zero standard error
+and prints <code>"."</code> for those quantities, computing no inference in
+that case - with or without <code>EDF=</code> - even when the
+between-imputation variance is positive (live SAS probe,
+<code>scripts/sas/mianalyze_zero_withinvar_probe.sas</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

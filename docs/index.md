@@ -4,7 +4,7 @@
 GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![pkgdown
 site](https://img.shields.io/badge/pkgdown-site-2A7FFF)](https://crow16384.github.io/kstools/)
-[![Version](https://img.shields.io/badge/version-0.5.8-blue)](https://github.com/crow16384/kstools/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue)](https://github.com/crow16384/kstools/releases/latest)
 
 Clinical and data science utilities for R.
 
@@ -20,10 +20,12 @@ Repository:
 
 From a local checkout (package root):
 
-[`install.packages`](https://rdrr.io/r/utils/install.packages.html)`(``"."``, repos ``=`` ``NULL``, type ``=`` ``"source"``)`
+\
+[`install.packages`](https://rdrr.io/r/utils/install.packages.html)`(``"."``, repos ``=`` ``NULL``, type ``=`` ``"source"``)`
 
 From GitHub:
 
+\
 `remotes``::`[`install_github`](https://remotes.r-lib.org/reference/install_github.html)`(``"crow16384/kstools"``)`
 
 ## Key Features
@@ -109,13 +111,22 @@ From GitHub:
   [inst/examples](https://crow16384.github.io/kstools/inst/examples).
 - Run all examples in a defined sequence:
 
+\
 [`source`](https://rdrr.io/r/base/source.html)`(``"inst/examples/run_all_examples.R"``)`
 
 ## Documentation Workflow
 
 From the package root:
 
-`# 1) Regenerate Rd files and NAMESPACE from roxygen comments`` ``roxygen2``::`[`roxygenise`](https://roxygen2.r-lib.org/reference/roxygenize.html)`(``)`` `` ``# 2) Build vignettes`` ``devtools``::`[`build_vignettes`](https://devtools.r-lib.org/reference/build_vignettes.html)`(``)`` `` ``# 3) Build package site (pkgdown)`` ``pkgdown``::`[`build_site`](https://pkgdown.r-lib.org/reference/build_site.html)`(``)`
+\
+`# 1) Regenerate Rd files and NAMESPACE from roxygen comments`\
+`roxygen2``::`[`roxygenise`](https://roxygen2.r-lib.org/reference/roxygenize.html)`(``)`\
+\
+`# 2) Build vignettes`\
+`devtools``::`[`build_vignettes`](https://devtools.r-lib.org/reference/build_vignettes.html)`(``)`\
+\
+`# 3) Build package site (pkgdown)`\
+`pkgdown``::`[`build_site`](https://pkgdown.r-lib.org/reference/build_site.html)`(``)`
 
 The pkgdown configuration is in
 [\_pkgdown.yml](https://crow16384.github.io/kstools/_pkgdown.yml), and

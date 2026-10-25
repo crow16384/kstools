@@ -11,7 +11,7 @@ log scale (assuming log-transformed values are approximately normal)."></head><b
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -126,16 +126,16 @@ sample SD of \(y\), \(n\) is their count, and \(df = n-1\).  For
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">10</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">ks_geom_mean</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $geom.mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8.591955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8.583378</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $geom.sd</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.198938</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.171799</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $geom.mean.lcl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.348344</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.359121</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $geom.mean.ucl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10.04603</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10.0113</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

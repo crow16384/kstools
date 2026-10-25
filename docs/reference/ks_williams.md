@@ -1,6 +1,6 @@
 # Build a randomized Williams cross-over design and schedule
 
-R analogue of the SAS \codeWILLIAMS macro. The function constructs a
+R analogue of the SAS `WILLIAMS` macro. The function constructs a
 Williams design from a randomized cyclic Latin square and generates a
 block-randomized subject schedule.
 
@@ -18,8 +18,7 @@ ks_williams(tmts_num, tmt_names, sample_size, out_rtf = NULL, seed_num = NULL)
 
 - tmt_names:
 
-  Character vector of treatment labels (length must equal
-  \codetmts_num).
+  Character vector of treatment labels (length must equal `tmts_num`).
 
 - sample_size:
 
@@ -32,14 +31,36 @@ ks_williams(tmts_num, tmt_names, sample_size, out_rtf = NULL, seed_num = NULL)
 
 - seed_num:
 
-  Optional integer seed. If \codeNULL, current system time is used.
+  Optional integer seed. If `NULL`, current system time is used.
 
 ## Value
 
-A list with: \describe \itemdesignData frame of Williams sequences by
-period. \itemscheduleData frame of randomized subject assignments.
-\itemseedSeed used. \itemseed_generatedLogical; \codeTRUE when seed was
-auto-generated. \itemn_sequencesNumber of unique sequences.
-\itemblock_numNumber of full randomization blocks used.
-\itemsample_size_warningLogical; \codeTRUE when \codesample_size is not
-a multiple of \coden_sequences.
+A list with:
+
+- design:
+
+  Data frame of Williams sequences by period.
+
+- schedule:
+
+  Data frame of randomized subject assignments.
+
+- seed:
+
+  Seed used.
+
+- seed_generated:
+
+  Logical; `TRUE` when seed was auto-generated.
+
+- n_sequences:
+
+  Number of unique sequences.
+
+- block_num:
+
+  Number of full randomization blocks used.
+
+- sample_size_warning:
+
+  Logical; `TRUE` when `sample_size` is not a multiple of `n_sequences`.

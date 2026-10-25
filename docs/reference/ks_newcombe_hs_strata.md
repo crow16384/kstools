@@ -21,7 +21,7 @@ ks_newcombe_hs_strata(x1, n1, x2, n2, alpha = 0.05)
 - n1:
 
   Integer vector of sample sizes for group 1, one element per stratum
-  (\\\> 0\\).
+  (\\(\> 0\\)).
 
 - x2:
 
@@ -30,11 +30,12 @@ ks_newcombe_hs_strata(x1, n1, x2, n2, alpha = 0.05)
 - n2:
 
   Integer vector of sample sizes for group 2, one element per stratum
-  (\\\> 0\\).
+  (\\(\> 0\\)).
 
 - alpha:
 
-  Significance level; scalar in \\(0,1)\\. Defaults to `0.05` (95% CI).
+  Significance level; scalar in \\((0,1)\\). Defaults to `0.05` (95%
+  CI).
 
 ## Value
 
@@ -56,14 +57,14 @@ A named numeric vector of length 3:
 
 **Algorithm**:
 
-1.  Compute Wilson CIs \\\[l\_{1i},\\u\_{1i}\]\\ and
-    \\\[l\_{2i},\\u\_{2i}\]\\ for each stratum \\i\\.
+1.  Compute Wilson CIs \\(\[l\_{1i},\\,u\_{1i}\]\\) and
+    \\(\[l\_{2i},\\,u\_{2i}\]\\) for each stratum \\(i\\).
 
-2.  Assign stratum weights \\W_i = n\_{1i}\\n\_{2i} / (n\_{1i} +
-    n\_{2i})\\ (harmonic-mean / Mantel-Haenszel weights).
+2.  Assign stratum weights \\(W_i = n\_{1i}\\,n\_{2i} / (n\_{1i} +
+    n\_{2i})\\) (harmonic-mean / Mantel-Haenszel weights).
 
-3.  Pooled point estimate: \\\hat\delta = \sum W_i (p\_{1i}-p\_{2i}) /
-    \sum W_i\\.
+3.  Pooled point estimate: \\(\hat\delta = \sum W_i (p\_{1i}-p\_{2i}) /
+    \sum W_i\\).
 
 4.  Pooled lower limit: \$\$\mathrm{LCL} = \hat\delta - \sqrt{\frac{\sum
     W_i^2(p\_{1i}-l\_{1i})^2}{(\sum W_i)^2} + \frac{\sum

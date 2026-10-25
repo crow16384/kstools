@@ -27,7 +27,7 @@ ks_simulate_ar1(
 
 - n:
 
-  Number of subjects (\\\ge 1\\).
+  Number of subjects (\\(\ge 1\\)).
 
 - beta0:
 
@@ -35,12 +35,12 @@ ks_simulate_ar1(
 
 - beta1:
 
-  Population mean slope (coefficient of \\\log(\mathrm{obs})\\).
+  Population mean slope (coefficient of \\(\log(\mathrm{obs})\\)).
 
 - ar.val:
 
-  Autoregressive coefficient \\\phi\\ for the within-subject errors
-  (must lie strictly between \\-1\\ and \\1\\).
+  Autoregressive coefficient \\(\phi\\) for the within-subject errors
+  (must lie strictly between \\(-1\\) and \\(1\\)).
 
 - sigma:
 
@@ -53,11 +53,11 @@ ks_simulate_ar1(
 
 - tau01:
 
-  Correlation between random intercept and slope (in \\\[-1,1\]\\).
+  Correlation between random intercept and slope (in \\(\[-1,1\]\\)).
 
 - m:
 
-  Maximum possible number of visits per subject (must be \\\ge 4\\).
+  Maximum possible number of visits per subject (must be \\(\ge 4\\)).
   Each subject receives between 4 and `m` observations, always including
   time `obs = 1`.
 
@@ -74,16 +74,16 @@ An [`groupedData`](https://rdrr.io/pkg/nlme/man/groupedData.html) object
 
 ## Details
 
-Observation counts \\p_i\\ are uniform on \\\\4,\ldots,m\\\\ (rounded
-from continuous uniforms). Observation times are \\1\\ plus a random
-subset of \\\\2,\ldots,m\\\\ of size \\p_i-1\\.
+Observation counts \\(p_i\\) are uniform on \\(\\{4,\ldots,m\\}\\)
+(rounded from continuous uniforms). Observation times are \\(1\\) plus a
+random subset of \\(\\{2,\ldots,m\\}\\) of size \\(p_i-1\\).
 
-Random effects \\(b\_{0i}, b\_{1i})'\\ are bivariate normal with mean
+Random effects \\((b\_{0i}, b\_{1i})'\\) are bivariate normal with mean
 zero, SDs `tau0`, `tau1` and correlation `tau01`. Outcomes are
 \$\$y\_{ij} = (\beta_0 + b\_{0i}) + (\beta_1 + b\_{1i})\log(t\_{ij}) +
-\varepsilon\_{ij}\$\$ with \\\varepsilon\_{i\cdot}\\ an AR(1) Gaussian
+\varepsilon\_{ij}\$\$ with \\(\varepsilon\_{i\cdot}\\) an AR(1) Gaussian
 series. Innovations are scaled so that the marginal residual SD is
-`sigma`: `arima.sim(...)` is multiplied by \\\sigma\sqrt{1-\phi^2}\\.
+`sigma`: `arima.sim(...)` is multiplied by \\(\sigma\sqrt{1-\phi^2}\\).
 
 ## See also
 
@@ -101,7 +101,7 @@ dt <- ks_simulate_ar1(
 )
 head(dt)
 #> Grouped Data: y ~ obs | id
-#> <environment: 0xc6ef0d380>
+#> <environment: 0x77b7260bd8>
 #>   id obs        y
 #> 1  1   1 5.193845
 #> 2  1   2 3.111578

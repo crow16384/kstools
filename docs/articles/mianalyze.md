@@ -2,6 +2,7 @@
 
 ![](mianalyze0.png)
 
+\
 [`library`](https://rdrr.io/r/base/library.html)`(`[`kstools`](https://crow16384.github.io/kstools/)`)`
 
 ## Introduction
@@ -41,24 +42,44 @@ The typical workflow is:
 
 Conceptually:
 
-%%{init: {"theme": "dark", "themeVariables": {"lineColor": "#94a3b8",
-"primaryTextColor": "#f8fafc"}}}%% flowchart TD A(\[Original Dataset\])
-B(\[Multiple Imputation\]) D1\[Imputed Dataset 1\<br/\>Q₁, U₁\]
-D2\[Imputed Dataset 2\<br/\>Q₂, U₂\] D3\[Imputed Dataset 3\<br/\>Q₃,
-U₃\] Ddots\[...\] Dm\[Imputed Dataset m\<br/\>Qₘ, Uₘ\] R{{Rubin's
-Rules\<br/\>Pool Estimates and Variances}} F(\[Pooled Estimate\<br/\>SE,
-CI, p-value\]) A --\> B B --\> D1 B --\> D2 B --\> D3 B --\> Ddots B
---\> Dm D1 --\> R D2 --\> R D3 --\> R Ddots --\> R Dm --\> R R --\> F
-classDef source
-fill:#1e40af,stroke:#93c5fd,stroke-width:2px,color:#f8fafc; classDef
-process fill:#c2410c,stroke:#fdba74,stroke-width:2px,color:#f8fafc;
-classDef imputed
-fill:#166534,stroke:#86efac,stroke-width:2px,color:#f8fafc; classDef
-pooling fill:#6d28d9,stroke:#c4b5fd,stroke-width:2px,color:#f8fafc;
-classDef result
-fill:#15803d,stroke:#86efac,stroke-width:3px,color:#f8fafc; class A
-source; class B process; class D1,D2,D3,Dm imputed; class R pooling;
-class F result; linkStyle default stroke:#94a3b8,stroke-width:1.5px
+%%{init: {"theme": "dark", "themeVariables": {"lineColor": "#94a3b8", "primaryTextColor": "#f8fafc"}}}%%\
+flowchart TD\
+    A(\[Original Dataset\])\
+    B(\[Multiple Imputation\])\
+    D1\[Imputed Dataset 1\<br/\>Q₁, U₁\]\
+    D2\[Imputed Dataset 2\<br/\>Q₂, U₂\]\
+    D3\[Imputed Dataset 3\<br/\>Q₃, U₃\]\
+    Ddots\[...\]\
+    Dm\[Imputed Dataset m\<br/\>Qₘ, Uₘ\]\
+    R{{Rubin's Rules\<br/\>Pool Estimates and Variances}}\
+    F(\[Pooled Estimate\<br/\>SE, CI, p-value\])\
+\
+    A --\> B\
+    B --\> D1\
+    B --\> D2\
+    B --\> D3\
+    B --\> Ddots\
+    B --\> Dm\
+    D1 --\> R\
+    D2 --\> R\
+    D3 --\> R\
+    Ddots --\> R\
+    Dm --\> R\
+    R --\> F\
+\
+    classDef source fill:#1e40af,stroke:#93c5fd,stroke-width:2px,color:#f8fafc;\
+    classDef process fill:#c2410c,stroke:#fdba74,stroke-width:2px,color:#f8fafc;\
+    classDef imputed fill:#166534,stroke:#86efac,stroke-width:2px,color:#f8fafc;\
+    classDef pooling fill:#6d28d9,stroke:#c4b5fd,stroke-width:2px,color:#f8fafc;\
+    classDef result fill:#15803d,stroke:#86efac,stroke-width:3px,color:#f8fafc;\
+\
+    class A source;\
+    class B process;\
+    class D1,D2,D3,Dm imputed;\
+    class R pooling;\
+    class F result;\
+\
+    linkStyle default stroke:#94a3b8,stroke-width:1.5px\
 
 ## Rubin’s Rules
 
@@ -176,27 +197,31 @@ specified, and by `mianalyze(edf = ...)`.
 
 ## Basic Example
 
-`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.345``, ``0.303``, ``0.298``, ``0.378``)`` ``err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.056``, ``0.101``, ``0.099``, ``0.034``)`` ``out`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`` ``out`
+\
+`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.345``, ``0.303``, ``0.298``, ``0.378``)`\
+`err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.056``, ``0.101``, ``0.099``, ``0.034``)`\
+`out`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`\
+`out`
 
-### Variance Information (4 Imputations)
+**Variance Information (4 Imputations)**
 
 |  Between |   Within |    Total |      DF |
 |---------:|---------:|---------:|--------:|
 | 0.001426 | 0.006074 | 0.007856 | 58.2727 |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0.293488 | 0.252131 | 0.940705 |
 
-### Parameter Estimates (4 Imputations)
+**Parameter Estimates (4 Imputations)**
 
 | Estimate | Std Error |      LCL |      UCL |      DF |
 |---------:|----------:|---------:|---------:|--------:|
 |    0.331 |  0.088634 | 0.153597 | 0.508403 | 58.2727 |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic |  PValue |
 |--------:|--------:|-------:|----------:|--------:|
@@ -204,31 +229,52 @@ specified, and by `mianalyze(edf = ...)`.
 
 ## Example: Manual Verification
 
-`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.345``, ``0.303``, ``0.298``, ``0.378``)`` ``err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.056``, ``0.101``, ``0.099``, ``0.034``)`` `` ``m`` ``<-`` `[`length`](https://rdrr.io/r/base/length.html)`(``est``)`` ``Qbar`` ``<-`` `[`mean`](https://rdrr.io/r/base/mean.html)`(``est``)`` ``Vw`` ``<-`` `[`mean`](https://rdrr.io/r/base/mean.html)`(``err``^``2``)`` ``Vb`` ``<-`` `[`var`](https://rdrr.io/r/stats/cor.html)`(``est``)`` ``Vt`` ``<-`` ``Vw`` ``+`` ``(``1`` ``+`` ``1`` ``/`` ``m``)`` ``*`` ``Vb`` `` ``manual`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``Estimate ``=`` ``Qbar``, Vw ``=`` ``Vw``, Vb ``=`` ``Vb``, Vt ``=`` ``Vt``, SE ``=`` `[`sqrt`](https://rdrr.io/r/base/MathFun.html)`(``Vt``)``)`` ``pooled`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(`` `` Estimate ``=`` ``out``$``Estimate``, Vw ``=`` ``out``$``Vw``, Vb ``=`` ``out``$``Vb``,`` `` Vt ``=`` ``out``$``Vt``, SE ``=`` ``out``$``StdErr`` ``)`` `[`rbind`](https://rdrr.io/r/base/cbind.html)`(``manual ``=`` ``manual``, mianalyze ``=`` ``pooled``)`` ``#> Estimate Vw Vb Vt SE`` ``#> manual 0.331 0.0060735 0.001426 0.007856 0.08863408`` ``#> mianalyze 0.331 0.0060735 0.001426 0.007856 0.08863408`
+\
+`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.345``, ``0.303``, ``0.298``, ``0.378``)`\
+`err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.056``, ``0.101``, ``0.099``, ``0.034``)`\
+\
+`m`` ``<-`` `[`length`](https://rdrr.io/r/base/length.html)`(``est``)`\
+`Qbar`` ``<-`` `[`mean`](https://rdrr.io/r/base/mean.html)`(``est``)`\
+`Vw`` ``<-`` `[`mean`](https://rdrr.io/r/base/mean.html)`(``err``^``2``)`\
+`Vb`` ``<-`` `[`var`](https://rdrr.io/r/stats/cor.html)`(``est``)`\
+`Vt`` ``<-`` ``Vw`` ``+`` ``(``1`` ``+`` ``1`` ``/`` ``m``)`` ``*`` ``Vb`\
+\
+`manual`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``Estimate ``=`` ``Qbar``, Vw ``=`` ``Vw``, Vb ``=`` ``Vb``, Vt ``=`` ``Vt``, SE ``=`` `[`sqrt`](https://rdrr.io/r/base/MathFun.html)`(``Vt``)``)`\
+`pooled`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(`\
+`  Estimate ``=`` ``out``$``Estimate``, Vw ``=`` ``out``$``Vw``, Vb ``=`` ``out``$``Vb``,`\
+`  Vt ``=`` ``out``$``Vt``, SE ``=`` ``out``$``StdErr`\
+`)`\
+[`rbind`](https://rdrr.io/r/base/cbind.html)`(``manual ``=`` ``manual``, mianalyze ``=`` ``pooled``)`\
+`#>           Estimate        Vw       Vb       Vt         SE`\
+`#> manual       0.331 0.0060735 0.001426 0.007856 0.08863408`\
+`#> mianalyze    0.331 0.0060735 0.001426 0.007856 0.08863408`
 
 ## Example: Treatment Difference
 
-`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``-``2.8``, ``-``3.2``, ``-``2.5``, ``-``3.1``, ``-``2.9``)`` ``err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``1.10``, ``1.15``, ``1.05``, ``1.18``, ``1.12``)`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`
+\
+`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``-``2.8``, ``-``3.2``, ``-``2.5``, ``-``3.1``, ``-``2.9``)`\
+`err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``1.10``, ``1.15``, ``1.05``, ``1.18``, ``1.12``)`\
+[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`
 
-### Variance Information (5 Imputations)
+**Variance Information (5 Imputations)**
 
 | Between |  Within |   Total |       DF |
 |--------:|--------:|--------:|---------:|
 |   0.075 | 1.25636 | 1.34636 | 895.1532 |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0.071636 | 0.068925 | 0.986402 |
 
-### Parameter Estimates (5 Imputations)
+**Parameter Estimates (5 Imputations)**
 
 | Estimate | Std Error |       LCL |       UCL |       DF |
 |---------:|----------:|----------:|----------:|---------:|
 |     -2.9 |  1.160328 | -5.177279 | -0.622721 | 895.1532 |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic |   PValue |
 |--------:|--------:|-------:|----------:|---------:|
@@ -244,71 +290,102 @@ Interpretation:
 
 Pool results on the log scale, then exponentiate.
 
-`log_or`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.18``, ``0.21``, ``0.15``, ``0.19``, ``0.23``)`` ``se_log_or`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.09``, ``0.10``, ``0.09``, ``0.08``, ``0.11``)`` ``res`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``log_or``, ``se_log_or``)`` ``res`
+\
+`log_or`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.18``, ``0.21``, ``0.15``, ``0.19``, ``0.23``)`\
+`se_log_or`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.09``, ``0.10``, ``0.09``, ``0.08``, ``0.11``)`\
+`res`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``log_or``, ``se_log_or``)`\
+`res`
 
-### Variance Information (5 Imputations)
+**Variance Information (5 Imputations)**
 
 | Between |  Within |    Total |       DF |
 |--------:|--------:|---------:|---------:|
 | 0.00092 | 0.00894 | 0.010044 | 331.0818 |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0.12349 | 0.115245 | 0.97747 |
 
-### Parameter Estimates (5 Imputations)
+**Parameter Estimates (5 Imputations)**
 
 | Estimate | Std Error |       LCL |      UCL |       DF |
 |---------:|----------:|----------:|---------:|---------:|
 |    0.192 |   0.10022 | -0.005148 | 0.389148 | 331.0818 |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic |   PValue |
 |--------:|--------:|-------:|----------:|---------:|
 |    0.15 |    0.23 |      0 |   1.91579 | 0.056253 |
 
-` `[`exp`](https://rdrr.io/r/base/Log.html)`(`[`c`](https://rdrr.io/r/base/c.html)`(``OR ``=`` ``res``$``Estimate``, LCL ``=`` ``res``$``lcl``, UCL ``=`` ``res``$``ucl``)``)`` ``#> OR LCL UCL `` ``#> 1.2116705 0.9948654 1.4757226`
+\
+\
+[`exp`](https://rdrr.io/r/base/Log.html)`(`[`c`](https://rdrr.io/r/base/c.html)`(``OR ``=`` ``res``$``Estimate``, LCL ``=`` ``res``$``lcl``, UCL ``=`` ``res``$``ucl``)``)`\
+`#>        OR       LCL       UCL `\
+`#> 1.2116705 0.9948654 1.4757226`
 
 ## Example: Hazard Ratio Analysis
 
 Cox models typically return log-hazard ratios.
 
-`log_hr`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``-``0.22``, ``-``0.17``, ``-``0.31``, ``-``0.28``, ``-``0.24``)`` ``se`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.14``, ``0.13``, ``0.15``, ``0.12``, ``0.13``)`` ``res`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``log_hr``, ``se``)`` ``res`
+\
+`log_hr`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``-``0.22``, ``-``0.17``, ``-``0.31``, ``-``0.28``, ``-``0.24``)`\
+`se`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.14``, ``0.13``, ``0.15``, ``0.12``, ``0.13``)`\
+`res`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``log_hr``, ``se``)`\
+`res`
 
-### Variance Information (5 Imputations)
+**Variance Information (5 Imputations)**
 
 | Between |  Within |    Total |       DF |
 |--------:|--------:|---------:|---------:|
 | 0.00293 | 0.01806 | 0.021576 | 150.6275 |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0.194684 | 0.173856 | 0.966397 |
 
-### Parameter Estimates (5 Imputations)
+**Parameter Estimates (5 Imputations)**
 
 | Estimate | Std Error |       LCL |      UCL |       DF |
 |---------:|----------:|----------:|---------:|---------:|
 |   -0.244 |  0.146888 | -0.534226 | 0.046226 | 150.6275 |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic |   PValue |
 |--------:|--------:|-------:|----------:|---------:|
 |   -0.31 |   -0.17 |      0 | -1.661133 | 0.098767 |
 
-` `[`exp`](https://rdrr.io/r/base/Log.html)`(`[`c`](https://rdrr.io/r/base/c.html)`(``HR ``=`` ``res``$``Estimate``, LCL ``=`` ``res``$``lcl``, UCL ``=`` ``res``$``ucl``)``)`` ``#> HR LCL UCL `` ``#> 0.7834876 0.5861225 1.0473115`
+\
+\
+[`exp`](https://rdrr.io/r/base/Log.html)`(`[`c`](https://rdrr.io/r/base/c.html)`(``HR ``=`` ``res``$``Estimate``, LCL ``=`` ``res``$``lcl``, UCL ``=`` ``res``$``ucl``)``)`\
+`#>        HR       LCL       UCL `\
+`#> 0.7834876 0.5861225 1.0473115`
 
 ## Example: Small-Sample Degrees of Freedom
 
 Assume the complete-data analysis would have $`v_0 = 40`$:
 
-`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.345``, ``0.303``, ``0.298``, ``0.378``)`` ``err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.056``, ``0.101``, ``0.099``, ``0.034``)`` `` ``br`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``, edf ``=`` ``40``)`` ``rubin`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`` `` `[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`` `` method ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Barnard-Rubin (edf=40)"``, ``"Rubin large-sample"``)``,`` `` df ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``br``$``df``, ``rubin``$``df``)``,`` `` lcl ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``br``$``lcl``, ``rubin``$``lcl``)``,`` `` ucl ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``br``$``ucl``, ``rubin``$``ucl``)`` ``)`` ``#> method df lcl ucl`` ``#> 1 Barnard-Rubin (edf=40) 19.57893 0.1458573 0.5161427`` ``#> 2 Rubin large-sample 58.27270 0.1535973 0.5084027`
+\
+`est`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.345``, ``0.303``, ``0.298``, ``0.378``)`\
+`err`` ``<-`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.056``, ``0.101``, ``0.099``, ``0.034``)`\
+\
+`br`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``, edf ``=`` ``40``)`\
+`rubin`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`\
+\
+[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`\
+`  method ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"Barnard-Rubin (edf=40)"``, ``"Rubin large-sample"``)``,`\
+`  df ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``br``$``df``, ``rubin``$``df``)``,`\
+`  lcl ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``br``$``lcl``, ``rubin``$``lcl``)``,`\
+`  ucl ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``br``$``ucl``, ``rubin``$``ucl``)`\
+`)`\
+`#>                   method       df       lcl       ucl`\
+`#> 1 Barnard-Rubin (edf=40) 19.57893 0.1458573 0.5161427`\
+`#> 2     Rubin large-sample 58.27270 0.1535973 0.5084027`
 
 The adjusted degrees of freedom are smaller, producing slightly wider
 confidence intervals.
@@ -358,27 +435,33 @@ means and standard errors across $`m = 5`$ imputations with `EDF=30`
 (sample size $`n = 31`$). Reproducing Oxygen from the published input
 table:
 
-`oxygen`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(`` `` est ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``47.0120``, ``47.2407``, ``47.4995``, ``47.1485``, ``47.0042``)``,`` `` err ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.95984``, ``0.93540``, ``1.00766``, ``0.95439``, ``0.96528``)``,`` `` edf ``=`` ``30`` ``)`` ``oxygen`
+\
+`oxygen`` ``<-`` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(`\
+`  est ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``47.0120``, ``47.2407``, ``47.4995``, ``47.1485``, ``47.0042``)``,`\
+`  err ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.95984``, ``0.93540``, ``1.00766``, ``0.95439``, ``0.96528``)``,`\
+`  edf ``=`` ``30`\
+`)`\
+`oxygen`
 
-### Variance Information (5 Imputations)
+**Variance Information (5 Imputations)**
 
 | Between |   Within |    Total |       DF |
 |--------:|---------:|---------:|---------:|
 | 0.04147 | 0.930854 | 0.980619 | 26.29868 |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0.053461 | 0.051968 | 0.989713 |
 
-### Parameter Estimates (5 Imputations)
+**Parameter Estimates (5 Imputations)**
 
 | Estimate | Std Error |      LCL |      UCL |       DF |
 |---------:|----------:|---------:|---------:|---------:|
 | 47.18098 |  0.990262 | 45.14659 | 49.21537 | 26.29868 |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic | PValue |
 |--------:|--------:|-------:|----------:|-------:|
@@ -388,7 +471,23 @@ Comparison with SAS Output 58.1.2 / 58.1.3 (Oxygen). Small differences
 are expected because the User’s Guide prints input means/SEs with
 limited precision.
 
-`sas_oxygen`` ``<-`` `[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`` `` quantity ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(`` `` ``"Estimate"``, ``"StdErr"``, ``"Between"``, ``"Within"``, ``"Total"``,`` `` ``"DF"``, ``"r"``, ``"lambda"``, ``"RE"``, ``"LCL"``, ``"UCL"`` `` ``)``,`` `` sas ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(`` `` ``47.180993``, ``0.990266``, ``0.041478``, ``0.930853``, ``0.980626``,`` `` ``26.298``, ``0.053471``, ``0.051977``, ``0.989712``, ``45.1466``, ``49.2154`` `` ``)``,`` `` mianalyze ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(`` `` ``oxygen``$``Estimate``, ``oxygen``$``StdErr``, ``oxygen``$``Vb``, ``oxygen``$``Vw``, ``oxygen``$``Vt``,`` `` ``oxygen``$``df``, ``oxygen``$``r``, ``oxygen``$``lambda``, ``oxygen``$``re``, ``oxygen``$``lcl``, ``oxygen``$``ucl`` `` ``)`` ``)`` ``sas_oxygen``$``abs_diff`` ``<-`` `[`abs`](https://rdrr.io/r/base/MathFun.html)`(``sas_oxygen``$``mianalyze`` ``-`` ``sas_oxygen``$``sas``)`` ``knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(``sas_oxygen``, digits ``=`` ``6``)`
+\
+`sas_oxygen`` ``<-`` `[`data.frame`](https://rdrr.io/r/base/data.frame.html)`(`\
+`  quantity ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(`\
+`    ``"Estimate"``, ``"StdErr"``, ``"Between"``, ``"Within"``, ``"Total"``,`\
+`    ``"DF"``, ``"r"``, ``"lambda"``, ``"RE"``, ``"LCL"``, ``"UCL"`\
+`  ``)``,`\
+`  sas ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(`\
+`    ``47.180993``, ``0.990266``, ``0.041478``, ``0.930853``, ``0.980626``,`\
+`    ``26.298``, ``0.053471``, ``0.051977``, ``0.989712``, ``45.1466``, ``49.2154`\
+`  ``)``,`\
+`  mianalyze ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(`\
+`    ``oxygen``$``Estimate``, ``oxygen``$``StdErr``, ``oxygen``$``Vb``, ``oxygen``$``Vw``, ``oxygen``$``Vt``,`\
+`    ``oxygen``$``df``, ``oxygen``$``r``, ``oxygen``$``lambda``, ``oxygen``$``re``, ``oxygen``$``lcl``, ``oxygen``$``ucl`\
+`  ``)`\
+`)`\
+`sas_oxygen``$``abs_diff`` ``<-`` `[`abs`](https://rdrr.io/r/base/MathFun.html)`(``sas_oxygen``$``mianalyze`` ``-`` ``sas_oxygen``$``sas``)`\
+`knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(``sas_oxygen``, digits ``=`` ``6``)`
 
 | quantity |       sas | mianalyze | abs_diff |
 |:---------|----------:|----------:|---------:|
@@ -414,7 +513,17 @@ without `EDF=28`). Automated checks live in
 
 SAS tabulates $`RE = 1/(1+\lambda/m)`$. For illustration:
 
-`re_grid`` ``<-`` `[`expand.grid`](https://rdrr.io/r/base/expand.grid.html)`(`` `` m ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``3``, ``5``, ``10``, ``20``)``,`` `` lambda ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.1``, ``0.2``, ``0.3``, ``0.5``, ``0.7``)`` ``)`` ``re_grid``$``RE`` ``<-`` `[`with`](https://rdrr.io/r/base/with.html)`(``re_grid``, ``1`` ``/`` ``(``1`` ``+`` ``lambda`` ``/`` ``m``)``)`` ``knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(`` `` `[`xtabs`](https://rdrr.io/r/stats/xtabs.html)`(``RE`` ``~`` ``m`` ``+`` ``lambda``, data ``=`` ``re_grid``)``,`` `` digits ``=`` ``4``,`` `` caption ``=`` ``"Relative efficiency (matches SAS Table 58.2)"`` ``)`
+\
+`re_grid`` ``<-`` `[`expand.grid`](https://rdrr.io/r/base/expand.grid.html)`(`\
+`  m ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``3``, ``5``, ``10``, ``20``)``,`\
+`  lambda ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``0.1``, ``0.2``, ``0.3``, ``0.5``, ``0.7``)`\
+`)`\
+`re_grid``$``RE`` ``<-`` `[`with`](https://rdrr.io/r/base/with.html)`(``re_grid``, ``1`` ``/`` ``(``1`` ``+`` ``lambda`` ``/`` ``m``)``)`\
+`knitr``::`[`kable`](https://rdrr.io/pkg/knitr/man/kable.html)`(`\
+`  `[`xtabs`](https://rdrr.io/r/stats/xtabs.html)`(``RE`` ``~`` ``m`` ``+`` ``lambda``, data ``=`` ``re_grid``)``,`\
+`  digits ``=`` ``4``,`\
+`  caption ``=`` ``"Relative efficiency (matches SAS Table 58.2)"`\
+`)`
 
 |     |    0.1 |    0.2 |    0.3 |    0.5 |    0.7 |
 |:----|-------:|-------:|-------:|-------:|-------:|
@@ -429,7 +538,7 @@ Relative efficiency (matches SAS Table 58.2) {.table .caption-top}
 
 SAS:
 
-```
+``` sas
 proc mianalyze data=outuni edf=30;
   modeleffects Oxygen;
   stderr SOxygen;
@@ -438,13 +547,34 @@ run;
 
 Equivalent R:
 
-[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est ``=`` ``oxygen_est``, err ``=`` ``oxygen_se``, edf ``=`` ``30``)`
+\
+[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est ``=`` ``oxygen_est``, err ``=`` ``oxygen_se``, edf ``=`` ``30``)`
 
 ## Typical Clinical Trial Workflow
 
 A common workflow with the **mice** package:
 
-[`library`](https://rdrr.io/r/base/library.html)`(`[`mice`](https://github.com/amices/mice)`)`` `` ``imp`` ``<-`` `[`mice`](https://amices.org/mice/reference/mice.html)`(``adsl``, m ``=`` ``20``)`` `` ``fits`` ``<-`` `[`with`](https://rdrr.io/r/base/with.html)`(`` `` ``imp``,`` `` `[`lm`](https://rdrr.io/r/stats/lm.html)`(``CHG`` ``~`` ``TRT01A`` ``+`` ``BASE``)`` ``)`` `` ``est`` ``<-`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(`` `` ``fits``$``analyses``,`` `` ``function``(``x``)`` `[`coef`](https://rdrr.io/r/stats/coef.html)`(`[`summary`](https://rdrr.io/r/base/summary.html)`(``x``)``)``[``"TRT01AActive"``, ``"Estimate"``]`` ``)`` `` ``err`` ``<-`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(`` `` ``fits``$``analyses``,`` `` ``function``(``x``)`` `[`coef`](https://rdrr.io/r/stats/coef.html)`(`[`summary`](https://rdrr.io/r/base/summary.html)`(``x``)``)``[``"TRT01AActive"``, ``"Std. Error"``]`` ``)`` `` `[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`
+\
+[`library`](https://rdrr.io/r/base/library.html)`(`[`mice`](https://github.com/amices/mice)`)`\
+\
+`imp`` ``<-`` `[`mice`](https://amices.org/mice/reference/mice.html)`(``adsl``, m ``=`` ``20``)`\
+\
+`fits`` ``<-`` `[`with`](https://rdrr.io/r/base/with.html)`(`\
+`  ``imp``,`\
+`  `[`lm`](https://rdrr.io/r/stats/lm.html)`(``CHG`` ``~`` ``TRT01A`` ``+`` ``BASE``)`\
+`)`\
+\
+`est`` ``<-`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(`\
+`  ``fits``$``analyses``,`\
+`  ``function``(``x``)`` `[`coef`](https://rdrr.io/r/stats/coef.html)`(`[`summary`](https://rdrr.io/r/base/summary.html)`(``x``)``)``[``"TRT01AActive"``, ``"Estimate"``]`\
+`)`\
+\
+`err`` ``<-`` `[`sapply`](https://rdrr.io/r/base/lapply.html)`(`\
+`  ``fits``$``analyses``,`\
+`  ``function``(``x``)`` `[`coef`](https://rdrr.io/r/stats/coef.html)`(`[`summary`](https://rdrr.io/r/base/summary.html)`(``x``)``)``[``"TRT01AActive"``, ``"Std. Error"``]`\
+`)`\
+\
+[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est``, ``err``)`
 
 ## Interpreting Output
 
@@ -481,27 +611,28 @@ uncertainty.
 
 ### Single Imputation
 
-[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est ``=`` ``10``, err ``=`` ``2``)`
+\
+[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est ``=`` ``10``, err ``=`` ``2``)`
 
-### Variance Information (1 Imputations)
+**Variance Information (1 Imputations)**
 
 | Between | Within | Total |  DF |
 |--------:|-------:|------:|----:|
 |       0 |      4 |     4 | Inf |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0 | 0 | 1 |
 
-### Parameter Estimates (1 Imputations)
+**Parameter Estimates (1 Imputations)**
 
 | Estimate | Std Error |      LCL |      UCL |  DF |
 |---------:|----------:|---------:|---------:|----:|
 |       10 |         2 | 6.080072 | 13.91993 | Inf |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic | PValue |
 |--------:|--------:|-------:|----------:|-------:|
@@ -512,27 +643,28 @@ complete-data inference.
 
 ### No Between-Imputation Variability
 
-[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est ``=`` `[`rep`](https://rdrr.io/r/base/rep.html)`(``5``, ``5``)``, err ``=`` `[`rep`](https://rdrr.io/r/base/rep.html)`(``1``, ``5``)``)`
+\
+[`mianalyze`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md)`(``est ``=`` `[`rep`](https://rdrr.io/r/base/rep.html)`(``5``, ``5``)``, err ``=`` `[`rep`](https://rdrr.io/r/base/rep.html)`(``1``, ``5``)``)`
 
-### Variance Information (5 Imputations)
+**Variance Information (5 Imputations)**
 
 | Between | Within | Total |  DF |
 |--------:|-------:|------:|----:|
 |       0 |      1 |     1 | Inf |
 
-### Missing Data Diagnostics
+**Missing Data Diagnostics**
 
 | Relative Increase in Variance | Fraction Missing Information | Relative Efficiency |
 |---:|---:|---:|
 | 0 | 0 | 1 |
 
-### Parameter Estimates (5 Imputations)
+**Parameter Estimates (5 Imputations)**
 
 | Estimate | Std Error |      LCL |      UCL |  DF |
 |---------:|----------:|---------:|---------:|----:|
 |        5 |         1 | 3.040036 | 6.959964 | Inf |
 
-### Hypothesis Test
+**Hypothesis Test**
 
 | Minimum | Maximum | Theta0 | Statistic | PValue |
 |--------:|--------:|-------:|----------:|-------:|

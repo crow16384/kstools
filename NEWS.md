@@ -1,4 +1,4 @@
-# kstools 0.5.10
+# kstools 0.6.0
 
 ## Bug fixes and behavior changes (LLM panel review round 1, docs/reviews/2026-10-25-llm-panel)
 

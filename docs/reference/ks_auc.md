@@ -51,8 +51,8 @@ C\_{i+1}}{2} \cdot (t\_{i+1} - t_i)\$\$
 
 The log-linear method is preferred during elimination phases where
 concentrations decline exponentially. It requires strictly positive
-concentrations; when two consecutive values are equal or one is \\\leq
-0\\ the interval automatically falls back to the linear rule.
+concentrations; when two consecutive values are equal or one is \\(\leq
+0\\) the interval automatically falls back to the linear rule.
 
 Rows are sorted by `c(by, time)` before computing so the caller does not
 need to pre-sort the data.

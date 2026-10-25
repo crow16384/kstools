@@ -34,18 +34,18 @@ for each row's level of `x`.
 
 ## Details
 
-Let \\\rho\\ be the overall mean of the response and, for each level
-\\k\\ of `x`, let \\e_k\\ be the number of events (response = 1) and
-\\n_k\\ the number of non-missing responses. The smoothed logit for
-level \\k\\ is \$\$\log \frac{e_k + \rho \cdot m}{n_k - e_k +
-(1-\rho)\cdot m}\$\$ with \\m = \\`prior.n`. A global logit
-\\\log(\rho/(1-\rho))\\ is appended internally for completeness; row
+Let \\(\rho\\) be the overall mean of the response and, for each level
+\\(k\\) of `x`, let \\(e_k\\) be the number of events (response = 1) and
+\\(n_k\\) the number of non-missing responses. The smoothed logit for
+level \\(k\\) is \$\$\log \frac{e_k + \rho \cdot m}{n_k - e_k +
+(1-\rho)\cdot m}\$\$ with \\(m = \\)`prior.n`. A global logit
+\\(\log(\rho/(1-\rho))\\) is appended internally for completeness; row
 values are taken by matching each row's `x` level to the named level
 logits.
 
-If \\\rho \in \\0,1\\\\, the global logit is undefined; the function
-clamps \\\rho\\ to \\(\varepsilon, 1-\varepsilon)\\ for that term only,
-with a warning.
+If \\(\rho \in \\{0,1\\}\\), the global logit is undefined; the function
+clamps \\(\rho\\) to \\((\varepsilon, 1-\varepsilon)\\) for that term
+only, with a warning.
 
 ## References
 

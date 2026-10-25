@@ -40,13 +40,13 @@ ks_q1(x, na.rm = TRUE, type = getOption("kstools.quantile.type", default = 2L))
 ``` r
 ## Use R default algorithm for this call
 ks_q1(rnorm(100), type = 7)
-#>       25% 
-#> -0.746055 
+#>        25% 
+#> -0.5385212 
 
 ## Set package-wide default (e.g. in .Rprofile)
 old <- options(kstools.quantile.type = 7L)
 ks_q1(rnorm(100))   # now uses type 7
-#>        25% 
-#> -0.6657538 
+#>       25% 
+#> -0.518017 
 options(old)         # restore
 ```

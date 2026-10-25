@@ -48,6 +48,16 @@ Confidence intervals, pooled estimates, and model-comparison helpers.
   proportions
 - [`ks_auc()`](https://crow16384.github.io/kstools/reference/ks_auc.md)
   : Area Under the Curve (AUC) by the trapezoidal rule
+- [`ks_boot_ci()`](https://crow16384.github.io/kstools/reference/ks_boot_ci.md)
+  : Bootstrap confidence interval for a scalar statistic
+- [`ks_hosmer_lemeshow()`](https://crow16384.github.io/kstools/reference/ks_hosmer_lemeshow.md)
+  : Hosmer–Lemeshow goodness-of-fit test
+- [`ks_dunnett_crit()`](https://crow16384.github.io/kstools/reference/ks_dunnett_crit.md)
+  : Exact Dunnett critical value (multivariate-t)
+- [`ks_mv_normality()`](https://crow16384.github.io/kstools/reference/ks_mv_normality.md)
+  : Multivariate normality tests (Mardia, energy)
+- [`ks_be_2x2()`](https://crow16384.github.io/kstools/reference/ks_be_2x2.md)
+  : Bioequivalence: 2x2 crossover analysis
 
 ## SDTM and Clinical Data Utilities
 
@@ -113,6 +123,10 @@ support.
 
 ## Miscellaneous Utilities
 
+- [`ks_compare_na()`](https://crow16384.github.io/kstools/reference/ks_compare_na.md)
+  : NA-aware element-wise comparison
+- [`ks_vswitch()`](https://crow16384.github.io/kstools/reference/ks_vswitch.md)
+  : Vectorized switch (SAS select-when maps)
 - [`ks_swap_cols()`](https://crow16384.github.io/kstools/reference/ks_swap_cols.md)
   : Swap pairs of columns in a data frame
 - [`ks_del_tmp()`](https://crow16384.github.io/kstools/reference/ks_del_tmp.md)

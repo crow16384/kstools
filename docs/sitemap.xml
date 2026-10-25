@@ -15,12 +15,16 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_batch_load.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_batch_load_from_single_xpt.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_batch_load_xlsx.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_be_2x2.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_boot_ci.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_code_to_fmt.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_compare_na.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_current_filename.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_cv.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_del_tmp.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_desc_coded.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_dtc2dtn.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_dunnett_crit.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_eairdiff_mn.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_eairdiff_strata_mn.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_extract_single_xpt.html</loc></url>
@@ -28,9 +32,11 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_get_data.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_get_labels.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_get_numdec.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_hosmer_lemeshow.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_impute_dtc.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_median_ci.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_mianalyze.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_mv_normality.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_n_pct.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_newcombe_hs.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_newcombe_hs_strata.html</loc></url>
@@ -48,6 +54,7 @@
 <url><loc>https://crow16384.github.io/kstools/reference/ks_supp_merge.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_swap_cols.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_swoe.html</loc></url>
+<url><loc>https://crow16384.github.io/kstools/reference/ks_vswitch.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_williams.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_write_xpt.html</loc></url>
 <url><loc>https://crow16384.github.io/kstools/reference/ks_xpt_content.html</loc></url>

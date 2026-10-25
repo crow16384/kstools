@@ -1,5 +1,92 @@
 # Changelog
 
+## kstools 0.6.0
+
+### Bug fixes and behavior changes (LLM panel review round 1, docs/reviews/2026-10-25-llm-panel)
+
+- [`ks_write_xpt()`](https://crow16384.github.io/kstools/reference/ks_write_xpt.md):
+  non-finite numeric values (`Inf`, `-Inf`) were silently written as
+  `0`. They are now mapped to SAS missing (`.`) like `NA_real_` and
+  `NaN` (round-1 A2).
+- [`ks_write_xpt()`](https://crow16384.github.io/kstools/reference/ks_write_xpt.md):
+  SAS XPORT interoperability limits now abort instead of silently
+  truncating: variable names must be \<= 8 bytes (v5) / \<= 32 bytes
+  (v8), column labels \<= 40 / 256 bytes, and character data must fit
+  200 bytes at version 5 (SAS XPORT engine limit, Tech Note 1528) and
+  32767 bytes at version 8. Case-insensitive name collisions are
+  rejected (round-1 A4).
+- [`ks_write_xpt()`](https://crow16384.github.io/kstools/reference/ks_write_xpt.md):
+  a failed write no longer leaves a partial `.xpt` file behind (round-1
+  A9).
+- String widths on write are computed in bytes via `LENGTH()`; embedded
+  NUL bytes no longer truncate the stored value silently (round-1 A10).
+- [`ks_read_xpt()`](https://crow16384.github.io/kstools/reference/ks_read_xpt.md)
+  (internal parser): files declaring a numeric variable with a storage
+  width other than 8 bytes are now rejected with a clear error instead
+  of silently decoding shifted garbage (round-1 A8).
+- [`ks_impute_dtc()`](https://crow16384.github.io/kstools/reference/ks_impute_dtc.md):
+  out-of-range components (`month 13`, day beyond month length
+  incl. leap years, `hour 24-25`, minute/second \> 59) were silently
+  rolled over by `make_datetime()` (`2020-13-01` -\> `2021-01-01`). Such
+  elements now follow the documented non-matching contract: `NA` value
+  and `NA` imputation flag, never imputed from `ref` (round-1 A3).
+- [`ks_auc()`](https://crow16384.github.io/kstools/reference/ks_auc.md):
+  groups with fewer than two concurrent non-`NA` (value, time) points
+  now return `NA_real_` instead of a misleading `0` (round-1 A5).
+- [`ks_batch_load()`](https://crow16384.github.io/kstools/reference/ks_batch_load.md):
+  if any file fails to load, the function aborts and reports the
+  offending paths (previously `try-error` objects were kept in the
+  returned list and persisted by `save.path`/`keep`) (round-1 A6).
+- [`ks_roc()`](https://crow16384.github.io/kstools/reference/ks_roc.md):
+  non-numeric predictor columns are rejected with a clear message
+  instead of a cryptic internal type error (round-1 A7).
+- [`ks_n_pct()`](https://crow16384.github.io/kstools/reference/ks_n_pct.md):
+  numeric method warns on fractional counts and computes count and
+  percentage from the same truncated integer (the data-frame method
+  already behaved this way) (round-1 A10).
+- [`ks_supp_merge()`](https://crow16384.github.io/kstools/reference/ks_supp_merge.md):
+  duplicate `(key, QNAM)` records (which `pivot_wider()` would silently
+  turn into list-columns) and QNAM values colliding with primary-domain
+  variable names now abort with SDTM-oriented messages (round-1 A10).
+- XPT parallel decode errors now concatenate all worker messages instead
+  of reporting only the first (round-1 A10).
+- [`ks_mianalyze()`](https://crow16384.github.io/kstools/reference/ks_mianalyze.md):
+  SAS PROC MIANALYZE parity for a zero within-imputation variance (live
+  probe, `scripts/sas/mianalyze_zero_withinvar_probe.sas`): a warning is
+  issued per zero standard error, and when the pooled within variance is
+  0 the degrees of freedom, MI diagnostics (r, FMI, RE), confidence
+  limits and t-test are `NA` - previously a degenerate finite
+  `df = m - 1` (and an `NA`-producing
+  [`qt()`](https://rdrr.io/r/stats/TDist.html) call with `EDF=`) was
+  reported. SAS prints “.” for these values with or without `EDF=`;
+  estimate, pooled SE, B, T and the ranges remain reported (round-1 A1,
+  closed).
+
+## kstools 0.5.9
+
+### New features
+
+- [`ks_compare_na()`](https://crow16384.github.io/kstools/reference/ks_compare_na.md):
+  NA-aware element-wise comparison (SAS `NULL=` twin).
+- [`ks_vswitch()`](https://crow16384.github.io/kstools/reference/ks_vswitch.md):
+  vectorized switch over named cases (SAS select-when map), with `.na` /
+  `.default` fallbacks.
+- [`ks_hosmer_lemeshow()`](https://crow16384.github.io/kstools/reference/ks_hosmer_lemeshow.md):
+  Hosmer-Lemeshow goodness-of-fit for logistic models.
+- [`ks_dunnett_crit()`](https://crow16384.github.io/kstools/reference/ks_dunnett_crit.md):
+  exact Dunnett critical value by inverting the equicorrelated
+  multivariate-t (`mnormt`, Suggests-guarded).
+- [`ks_mv_normality()`](https://crow16384.github.io/kstools/reference/ks_mv_normality.md):
+  Mardia skewness/kurtosis in base R (agrees with
+  [`QuantPsyc::mult.norm`](https://rdrr.io/pkg/QuantPsyc/man/mult.norm.html)) +
+  optional energy test (`energy`, Suggests).
+- [`ks_boot_ci()`](https://crow16384.github.io/kstools/reference/ks_boot_ci.md):
+  one-line percentile/BCa bootstrap CI over `boot`.
+- [`ks_be_2x2()`](https://crow16384.github.io/kstools/reference/ks_be_2x2.md):
+  2x2 crossover bioequivalence via
+  [`nlme::lme`](https://rdrr.io/pkg/nlme/man/lme.html) with `contr.SAS`
+  (T-R on the log scale, 90% CI, ratio interval).
+
 ## kstools 0.5.8
 
 ### Breaking changes

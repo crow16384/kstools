@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,56 @@
       <small>Source: <a href="https://github.com/crow16384/kstools/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="kstools-060">kstools 0.6.0<a class="anchor" aria-label="anchor" href="#kstools-060"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-and-behavior-changes-llm-panel-review-round-docsreviews2026-llm-panel-0-6-0">Bug fixes and behavior changes (LLM panel review round 1, docs/reviews/2026-10-25-llm-panel)<a class="anchor" aria-label="anchor" href="#bug-fixes-and-behavior-changes-llm-panel-review-round-docsreviews2026-llm-panel-0-6-0"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_write_xpt.html">ks_write_xpt()</a></code>: non-finite numeric values (<code>Inf</code>, <code>-Inf</code>) were silently written as <code>0</code>. They are now mapped to SAS missing (<code>.</code>) like <code>NA_real_</code> and <code>NaN</code> (round-1 A2).</li>
+<li>
+<code><a href="../reference/ks_write_xpt.html">ks_write_xpt()</a></code>: SAS XPORT interoperability limits now abort instead of silently truncating: variable names must be &lt;= 8 bytes (v5) / &lt;= 32 bytes (v8), column labels &lt;= 40 / 256 bytes, and character data must fit 200 bytes at version 5 (SAS XPORT engine limit, Tech Note 1528) and 32767 bytes at version 8. Case-insensitive name collisions are rejected (round-1 A4).</li>
+<li>
+<code><a href="../reference/ks_write_xpt.html">ks_write_xpt()</a></code>: a failed write no longer leaves a partial <code>.xpt</code> file behind (round-1 A9).</li>
+<li>String widths on write are computed in bytes via <code>LENGTH()</code>; embedded NUL bytes no longer truncate the stored value silently (round-1 A10).</li>
+<li>
+<code><a href="../reference/ks_read_xpt.html">ks_read_xpt()</a></code> (internal parser): files declaring a numeric variable with a storage width other than 8 bytes are now rejected with a clear error instead of silently decoding shifted garbage (round-1 A8).</li>
+<li>
+<code><a href="../reference/ks_impute_dtc.html">ks_impute_dtc()</a></code>: out-of-range components (<code>month 13</code>, day beyond month length incl. leap years, <code>hour 24-25</code>, minute/second &gt; 59) were silently rolled over by <code>make_datetime()</code> (<code>2020-13-01</code> -&gt; <code>2021-01-01</code>). Such elements now follow the documented non-matching contract: <code>NA</code> value and <code>NA</code> imputation flag, never imputed from <code>ref</code> (round-1 A3).</li>
+<li>
+<code><a href="../reference/ks_auc.html">ks_auc()</a></code>: groups with fewer than two concurrent non-<code>NA</code> (value, time) points now return <code>NA_real_</code> instead of a misleading <code>0</code> (round-1 A5).</li>
+<li>
+<code><a href="../reference/ks_batch_load.html">ks_batch_load()</a></code>: if any file fails to load, the function aborts and reports the offending paths (previously <code>try-error</code> objects were kept in the returned list and persisted by <code>save.path</code>/<code>keep</code>) (round-1 A6).</li>
+<li>
+<code><a href="../reference/ks_roc.html">ks_roc()</a></code>: non-numeric predictor columns are rejected with a clear message instead of a cryptic internal type error (round-1 A7).</li>
+<li>
+<code><a href="../reference/ks_n_pct.html">ks_n_pct()</a></code>: numeric method warns on fractional counts and computes count and percentage from the same truncated integer (the data-frame method already behaved this way) (round-1 A10).</li>
+<li>
+<code><a href="../reference/ks_supp_merge.html">ks_supp_merge()</a></code>: duplicate <code>(key, QNAM)</code> records (which <code>pivot_wider()</code> would silently turn into list-columns) and QNAM values colliding with primary-domain variable names now abort with SDTM-oriented messages (round-1 A10).</li>
+<li>XPT parallel decode errors now concatenate all worker messages instead of reporting only the first (round-1 A10).</li>
+<li>
+<code><a href="../reference/ks_mianalyze.html">ks_mianalyze()</a></code>: SAS PROC MIANALYZE parity for a zero within-imputation variance (live probe, <code>scripts/sas/mianalyze_zero_withinvar_probe.sas</code>): a warning is issued per zero standard error, and when the pooled within variance is 0 the degrees of freedom, MI diagnostics (r, FMI, RE), confidence limits and t-test are <code>NA</code> - previously a degenerate finite <code>df = m - 1</code> (and an <code>NA</code>-producing <code><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">qt()</a></code> call with <code>EDF=</code>) was reported. SAS prints “.” for these values with or without <code>EDF=</code>; estimate, pooled SE, B, T and the ranges remain reported (round-1 A1, closed).</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.9" id="kstools-059">kstools 0.5.9<a class="anchor" aria-label="anchor" href="#kstools-059"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-5-9">New features<a class="anchor" aria-label="anchor" href="#new-features-0-5-9"></a></h3>
+<ul><li>
+<code><a href="../reference/ks_compare_na.html">ks_compare_na()</a></code>: NA-aware element-wise comparison (SAS <code>NULL=</code> twin).</li>
+<li>
+<code><a href="../reference/ks_vswitch.html">ks_vswitch()</a></code>: vectorized switch over named cases (SAS select-when map), with <code>.na</code> / <code>.default</code> fallbacks.</li>
+<li>
+<code><a href="../reference/ks_hosmer_lemeshow.html">ks_hosmer_lemeshow()</a></code>: Hosmer-Lemeshow goodness-of-fit for logistic models.</li>
+<li>
+<code><a href="../reference/ks_dunnett_crit.html">ks_dunnett_crit()</a></code>: exact Dunnett critical value by inverting the equicorrelated multivariate-t (<code>mnormt</code>, Suggests-guarded).</li>
+<li>
+<code><a href="../reference/ks_mv_normality.html">ks_mv_normality()</a></code>: Mardia skewness/kurtosis in base R (agrees with <code><a href="https://rdrr.io/pkg/QuantPsyc/man/mult.norm.html" class="external-link">QuantPsyc::mult.norm</a></code>) + optional energy test (<code>energy</code>, Suggests).</li>
+<li>
+<code><a href="../reference/ks_boot_ci.html">ks_boot_ci()</a></code>: one-line percentile/BCa bootstrap CI over <code>boot</code>.</li>
+<li>
+<code><a href="../reference/ks_be_2x2.html">ks_be_2x2()</a></code>: 2x2 crossover bioequivalence via <code><a href="https://rdrr.io/pkg/nlme/man/lme.html" class="external-link">nlme::lme</a></code> with <code>contr.SAS</code> (T-R on the log scale, 90% CI, ratio interval).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.8" id="kstools-058">kstools 0.5.8<a class="anchor" aria-label="anchor" href="#kstools-058"></a></h2>
 <div class="section level3">

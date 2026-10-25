@@ -15,7 +15,7 @@ When the option is not set the package default of 2 is used."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kstools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,13 +87,13 @@ When the option is not set the package default of <code>2</code> is used.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Use SAS-compatible algorithm for this call</span></span></span>
 <span class="r-in"><span><span class="fu">ks_q3</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       75% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.5711746 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.5864616 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Set package-wide default (e.g. in .Rprofile)</span></span></span>
 <span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>kstools.quantile.type <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">ks_q3</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>   <span class="co"># now uses type 7</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       75% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.4578703 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.6155824 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span>         <span class="co"># restore</span></span></span>
 </code></pre></div>
     </div>

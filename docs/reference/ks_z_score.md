@@ -21,7 +21,7 @@ ks_z_score(x, na.rm = TRUE)
 
 ## Details
 
-Useful values are +\\-3.
+Useful values are +\\/-3.
 
 ## Examples
 

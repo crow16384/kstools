@@ -1,6 +1,6 @@
 # Miettinen-Nurminen CI for the difference of two incidence rates
 
-Computes the difference (Test \\-\\ Control) of two exposure-adjusted
+Computes the difference (Test \\(-\\) Control) of two exposure-adjusted
 incidence rates (EAIRs) and its confidence interval using the
 score-based method of Miettinen & Nurminen (1985).
 
@@ -33,10 +33,11 @@ A matrix with one row per input pair and three named columns: `delta`
 ## Details
 
 The CI is found by inverting the score statistic. For each candidate
-rate difference \\\theta\\, the pooled estimate \\\tilde\lambda_2\\ is
-obtained by solving the MLE equations under the constraint \\\lambda_1 -
-\lambda_2 = \theta\\, and the score chi-squared is compared to
-\\\chi^2\_{1,1-\alpha}\\. The two roots of this equation (found via
+rate difference \\(\theta\\), the pooled estimate \\(\tilde\lambda_2\\)
+is obtained by solving the MLE equations under the constraint
+\\(\lambda_1 - \lambda_2 = \theta\\), and the score chi-squared is
+compared to \\(\chi^2\_{1,1-\alpha}\\). The two roots of this equation
+(found via
 [`uniroot.all`](https://rdrr.io/pkg/rootSolve/man/uniroot.all.html)) are
 the lower and upper confidence bounds.
 

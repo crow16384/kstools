@@ -41,12 +41,12 @@ ks_q3(x, na.rm = TRUE, type = getOption("kstools.quantile.type", default = 2L))
 ## Use SAS-compatible algorithm for this call
 ks_q3(rnorm(100), type = 2)
 #>       75% 
-#> 0.5711746 
+#> 0.5864616 
 
 ## Set package-wide default (e.g. in .Rprofile)
 old <- options(kstools.quantile.type = 7L)
 ks_q3(rnorm(100))   # now uses type 7
 #>       75% 
-#> 0.4578703 
+#> 0.6155824 
 options(old)         # restore
 ```
