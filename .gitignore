@@ -27,6 +27,7 @@ src/compile_commands.json
 
 # OS / editor
 .DS_Store
+Icon*
 ._*
 
 # Serena runtime artifacts

@@ -1,5 +1,6 @@
 template:
   bootstrap: 5
+  assets: [extra.css]
   bslib:
     bootswatch: flatly
     pkgdown-nav-height: 90px

@@ -1,0 +1,6 @@
+/* The package emblem already renders in the navbar (pkgdown auto-logo);
+   hide the README's floating duplicate on the site only (GitHub README
+   does not load this stylesheet, the logo stays visible there). */
+img[alt="kstools carpenter's tool tray logo"] {
+  display: none;
+}
