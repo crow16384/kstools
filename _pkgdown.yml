@@ -83,6 +83,7 @@ reference:
       - ks_impute_dtc
       - ks_supp_consistency_check
       - ks_supp_merge
+      - ks_check_duplicates
       - ks_desc_coded
       - ks_get_labels
 

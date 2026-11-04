@@ -1,5 +1,16 @@
 # Changelog
 
+## kstools 0.6.2
+
+### New functions
+
+- [`ks_check_duplicates()`](https://crow16384.github.io/kstools/reference/ks_check_duplicates.md):
+  joint-key duplicate check for any data frame. Emits a styled
+  `[DUPLICATES]` warning naming the duplicated key-group count and the
+  key columns, and returns `FALSE` (invisibly) so it can be embedded in
+  pipeline sanity gates; `TRUE` when the data are clean. Accepts
+  unquoted or quoted column names.
+
 ## kstools 0.6.1
 
 ### Bug fix

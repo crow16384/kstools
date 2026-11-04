@@ -71,6 +71,8 @@ SDTM helpers and supplemental-domain workflows.
   : Check SDTM supplemental dataset structure
 - [`ks_supp_merge()`](https://crow16384.github.io/kstools/reference/ks_supp_merge.md)
   : Merge an SDTM supplemental domain with its primary domain
+- [`ks_check_duplicates()`](https://crow16384.github.io/kstools/reference/ks_check_duplicates.md)
+  : Check duplicate records by key
 - [`ks_desc_coded()`](https://crow16384.github.io/kstools/reference/ks_desc_coded.md)
   : Summarise hierarchically coded clinical items
 - [`ks_get_labels()`](https://crow16384.github.io/kstools/reference/ks_get_labels.md)
