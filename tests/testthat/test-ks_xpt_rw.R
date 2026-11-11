@@ -59,6 +59,38 @@ test_that("convert_dates = FALSE returns raw SAS day numbers", {
   expect_equal(as.numeric(raw$D[[1]]), 21915)
 })
 
+test_that("ISO-8601 SAS formats are recognized for date conversion (regression)", {
+  # Bug: formatPrefix/parseSasFormat scanned leading alpha only, so format
+  # names containing digits (E8601DA, B8601DT...) truncated at the first
+  # digit and were never recognized -> dates silently stayed numeric.
+  # Reproduced against SAS-style headers produced via ks_write_xpt formats.
+  skip_on_cran()
+  df <- data.frame(
+    ADT  = as.Date(c("2020-02-25", "2021-06-15")),
+    ADTT = as.POSIXct(c("2020-02-25 08:30:00", "2021-06-15 23:59:59"), tz = "UTC")
+  )
+  df <- ks_set_formats(df, c(ADT = "E8601DA10.", ADTT = "E8601DT19.3"))
+  tmp <- tempfile(fileext = ".xpt")
+  on.exit(unlink(tmp), add = TRUE)
+  ks_write_xpt(df, tmp)
+
+  back <- suppressWarnings(ks_read_xpt(tmp, convert_dates = TRUE, warn = FALSE))
+  expect_s3_class(back$ADT, "Date")
+  expect_s3_class(back$ADTT, "POSIXct")
+  expect_equal(as.numeric(back$ADT), as.numeric(df$ADT))
+  expect_equal(as.numeric(back$ADTT), as.numeric(df$ADTT), tolerance = 1e-6)
+
+  # Header carries the full format name, not the truncated prefix
+  fmts <- ks_xpt_formats(back)
+  expect_equal(unname(fmts[["ADT"]]), "E8601DA10.")
+  expect_equal(unname(fmts[["ADTT"]]), "E8601DT19.3")
+
+  # convert_dates = FALSE still returns raw SAS numbers
+  raw <- suppressWarnings(ks_read_xpt(tmp, convert_dates = FALSE, warn = FALSE))
+  expect_type(raw$ADT, "double")
+  expect_equal(as.numeric(raw$ADT[[1]]), 21970)  # 2020-02-25 as SAS days
+})
+
 test_that("ks_set_labels / ks_set_formats / ks_xpt_labels / ks_xpt_formats", {
   df <- data.frame(a = 1:2, b = c("x", "y"), stringsAsFactors = FALSE)
   df <- ks_set_labels(df, c(a = "Var A", b = "Var B"))

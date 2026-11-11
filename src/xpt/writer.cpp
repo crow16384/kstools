@@ -49,26 +49,32 @@ ParsedFormat parseSasFormat(std::string_view fmt) {
     ParsedFormat pf;
     std::size_t i = 0;
     if (i < fmt.size() && fmt[i] == '$') { pf.name.push_back('$'); ++i; }
-    while (i < fmt.size() && std::isalpha(static_cast<unsigned char>(fmt[i]))) {
-        pf.name.push_back(fmt[i]);
-        ++i;
-    }
-    std::uint16_t w = 0;
-    bool wAny = false;
-    while (i < fmt.size() && std::isdigit(static_cast<unsigned char>(fmt[i]))) {
-        w = static_cast<std::uint16_t>(w * 10 + (fmt[i] - '0'));
-        wAny = true;
-        ++i;
-    }
-    if (wAny) pf.width = w;
-    if (i < fmt.size() && fmt[i] == '.') {
-        ++i;
+    // Format grammar: <name>[width][.decimals]. Names may contain digits
+    // (ISO-8601 family: E8601DA, B8601DT...) but never END with them, so the
+    // width is the maximal trailing digit run before the optional dot, and
+    // decimals follow the dot. (A leading-alpha scan truncates "E8601DA10."
+    // to name "E" / width 8601 — bug.)
+    std::size_t dot = fmt.find('.', i);
+    std::size_t core_end = (dot == std::string::npos) ? fmt.size() : dot;
+    if (dot != std::string::npos && dot + 1 < fmt.size()) {
         std::uint16_t d = 0;
-        while (i < fmt.size() && std::isdigit(static_cast<unsigned char>(fmt[i]))) {
-            d = static_cast<std::uint16_t>(d * 10 + (fmt[i] - '0'));
-            ++i;
+        bool any = false;
+        for (std::size_t k = dot + 1; k < fmt.size(); ++k) {
+            if (!std::isdigit(static_cast<unsigned char>(fmt[k]))) break;
+            d = static_cast<std::uint16_t>(d * 10 + (fmt[k] - '0'));
+            any = true;
         }
-        pf.decimals = d;
+        if (any) pf.decimals = d;
+    }
+    std::size_t wstart = core_end;
+    while (wstart > i && std::isdigit(static_cast<unsigned char>(fmt[wstart - 1]))) --wstart;
+    pf.name.insert(pf.name.end(), fmt.begin() + static_cast<std::ptrdiff_t>(i),
+                   fmt.begin() + static_cast<std::ptrdiff_t>(wstart));
+    if (wstart < core_end) {
+        std::uint16_t w = 0;
+        for (std::size_t k = wstart; k < core_end; ++k)
+            w = static_cast<std::uint16_t>(w * 10 + (fmt[k] - '0'));
+        pf.width = w;
     }
     return pf;
 }

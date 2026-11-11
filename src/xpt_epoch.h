@@ -26,19 +26,23 @@ inline std::string toUpperAscii(std::string_view s) {
     return out;
 }
 
-// Strip trailing width/decimal portion (digits, '.', $) so "DATE9." -> "DATE".
+// Extract the SAS format NAME: uppercase, drop leading modifiers ($, ~),
+// drop the width/decimals suffix. Must preserve digits INSIDE the name:
+// "DATE9." -> "DATE" and "E8601DA10." -> "E8601DA" (the ISO-8601 family
+// carries digits right after the first letter — the old leading-alpha scan
+// truncated it to "E" and silently disabled date conversion for it).
 inline std::string formatPrefix(std::string_view fmt) {
     std::string up = toUpperAscii(fmt);
-    std::size_t end = 0;
-    while (end < up.size()) {
-        char c = up[end];
-        if (std::isalpha(static_cast<unsigned char>(c))) {
-            ++end;
-        } else {
-            break;
-        }
-    }
-    return up.substr(0, end);
+    std::size_t begin = 0;
+    while (begin < up.size() && (up[begin] == '$' || up[begin] == '~')) ++begin;
+    std::size_t end = up.find('.', begin);
+    if (end == std::string::npos) end = up.size();
+    std::string name = up.substr(begin, end - begin);
+    // Trailing digits here are the display width, never part of the name
+    // (no SAS date/time format name ends in a digit).
+    while (!name.empty() && std::isdigit(static_cast<unsigned char>(name.back())))
+        name.pop_back();
+    return name;
 }
 
 }  // namespace detail
